@@ -24,10 +24,10 @@ export function HeroSection() {
             <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/20 to-black/30" />
 
             {/* Mobil İçerik - Görselin üzerine overlay */}
-            <div className="absolute inset-0 flex flex-col justify-end pt-12 pb-32 px-6 z-10">
-              {/* Mobil Alt - Ana İçerik */}
+            <div className="absolute inset-0 flex flex-col justify-between pt-8 pb-40 px-4 z-10">
+              {/* Mobil Üst - Başlık */}
               <motion.div
-                initial={{ opacity: 0, y: 20 }}
+                initial={{ opacity: 0, y: -20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.8, ease: "easeOut" }}
                 className="text-center px-2"
@@ -35,8 +35,16 @@ export function HeroSection() {
                 <h1 className="font-serif text-3xl sm:text-4xl text-white leading-tight text-balance">
                   Anılarınızı Işığa Dönüştürün
                 </h1>
+              </motion.div>
 
-                <p className="mt-4 text-base text-white/90 max-w-lg mx-auto leading-relaxed">
+              {/* Mobil Alt - Açıklama */}
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.8, ease: "easeOut" }}
+                className="text-center px-2 pb-6"
+              >
+                <p className="text-base text-white/90 max-w-lg mx-auto leading-relaxed">
                   Shawk ile fotoğraflarınızdan benzersiz, kişiselleştirilmiş 3D LED lambalar yaratıyoruz. Her lamba bir hikaye, her
                   ışık bir anı taşır. Sevdiklerinize unutulmaz hediyeler hazırlayın.
                 </p>
