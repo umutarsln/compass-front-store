@@ -1,9 +1,9 @@
 "use client"
 
-import { useState, useEffect, useCallback } from "react"
+import { useState, useCallback } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 import { motion } from "framer-motion"
-import { Search, X, Filter, ChevronDown } from "lucide-react"
+import { Search, Filter } from "lucide-react"
 import { ProductCard } from "@/components/product-card"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
@@ -17,12 +17,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
-import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-} from "@/components/ui/accordion"
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
 import type { FrontendProduct } from "@/lib/product-transformer"
 import type { Category } from "@/services/categories"
@@ -528,3 +522,4 @@ export function ProductsWithFilters({
     </section>
   )
 }
+
