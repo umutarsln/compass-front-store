@@ -2,13 +2,16 @@
 
 import { motion } from "framer-motion"
 import { ProductCard } from "@/components/product-card"
-import type { Product } from "@/lib/products"
+import type { ProductListItem } from "@/services/products"
+import { transformProductListItem } from "@/lib/product-transformer"
 
 interface SimilarProductsProps {
-  products: Product[]
+  products: ProductListItem[]
 }
 
 export function SimilarProducts({ products }: SimilarProductsProps) {
+  const transformedProducts = products.map(transformProductListItem)
+
   return (
     <section className="py-16 bg-secondary">
       <div className="mx-auto max-w-7xl px-6 lg:px-8">
@@ -23,14 +26,10 @@ export function SimilarProducts({ products }: SimilarProductsProps) {
         </motion.h2>
 
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 lg:gap-8">
-          {products.slice(0, 4).map((product) => (
+          {transformedProducts.slice(0, 4).map((product) => (
             <ProductCard
               key={product.id}
-              id={product.id}
-              name={product.name}
-              price={product.price}
-              image={product.image}
-              category={product.category}
+              {...product}
             />
           ))}
         </div>

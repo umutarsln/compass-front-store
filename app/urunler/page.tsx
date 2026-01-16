@@ -4,6 +4,55 @@ import { ProductsWithFilters } from "@/components/products-with-filters"
 import { getProducts, getCategories, getTags } from "@/services"
 import { transformProductList } from "@/lib/product-transformer"
 import type { OrderBy } from "@/services/products"
+import type { Category } from "@/services/categories"
+
+// Kategoriyi slug'a göre bul (recursive)
+function findCategoryBySlug(categories: Category[], slug: string): Category | null {
+  for (const category of categories) {
+    if (category.slug === slug) {
+      return category
+    }
+    if (category.children && category.children.length > 0) {
+      const found = findCategoryBySlug(category.children, slug)
+      if (found) return found
+    }
+  }
+  return null
+}
+
+// Bir kategorinin tüm çocuklarının slug'larını topla (recursive)
+function getAllChildrenSlugs(category: Category): string[] {
+  const slugs: string[] = []
+  if (category.children && category.children.length > 0) {
+    for (const child of category.children) {
+      slugs.push(child.slug)
+      slugs.push(...getAllChildrenSlugs(child))
+    }
+  }
+  return slugs
+}
+
+// categorySlugs'ı genişlet: parent kategori varsa ve çocukları yoksa, çocuklarını da ekle
+function expandCategorySlugs(categorySlugs: string[], categories: Category[]): string[] {
+  const expandedSlugs = new Set<string>(categorySlugs)
+
+  for (const slug of categorySlugs) {
+    const category = findCategoryBySlug(categories, slug)
+    if (category && category.children && category.children.length > 0) {
+      // Bu bir parent kategori
+      const childrenSlugs = getAllChildrenSlugs(category)
+      // Çocuklarının hiçbiri categorySlugs içinde var mı kontrol et
+      const hasAnyChild = childrenSlugs.some(childSlug => categorySlugs.includes(childSlug))
+
+      // Eğer hiçbir çocuk seçili değilse, tüm çocukları ekle
+      if (!hasAnyChild) {
+        childrenSlugs.forEach(childSlug => expandedSlugs.add(childSlug))
+      }
+    }
+  }
+
+  return Array.from(expandedSlugs)
+}
 
 interface ProductsPageProps {
   searchParams: Promise<{
@@ -35,10 +84,19 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
       getTags(),
     ])
 
+    // categorySlugs'ı parse et
+    const categorySlugsArray = params.categorySlugs ? params.categorySlugs.split(',') : []
+
+    // Parent kategori varsa ve çocukları yoksa, çocuklarını da ekle
+    const expandedCategorySlugs = expandCategorySlugs(categorySlugsArray, categories)
+    const expandedCategorySlugsString = expandedCategorySlugs.length > 0
+      ? expandedCategorySlugs.join(',')
+      : undefined
+
     // Backend'den ürünleri filtre parametreleriyle çek
     const productsResponse = await getProducts({
       search: params.search,
-      categorySlugs: params.categorySlugs,
+      categorySlugs: expandedCategorySlugsString,
       tagSlugs: params.tagSlugs,
       // minPrice: params.minPrice ? Number(params.minPrice) : undefined,
       // maxPrice: params.maxPrice ? Number(params.maxPrice) : undefined,
@@ -66,7 +124,7 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
             tags={tags}
             initialFilters={{
               search: params.search || '',
-              categorySlugs: params.categorySlugs ? params.categorySlugs.split(',') : [],
+              categorySlugs: expandedCategorySlugs, // Genişletilmiş kategori slug'ları
               tagSlugs: params.tagSlugs ? params.tagSlugs.split(',') : [],
               minPrice: params.minPrice ? Number(params.minPrice) : undefined,
               maxPrice: params.maxPrice ? Number(params.maxPrice) : undefined,

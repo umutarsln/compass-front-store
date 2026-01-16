@@ -35,8 +35,8 @@ export interface FrontendProduct {
 export function transformProductListItem(product: ProductListItem): FrontendProduct {
   // Görsel URL'ini belirle: önce mainImage, yoksa thumbnailImage, yoksa placeholder
   const imageUrl = 
-    product.gallery.mainImage?.s3Url || 
-    product.gallery.thumbnailImage?.s3Url || 
+    product.gallery?.mainImage?.s3Url || 
+    product.gallery?.thumbnailImage?.s3Url || 
     '/placeholders/placeholder.svg';
 
   // Kategori adını al: ilk kategori veya "Genel"

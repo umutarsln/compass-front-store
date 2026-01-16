@@ -22,11 +22,12 @@ export function ProductCard({
   discountedPrice,
   image,
   category,
+  slug,
   stock,
   variantValues,
 }: ProductCardProps) {
-  // Backend'den gelen id ile ürün detay sayfasına yönlendir
-  const detailUrl = `/urun/${id}`
+  // Backend'den gelen slug ile ürün detay sayfasına yönlendir
+  const detailUrl = `/urun/${slug || id}`
   const { addToCart } = useCart()
   const { isFavorite, toggleFavorite } = useFavorites()
   const [isHovered, setIsHovered] = useState(false)
@@ -80,7 +81,7 @@ export function ProductCard({
       className={!isInStock ? "opacity-10" : ""}
     >
       <Link href={detailUrl} className={`group block ${!isInStock ? "opacity-80 grayscale-25" : ""}`}>
-        <div className="relative aspect-[4/5] overflow-hidden bg-secondary rounded-lg">
+        <div className="relative aspect-4/5 overflow-hidden bg-secondary rounded-lg">
           <Image
             src={image || "/placeholders/placeholder.svg"}
             alt={name}
@@ -168,7 +169,7 @@ export function ProductCard({
                     {variant.colorCode ? (
                       <div className="flex items-center gap-1.5">
                         <div
-                          className="w-4 h-4 rounded-full border border-border flex-shrink-0"
+                          className="w-4 h-4 rounded-full border border-border shrink-0"
                           style={{ backgroundColor: variant.colorCode }}
                           title={`${label}: ${displayValue}`}
                         />

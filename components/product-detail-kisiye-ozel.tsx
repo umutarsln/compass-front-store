@@ -9,7 +9,6 @@ import { useDropzone } from "react-dropzone"
 import { Upload, Check, Truck, Shield, Clock, ChevronLeft, ChevronRight, ShoppingCart, AlertCircle, Eye, Image as ImageIcon, Ruler, Info, Star } from "lucide-react"
 import { useCart } from "@/contexts/cart-context"
 import { SimilarProducts } from "@/components/similar-products"
-import { getProductsByCategory } from "@/lib/products"
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
 
 // Örnek ürün verisi - tasarım için
@@ -55,8 +54,8 @@ export function ProductDetailKisiyeOzel() {
   const similarProductsRef = useRef<HTMLDivElement>(null)
   const productDetailsRef = useRef<HTMLDivElement>(null)
   
-  // Benzer ürünleri getir (aynı kategoriden)
-  const similarProducts = getProductsByCategory("kisiye-ozel-tasarimlar").slice(0, 4)
+  // Benzer ürünleri getir (aynı kategoriden) - şimdilik boş array (mock data formatı uyumsuz)
+  const similarProducts: any[] = []
 
   const onDrop = useCallback((acceptedFiles: File[]) => {
     const file = acceptedFiles[0]

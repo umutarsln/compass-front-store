@@ -13,7 +13,7 @@ const navItems = [
   // { href: "/kategoriler", label: "Kategoriler" },
   { href: "/urunler", label: "Ürünler" },
   { href: "/hakkimizda", label: "Hakkımızda" },
-  { href: "/sevgililer-gunu", label: "Sevgililer Günü" },
+  // { href: "/sevgililer-gunu", label: "Sevgililer Günü" },
 ]
 
 export function Header() {

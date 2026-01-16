@@ -118,6 +118,7 @@ export interface VariantOption {
 // Varyasyon kombinasyonu
 export interface VariantCombination {
   id: string;
+  slug: string | null;
   sku: string;
   isActive: boolean;
   isDisabled: boolean;
@@ -204,16 +205,12 @@ export const getProducts = async (
 
 // Ürün detayı getir
 export const getProductDetail = async (
-  id: string,
-  variantCombinationId?: string
+  id: string
 ): Promise<ProductDetail> => {
   const params = new URLSearchParams();
-  if (variantCombinationId) {
-    params.append('variantCombinationId', variantCombinationId);
-  }
 
   const queryString = params.toString();
-  const url = `/store/products/${id}${queryString ? `?${queryString}` : ''}`;
+  const url = `/store/products/${id}`;
 
   return api.get<ProductDetail>(url);
 };
