@@ -8,8 +8,8 @@ import type { OrderBy } from "@/services/products"
 interface ProductsPageProps {
   searchParams: Promise<{
     search?: string
-    categoryId?: string
-    tagIds?: string
+    categorySlugs?: string
+    tagSlugs?: string
     minPrice?: string
     maxPrice?: string
     orderBy?: OrderBy
@@ -24,7 +24,9 @@ export const metadata = {
 }
 
 export default async function ProductsPage({ searchParams }: ProductsPageProps) {
-  const params = await searchParams
+  const params = await searchParams;
+
+  console.log("ALO");
 
   try {
     // Backend'den kategorileri ve tag'leri paralel olarak çek
@@ -36,10 +38,10 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
     // Backend'den ürünleri filtre parametreleriyle çek
     const productsResponse = await getProducts({
       search: params.search,
-      categoryId: params.categoryId,
-      tagIds: params.tagIds,
-      minPrice: params.minPrice ? Number(params.minPrice) : undefined,
-      maxPrice: params.maxPrice ? Number(params.maxPrice) : undefined,
+      categorySlugs: params.categorySlugs,
+      tagSlugs: params.tagSlugs,
+      // minPrice: params.minPrice ? Number(params.minPrice) : undefined,
+      // maxPrice: params.maxPrice ? Number(params.maxPrice) : undefined,
       orderBy: params.orderBy || 'created_at_desc',
       page: params.page ? Number(params.page) : 1,
       limit: params.limit ? Number(params.limit) : 20,
@@ -64,8 +66,8 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
             tags={tags}
             initialFilters={{
               search: params.search || '',
-              categoryId: params.categoryId || '',
-              tagIds: params.tagIds ? params.tagIds.split(',') : [],
+              categorySlugs: params.categorySlugs ? params.categorySlugs.split(',') : [],
+              tagSlugs: params.tagSlugs ? params.tagSlugs.split(',') : [],
               minPrice: params.minPrice ? Number(params.minPrice) : undefined,
               maxPrice: params.maxPrice ? Number(params.maxPrice) : undefined,
               orderBy: params.orderBy || 'created_at_desc',

@@ -23,7 +23,7 @@ export function Footer() {
           <div className="md:col-span-2">
             <Link href="/" className="inline-block">
               <Image
-                src="/shawk-logo.svg"
+                src="/logos/shawk-logo.svg"
                 alt="Shawk Logo"
                 width={200}
                 height={67}

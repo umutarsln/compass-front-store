@@ -4,10 +4,29 @@ import { ProductListItem } from '@/services/products';
 export interface FrontendProduct {
   id: string;
   name: string;
+  subtitle: string | null;
   price: number;
+  basePrice: number;
+  isOnSale: boolean;
+  discountedPrice: number | null;
   image: string;
   category: string;
   slug: string;
+  stock: {
+    availableQuantity: number;
+    reservedQuantity: number;
+    usableQuantity: number;
+  };
+  variantValues: Array<{
+    id: string;
+    value: string;
+    colorCode?: string | null;
+    variantOption?: {
+      id: string;
+      name: string;
+      type: 'COLOR' | 'TEXT';
+    };
+  }>;
 }
 
 /**
@@ -26,10 +45,16 @@ export function transformProductListItem(product: ProductListItem): FrontendProd
   return {
     id: product.id,
     name: product.name,
+    subtitle: product.subtitle,
     price: product.price,
+    basePrice: product.basePrice,
+    isOnSale: product.isOnSale,
+    discountedPrice: product.discountedPrice,
     image: imageUrl,
     category: categoryName,
     slug: product.slug,
+    stock: product.stock,
+    variantValues: product.variantValues || [],
   };
 }
 

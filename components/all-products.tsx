@@ -15,26 +15,14 @@ export function AllProducts() {
   return (
     <section className="py-24 bg-background">
       <div className="mx-auto max-w-7xl px-6 lg:px-8">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6 }}
-          className="text-center mb-12"
-        >
-          <h1 className="font-serif text-4xl sm:text-5xl lg:text-6xl text-foreground">Tüm Ürünler</h1>
-          <p className="mt-6 text-lg text-muted-foreground max-w-2xl mx-auto">
-            Fotoğraflarınızdan benzersiz LED lambalara. Koleksiyonumuzu keşfedin.
-          </p>
-        </motion.div>
 
         <div className="flex flex-wrap justify-center gap-3 mb-12">
           <button
             onClick={() => setSelectedCategory(null)}
-            className={`px-5 py-2 text-sm font-medium border transition-colors ${
-              selectedCategory === null
-                ? "border-foreground bg-foreground text-background"
-                : "border-border text-foreground hover:border-foreground"
-            }`}
+            className={`px-5 py-2 text-sm font-medium border transition-colors ${selectedCategory === null
+              ? "border-foreground bg-foreground text-background"
+              : "border-border text-foreground hover:border-foreground"
+              }`}
           >
             Tümü
           </button>
@@ -42,11 +30,10 @@ export function AllProducts() {
             <button
               key={category.slug}
               onClick={() => setSelectedCategory(category.slug)}
-              className={`px-5 py-2 text-sm font-medium border transition-colors ${
-                selectedCategory === category.slug
-                  ? "border-foreground bg-foreground text-background"
-                  : "border-border text-foreground hover:border-foreground"
-              }`}
+              className={`px-5 py-2 text-sm font-medium border transition-colors ${selectedCategory === category.slug
+                ? "border-foreground bg-foreground text-background"
+                : "border-border text-foreground hover:border-foreground"
+                }`}
             >
               {category.name}
             </button>
@@ -59,9 +46,20 @@ export function AllProducts() {
               key={product.id}
               id={product.id}
               name={product.name}
+              subtitle={null}
               price={product.price}
+              basePrice={product.price}
+              isOnSale={false}
+              discountedPrice={null}
               image={product.image}
               category={product.category}
+              slug={product.id}
+              stock={{
+                availableQuantity: 10,
+                reservedQuantity: 0,
+                usableQuantity: 10,
+              }}
+              variantValues={[]}
             />
           ))}
         </div>

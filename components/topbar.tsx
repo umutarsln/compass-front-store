@@ -29,7 +29,7 @@ export function Topbar() {
   }, [])
 
   return (
-    <div className="fixed top-0 left-0 right-0 z-[60] bg-primary text-primary-foreground border-b border-primary/20 pt-0.5 pb-0.5">
+    <div className="fixed top-0 left-0 right-0 z-[50] bg-primary text-primary-foreground border-b border-primary/20 pt-0.5 pb-0.5">
       <div className="mx-auto max-w-7xl px-6 lg:px-8">
         <div className="flex items-center justify-center h-6 md:h-7">
           <AnimatePresence mode="wait">

@@ -10,7 +10,7 @@ import { useFavorites } from "@/contexts/favorites-context"
 
 const navItems = [
   { href: "/", label: "Anasayfa" },
-  { href: "/kategoriler", label: "Kategoriler" },
+  // { href: "/kategoriler", label: "Kategoriler" },
   { href: "/urunler", label: "Ürünler" },
   { href: "/hakkimizda", label: "Hakkımızda" },
   { href: "/sevgililer-gunu", label: "Sevgililer Günü" },
@@ -32,9 +32,8 @@ export function Header() {
 
   return (
     <header
-      className={`fixed top-7 md:top-8 left-0 right-0 z-[55] transition-all duration-300 ${
-        isScrolled ? "bg-background/95 backdrop-blur-sm shadow-sm" : "bg-transparent"
-      }`}
+      className={`fixed top-7 md:top-8 left-0 right-0 z-[49] transition-all duration-300 ${isScrolled ? "bg-background/95 backdrop-blur-sm shadow-sm" : "bg-transparent"
+        }`}
     >
       <div className="mx-auto max-w-7xl px-6 lg:px-8">
         <nav className="flex items-center justify-between h-20">
@@ -73,7 +72,7 @@ export function Header() {
               >
                 <Instagram className="w-4 h-4" />
               </a>
-              <a
+              {/* <a
                 href="https://facebook.com"
                 target="_blank"
                 rel="noopener noreferrer"
@@ -90,11 +89,11 @@ export function Header() {
                 aria-label="Twitter"
               >
                 <Twitter className="w-4 h-4" />
-              </a>
+              </a> */}
             </div>
 
-            <Link 
-              href="/favoriler" 
+            <Link
+              href="/favoriler"
               className="relative group flex items-center gap-2 p-2 text-foreground hover:text-accent transition-colors"
               title="Favoriler"
             >
@@ -147,7 +146,7 @@ export function Header() {
                   {item.label}
                 </Link>
               ))}
-              
+
               {/* Mobil Favoriler Linki */}
               <Link
                 href="/favoriler"
@@ -157,7 +156,7 @@ export function Header() {
                 <Heart className="w-5 h-5" />
                 Favorilerim {favoriteItems.length > 0 && `(${favoriteItems.length})`}
               </Link>
-              
+
               {/* Mobil Sosyal Medya İkonları */}
               <div className="flex items-center gap-4 pt-4 border-t border-border">
                 <a

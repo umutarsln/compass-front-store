@@ -12,8 +12,8 @@ export type OrderBy =
 // Ürün listesi query parametreleri
 export interface ProductListQuery {
   search?: string;
-  categoryId?: string;
-  tagIds?: string; // Virgülle ayrılmış: "id1,id2,id3"
+  categorySlugs?: string; // Virgülle ayrılmış: "slug1,slug2,slug3"
+  tagSlugs?: string; // Virgülle ayrılmış: "slug1,slug2,slug3"
   minPrice?: number;
   maxPrice?: number;
   orderBy?: OrderBy;
@@ -66,6 +66,7 @@ export interface ProductListItem {
   productId: string;
   variantCombinationId: string | null;
   name: string;
+  subtitle: string | null;
   slug: string;
   description: string;
   price: number;
@@ -187,8 +188,8 @@ export const getProducts = async (
   const params = new URLSearchParams();
 
   if (query?.search) params.append('search', query.search);
-  if (query?.categoryId) params.append('categoryId', query.categoryId);
-  if (query?.tagIds) params.append('tagIds', query.tagIds);
+  if (query?.categorySlugs) params.append('categorySlugs', query.categorySlugs);
+  if (query?.tagSlugs) params.append('tagSlugs', query.tagSlugs);
   if (query?.minPrice !== undefined) params.append('minPrice', query.minPrice.toString());
   if (query?.maxPrice !== undefined) params.append('maxPrice', query.maxPrice.toString());
   if (query?.orderBy) params.append('orderBy', query.orderBy);
