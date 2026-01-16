@@ -3,16 +3,17 @@
 import { motion } from "framer-motion"
 import Image from "next/image"
 import { ProductCard } from "@/components/product-card"
-import type { Product } from "@/lib/products"
+import type { FrontendProduct } from "@/lib/product-transformer"
 
 interface CategoryProductsProps {
   category: {
+    id: string
     slug: string
     name: string
     description: string
     image: string
   }
-  products: Product[]
+  products: FrontendProduct[]
 }
 
 export function CategoryProducts({ category, products }: CategoryProductsProps) {

@@ -15,7 +15,11 @@ const playfair = Playfair_Display({ subsets: ["latin"] })
 export const metadata: Metadata = {
   title: "Shawk | Anılarınızı Işığa Dönüştürün",
   description: "Fotoğraflarınızdan kişiselleştirilmiş 3D baskılı LED lambalar. Sevdiklerinize anlamlı hediyeler.",
-    generator: 'v0.app'
+  generator: 'v0.app',
+  icons: {
+    icon: '/logos/favicon-shawk.png',
+    apple: '/logos/favicon-shawk.png',
+  },
 }
 
 export default function RootLayout({

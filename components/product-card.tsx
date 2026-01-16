@@ -17,7 +17,8 @@ interface ProductCardProps {
 }
 
 export function ProductCard({ id, name, price, image, category }: ProductCardProps) {
-  const detailUrl = category === "Kişiye Özel Tasarımlar" ? "/urun-detay-kisiye-ozel" : "/urun-detay"
+  // Backend'den gelen id ile ürün detay sayfasına yönlendir
+  const detailUrl = `/urun/${id}`
   const { addToCart } = useCart()
   const { isFavorite, toggleFavorite } = useFavorites()
   const [isHovered, setIsHovered] = useState(false)
