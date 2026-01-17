@@ -444,34 +444,64 @@ export function ProductDetailKisiyeOzel() {
               <div className="bg-secondary/30 border-x border-b border-border p-6 lg:p-8 -mt-px">
                 <div className="space-y-4">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    {/* Mock data için fallback - Backend'den veri geldiğinde product.productFeatures kullanılacak */}
                     <div className="flex flex-col">
                       <span className="text-sm font-medium text-muted-foreground mb-2 uppercase tracking-wider">Çap Seçenekleri</span>
                       <span className="text-sm text-foreground leading-relaxed">{diameters.join("cm, ")}cm</span>
                     </div>
                     <div className="flex flex-col">
                       <span className="text-sm font-medium text-muted-foreground mb-2 uppercase tracking-wider">Yükseklik Seçenekleri</span>
-                      <span className="text-sm text-foreground leading-relaxed">{heights.join("cm, ")}cm</span>
+                      <span className="text-sm text-foreground leading-relaxed">
+                        {/* Backend'den gelen veri: product.productFeatures.heightOptions */}
+                        {heights.join("cm, ")}cm
+                      </span>
                     </div>
                     <div className="flex flex-col">
                       <span className="text-sm font-medium text-muted-foreground mb-2 uppercase tracking-wider">Teslimat Süresi</span>
                       <span className="text-sm text-foreground leading-relaxed">{sampleProduct.deliveryTime}</span>
                     </div>
                     <div className="flex flex-col">
-                      <span className="text-sm font-medium text-muted-foreground mb-2 uppercase tracking-wider">Kategori</span>
-                      <span className="text-sm text-foreground leading-relaxed">{sampleProduct.category}</span>
+                      <span className="text-sm font-medium text-muted-foreground mb-2 uppercase tracking-wider">Kategoriler</span>
+                      <span className="text-sm text-foreground leading-relaxed">
+                        {/* Backend'den gelen veri: product.productFeatures.categories.map(cat => cat.name).join(", ") */}
+                        {sampleProduct.category}
+                      </span>
                     </div>
                   </div>
                   
-                  {sampleProduct.specifications && Object.keys(sampleProduct.specifications).length > 0 && (
+                  {/* Teknik Özellikler - Backend'den gelen veri: product.productFeatures.technicalSpecs */}
+                  {(sampleProduct.specifications && Object.keys(sampleProduct.specifications).length > 0) && (
                     <div className="mt-8 pt-8 border-t border-border">
                       <h4 className="text-base font-medium text-foreground mb-6">Teknik Özellikler</h4>
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        {Object.entries(sampleProduct.specifications).map(([key, value]) => (
-                          <div key={key} className="flex flex-col">
-                            <span className="text-sm font-medium text-muted-foreground mb-2 uppercase tracking-wider">{key}</span>
-                            <span className="text-sm text-foreground leading-relaxed">{value}</span>
+                        {/* Backend'den gelen veri kullanılacak: product.productFeatures.technicalSpecs.material, power, warranty */}
+                        {sampleProduct.specifications["Malzeme"] && (
+                          <div className="flex flex-col">
+                            <span className="text-sm font-medium text-muted-foreground mb-2 uppercase tracking-wider">Malzeme</span>
+                            <span className="text-sm text-foreground leading-relaxed">{sampleProduct.specifications["Malzeme"]}</span>
                           </div>
-                        ))}
+                        )}
+                        {sampleProduct.specifications["Güç"] && (
+                          <div className="flex flex-col">
+                            <span className="text-sm font-medium text-muted-foreground mb-2 uppercase tracking-wider">Güç</span>
+                            <span className="text-sm text-foreground leading-relaxed">{sampleProduct.specifications["Güç"]}</span>
+                          </div>
+                        )}
+                        {sampleProduct.specifications["Garanti"] && (
+                          <div className="flex flex-col">
+                            <span className="text-sm font-medium text-muted-foreground mb-2 uppercase tracking-wider">Garanti</span>
+                            <span className="text-sm text-foreground leading-relaxed">{sampleProduct.specifications["Garanti"]}</span>
+                          </div>
+                        )}
+                        {/* Diğer teknik özellikler için fallback */}
+                        {Object.entries(sampleProduct.specifications)
+                          .filter(([key]) => !["Malzeme", "Güç", "Garanti"].includes(key))
+                          .map(([key, value]) => (
+                            <div key={key} className="flex flex-col">
+                              <span className="text-sm font-medium text-muted-foreground mb-2 uppercase tracking-wider">{key}</span>
+                              <span className="text-sm text-foreground leading-relaxed">{value}</span>
+                            </div>
+                          ))}
                       </div>
                     </div>
                   )}

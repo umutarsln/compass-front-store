@@ -4,7 +4,7 @@ import { motion } from "framer-motion"
 
 export function WhatsAppButton() {
   // WhatsApp numarası - buraya gerçek numarayı ekleyin
-  const phoneNumber = "905551234567" // Örnek: 90 + telefon numarası (başında 0 olmadan)
+  const phoneNumber = "905519770858" // 90 + telefon numarası (başında 0 olmadan)
   const message = "Merhaba, ürünleriniz hakkında bilgi almak istiyorum."
   const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`
 
