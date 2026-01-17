@@ -10,8 +10,8 @@ interface ValentineHeroProps {
   mobileBackgroundImage?: string
 }
 
-export function ValentineHero({ 
-  backgroundImage = "/romantic/sevgililer günü görsel 2.png",
+export function ValentineHero({
+  backgroundImage = "/romantic/sevgililergünüözel.png",
   mobileBackgroundImage = "/romantic/sevgililergünüözel(mobil).png"
 }: ValentineHeroProps) {
   return (
@@ -34,65 +34,65 @@ export function ValentineHero({
 
             {/* Mobil İçerik - Görselin üzerine overlay */}
             <div className="absolute inset-0 flex flex-col justify-between p-4 z-10">
-            {/* Mobil Üst - İndirim/Tarih Bilgileri */}
-            <motion.div
-              initial={{ opacity: 0, y: -20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8, ease: "easeOut" }}
-              className="flex flex-row items-center justify-end gap-3 bg-white/10 backdrop-blur-md px-3 py-2 rounded-lg border border-white/20 self-end"
-            >
-              <div className="text-center">
-                <div className="font-serif text-xl text-white">%20</div>
-                <div className="text-xs text-white/80 mt-0.5">İndirim</div>
-              </div>
-              <div className="w-px h-10 bg-white/30" />
-              <div className="text-center">
-                <div className="font-serif text-xl text-white">14 Şubat</div>
-                <div className="text-xs text-white/80 mt-0.5">Son Sipariş</div>
-              </div>
-              <div className="w-px h-10 bg-white/30" />
-              <div className="text-center">
-                <div className="font-serif text-xl text-white">Ücretsiz</div>
-                <div className="text-xs text-white/80 mt-0.5">Hediye Paketi</div>
-              </div>
-            </motion.div>
+              {/* Mobil Üst - İndirim/Tarih Bilgileri */}
+              <motion.div
+                initial={{ opacity: 0, y: -20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.8, ease: "easeOut" }}
+                className="flex flex-row items-center justify-end gap-3 bg-white/10 backdrop-blur-md px-3 py-2 rounded-lg border border-white/20 self-end"
+              >
+                <div className="text-center">
+                  <div className="font-serif text-xl text-white">%20</div>
+                  <div className="text-xs text-white/80 mt-0.5">İndirim</div>
+                </div>
+                <div className="w-px h-10 bg-white/30" />
+                <div className="text-center">
+                  <div className="font-serif text-xl text-white">14 Şubat</div>
+                  <div className="text-xs text-white/80 mt-0.5">Son Sipariş</div>
+                </div>
+                <div className="w-px h-10 bg-white/30" />
+                <div className="text-center">
+                  <div className="font-serif text-xl text-white">Ücretsiz</div>
+                  <div className="text-xs text-white/80 mt-0.5">Hediye Paketi</div>
+                </div>
+              </motion.div>
 
-            {/* Mobil Alt - Ana İçerik */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8, ease: "easeOut" }}
-              className="text-center px-2"
-            >
-              <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-accent/20 backdrop-blur-sm text-white mb-4 rounded-full">
-                <Heart className="w-3 h-3 fill-current" />
-                <span className="text-xs font-medium uppercase tracking-wider">14 Şubat Özel</span>
-              </div>
+              {/* Mobil Alt - Ana İçerik */}
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.8, ease: "easeOut" }}
+                className="text-center px-2"
+              >
+                <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-accent/20 backdrop-blur-sm text-white mb-4 rounded-full">
+                  <Heart className="w-3 h-3 fill-current" />
+                  <span className="text-xs font-medium uppercase tracking-wider">14 Şubat Özel</span>
+                </div>
 
-              <h1 className="font-serif text-2xl sm:text-3xl text-white leading-tight text-balance">
-                Sevdiklerinize Unutulmaz Bir Hediye
-              </h1>
+                <h1 className="font-serif text-2xl sm:text-3xl text-white leading-tight text-balance">
+                  Sevdiklerinize Unutulmaz Bir Hediye
+                </h1>
 
-              <p className="mt-4 text-sm text-white/90 leading-relaxed">
-                Bu Sevgililer Günü, sevdiğinize en anlamlı hediyeyi verin. Birlikte çektiğiniz fotoğrafları benzersiz bir
-                LED lambaya dönüştürün.
-              </p>
+                <p className="mt-4 text-sm text-white/90 leading-relaxed">
+                  Bu Sevgililer Günü, sevdiğinize en anlamlı hediyeyi verin. Birlikte çektiğiniz fotoğrafları benzersiz bir
+                  LED lambaya dönüştürün.
+                </p>
 
-              <div className="mt-6 flex flex-col gap-3">
-                <Link
-                  href="#hediyeler"
-                  className="inline-flex items-center justify-center px-6 py-3 bg-accent text-accent-foreground font-medium text-xs uppercase tracking-wider hover:bg-accent/90 transition-colors shadow-lg rounded"
-                >
-                  Hediyeleri Keşfet
-                </Link>
-                <Link
-                  href="/kategoriler/sevgiliye-ozel"
-                  className="inline-flex items-center justify-center px-6 py-3 border-2 border-white text-white font-medium text-xs uppercase tracking-wider hover:bg-white hover:text-black transition-colors rounded"
-                >
-                  Tüm Ürünler
-                </Link>
-              </div>
-            </motion.div>
+                <div className="mt-6 flex flex-col gap-3">
+                  <Link
+                    href="#hediyeler"
+                    className="inline-flex items-center justify-center px-6 py-3 bg-accent text-accent-foreground font-medium text-xs uppercase tracking-wider hover:bg-accent/90 transition-colors shadow-lg rounded"
+                  >
+                    Hediyeleri Keşfet
+                  </Link>
+                  <Link
+                    href="/kategoriler/sevgiliye-ozel"
+                    className="inline-flex items-center justify-center px-6 py-3 border-2 border-white text-white font-medium text-xs uppercase tracking-wider hover:bg-white hover:text-black transition-colors rounded"
+                  >
+                    Tüm Ürünler
+                  </Link>
+                </div>
+              </motion.div>
             </div>
           </div>
         </div>
