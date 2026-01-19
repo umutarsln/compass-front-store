@@ -4,16 +4,17 @@ import { useState } from "react"
 import { motion } from "framer-motion"
 import Image from "next/image"
 import Link from "next/link"
-import { ShoppingCart, Heart } from "lucide-react"
+import { ShoppingCart } from "lucide-react"
 import { useCart } from "@/contexts/cart-context"
-import { useFavorites } from "@/contexts/favorites-context"
 import { Badge } from "@/components/ui/badge"
+import { Spinner } from "@/components/ui/spinner"
 import type { FrontendProduct } from "@/lib/product-transformer"
 
 interface ProductCardProps extends FrontendProduct { }
 
 export function ProductCard({
   id,
+  productId,
   name,
   subtitle,
   price,
@@ -28,11 +29,12 @@ export function ProductCard({
 }: ProductCardProps) {
   // Backend'den gelen slug ile ürün detay sayfasına yönlendir
   const detailUrl = `/urun/${slug || id}`
-  const { addToCart } = useCart()
-  const { isFavorite, toggleFavorite } = useFavorites()
+  const { addToCart, isAddingToCart } = useCart()
   const [isHovered, setIsHovered] = useState(false)
 
-  const favorite = isFavorite(id)
+  // Use productId for API calls, id for display
+  const realProductId = productId || id
+  const isAdding = isAddingToCart(realProductId, null)
 
   // İndirim yüzdesini hesapla
   const discountPercent = isOnSale && discountedPrice && basePrice > discountedPrice
@@ -45,30 +47,20 @@ export function ProductCard({
   // Varyasyonlu ürün mü kontrol et
   const isVariantProduct = variantValues && variantValues.length > 0
 
-  const handleAddToCart = (e: React.MouseEvent) => {
+  const handleAddToCart = async (e: React.MouseEvent) => {
     e.preventDefault()
     e.stopPropagation()
-    addToCart({
-      id,
+    if (isAdding) return
+    await addToCart({
+      id: realProductId,
       name,
       price,
       image,
-      color: "Varsayılan",
-      size: "Varsayılan",
+      productId: realProductId,
+      variantId: null, // Product card is for simple products or list view
     })
   }
 
-  const handleToggleFavorite = (e: React.MouseEvent) => {
-    e.preventDefault()
-    e.stopPropagation()
-    toggleFavorite({
-      id,
-      name,
-      price,
-      image,
-      category,
-    })
-  }
 
   return (
     <motion.div
@@ -117,18 +109,22 @@ export function ProductCard({
           )}
 
           {/* Action Buttons */}
-          <div className={`absolute top-3 right-3 flex flex-col gap-2 transition-opacity duration-300 ${isHovered ? "opacity-100" : "opacity-0"}`}>
-            <button
-              onClick={handleToggleFavorite}
-              className={`p-2 rounded-full backdrop-blur-sm transition-colors ${favorite
-                ? "bg-red-500/90 text-white"
-                : "bg-background/80 text-foreground hover:bg-background"
-                }`}
-              aria-label={favorite ? "Favorilerden Çıkar" : "Favorilere Ekle"}
-            >
-              <Heart className={`w-4 h-4 ${favorite ? "fill-current" : ""}`} />
-            </button>
-          </div>
+          {/* {isInStock && (
+            <div className={`absolute top-3 right-3 flex flex-col gap-2 transition-opacity duration-300 ${isHovered || isAdding ? "opacity-100" : "opacity-0"}`}>
+              <button
+                onClick={handleAddToCart}
+                disabled={isAdding}
+                className="p-2 rounded-full backdrop-blur-sm bg-background/80 text-foreground hover:bg-background transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                aria-label="Sepete Ekle"
+              >
+                {isAdding ? (
+                  <Spinner className="w-4 h-4" />
+                ) : (
+                  <ShoppingCart className="w-4 h-4" />
+                )}
+              </button>
+            </div>
+          )} */}
         </div>
         <div className="mt-4">
           <p className="text-[10px] text-muted-foreground uppercase tracking-wider">{category}</p>

@@ -1,27 +1,48 @@
 "use client"
 
+import { useState, useEffect } from "react"
 import Link from "next/link"
 import Image from "next/image"
-import { useState, useEffect } from "react"
 import { motion, AnimatePresence } from "framer-motion"
-import { Menu, X, ShoppingBag, Instagram, Heart } from "lucide-react"
+import { Menu, X, ShoppingBag, Instagram, User, LogOut } from "lucide-react"
 import { useCart } from "@/contexts/cart-context"
-import { useFavorites } from "@/contexts/favorites-context"
+import { useAuth } from "@/contexts/auth-context"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
+import { getUser as getCookieUser, isAuthenticated as isCookieAuthenticated } from "@/lib/auth-client"
 
 const navItems = [
   { href: "/", label: "Anasayfa" },
-  // { href: "/kategoriler", label: "Kategoriler" },
   { href: "/urunler", label: "Ürünler" },
   { href: "/hakkimizda", label: "Hakkımızda" },
   { href: "/iletisim", label: "İletişim" },
-  // { href: "/sevgililer-gunu", label: "Sevgililer Günü" },
 ]
 
 export function Header() {
   const [isScrolled, setIsScrolled] = useState(false)
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
+  const [initialUser, setInitialUser] = useState<any>(null)
+  const [initialIsAuthenticated, setInitialIsAuthenticated] = useState(false)
+  const [isInitialized, setIsInitialized] = useState(false)
   const { getTotalItems } = useCart()
-  const { items: favoriteItems } = useFavorites()
+  const { user: contextUser, isAuthenticated: contextIsAuthenticated, logout } = useAuth()
+
+  // İlk render'da cookie'den auth durumunu oku
+  useEffect(() => {
+    if (!isInitialized) {
+      const cookieUser = getCookieUser()
+      const cookieAuth = isCookieAuthenticated()
+      setInitialUser(cookieUser)
+      setInitialIsAuthenticated(cookieAuth)
+      setIsInitialized(true)
+    }
+  }, [isInitialized])
 
   useEffect(() => {
     const handleScroll = () => {
@@ -30,6 +51,10 @@ export function Header() {
     window.addEventListener("scroll", handleScroll)
     return () => window.removeEventListener("scroll", handleScroll)
   }, [])
+
+  // Context'ten gelen user varsa onu kullan, yoksa initial user'ı kullan
+  const user = contextUser || initialUser
+  const isAuthenticated = contextIsAuthenticated || initialIsAuthenticated
 
   return (
     <header
@@ -81,7 +106,7 @@ export function Header() {
                 aria-label="TikTok"
               >
                 <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-5.2 1.74 2.89 2.89 0 0 1 2.31-4.64 2.93 2.93 0 0 1 .88.13V9.4a6.84 6.84 0 0 0-1-.05A6.33 6.33 0 0 0 5 20.1a6.34 6.34 0 0 0 10.86-4.43v-7a8.16 8.16 0 0 0 4.77 1.52v-3.4a4.85 4.85 0 0 1-1-.1z"/>
+                  <path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-5.2 1.74 2.89 2.89 0 0 1 2.31-4.64 2.93 2.93 0 0 1 .88.13V9.4a6.84 6.84 0 0 0-1-.05A6.33 6.33 0 0 0 5 20.1a6.34 6.34 0 0 0 10.86-4.43v-7a8.16 8.16 0 0 0 4.77 1.52v-3.4a4.85 4.85 0 0 1-1-.1z" />
                 </svg>
               </a>
               <a
@@ -97,22 +122,6 @@ export function Header() {
               </a>
             </div>
 
-            <Link
-              href="/favoriler"
-              className="relative group flex items-center gap-2 p-2 text-foreground hover:text-accent transition-colors"
-              title="Favoriler"
-            >
-              <div className="relative">
-                <Heart className="w-5 h-5" />
-                {favoriteItems.length > 0 && (
-                  <span className="absolute -top-1 -right-1 min-w-[18px] h-[18px] bg-accent text-accent-foreground text-xs flex items-center justify-center rounded-full px-1">
-                    {favoriteItems.length}
-                  </span>
-                )}
-              </div>
-              <span className="hidden sm:inline text-sm font-medium group-hover:text-accent transition-colors">Favorilerim</span>
-            </Link>
-
             <Link href="/sepet" className="relative flex items-center gap-2 p-2 text-foreground hover:text-accent transition-colors">
               <div className="relative">
                 <ShoppingBag className="w-5 h-5" />
@@ -124,6 +133,54 @@ export function Header() {
               </div>
               <span className="hidden sm:inline text-sm font-medium">Sepetim</span>
             </Link>
+
+            {/* Profile Icon / Auth */}
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <button className="flex items-center gap-2 p-2 text-foreground hover:text-accent transition-colors">
+                  <User className="w-5 h-5" />
+                  <span className="hidden sm:inline text-sm font-medium">
+                    {isAuthenticated && user
+                      ? `${user.firstname} ${user.lastname}`
+                      : "Giriş Yap / Üye Ol"}
+                  </span>
+                </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-56">
+                {isAuthenticated && user ? (
+                  <>
+                    <DropdownMenuLabel>
+                      <div className="flex flex-col space-y-1">
+                        <p className="text-sm font-medium leading-none">
+                          {user.firstname} {user.lastname}
+                        </p>
+                        <p className="text-xs leading-none text-muted-foreground">
+                          {user.email}
+                        </p>
+                      </div>
+                    </DropdownMenuLabel>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem onClick={logout} className="cursor-pointer">
+                      <LogOut className="w-4 h-4 mr-2" />
+                      Çıkış Yap
+                    </DropdownMenuItem>
+                  </>
+                ) : (
+                  <>
+                    <DropdownMenuItem asChild>
+                      <Link href="/giris" className="cursor-pointer w-full">
+                        Giriş Yap
+                      </Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem asChild>
+                      <Link href="/kayit" className="cursor-pointer w-full">
+                        Üye Ol
+                      </Link>
+                    </DropdownMenuItem>
+                  </>
+                )}
+              </DropdownMenuContent>
+            </DropdownMenu>
 
             <button className="lg:hidden p-2 text-foreground" onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}>
               {isMobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
@@ -152,15 +209,44 @@ export function Header() {
                 </Link>
               ))}
 
-              {/* Mobil Favoriler Linki */}
-              <Link
-                href="/favoriler"
-                className="flex items-center gap-2 text-lg font-medium text-foreground hover:text-accent transition-colors pt-4 border-t border-border"
-                onClick={() => setIsMobileMenuOpen(false)}
-              >
-                <Heart className="w-5 h-5" />
-                Favorilerim {favoriteItems.length > 0 && `(${favoriteItems.length})`}
-              </Link>
+              {/* Mobil Auth Linkleri */}
+              {isAuthenticated && user ? (
+                <div className="pt-4 border-t border-border">
+                  <div className="flex flex-col space-y-2">
+                    <p className="text-sm font-medium text-foreground">
+                      {user.firstname} {user.lastname}
+                    </p>
+                    <p className="text-xs text-muted-foreground">{user.email}</p>
+                    <button
+                      onClick={() => {
+                        logout()
+                        setIsMobileMenuOpen(false)
+                      }}
+                      className="flex items-center gap-2 text-lg font-medium text-foreground hover:text-accent transition-colors"
+                    >
+                      <LogOut className="w-5 h-5" />
+                      Çıkış Yap
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <div className="pt-4 border-t border-border space-y-2">
+                  <Link
+                    href="/giris"
+                    className="block text-lg font-medium text-foreground hover:text-accent transition-colors"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                  >
+                    Giriş Yap
+                  </Link>
+                  <Link
+                    href="/kayit"
+                    className="block text-lg font-medium text-foreground hover:text-accent transition-colors"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                  >
+                    Üye Ol
+                  </Link>
+                </div>
+              )}
 
               {/* Mobil Sosyal Medya İkonları */}
               <div className="flex items-center gap-4 pt-4 border-t border-border">
@@ -181,7 +267,7 @@ export function Header() {
                   aria-label="TikTok"
                 >
                   <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-5.2 1.74 2.89 2.89 0 0 1 2.31-4.64 2.93 2.93 0 0 1 .88.13V9.4a6.84 6.84 0 0 0-1-.05A6.33 6.33 0 0 0 5 20.1a6.34 6.34 0 0 0 10.86-4.43v-7a8.16 8.16 0 0 0 4.77 1.52v-3.4a4.85 4.85 0 0 1-1-.1z"/>
+                    <path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-5.2 1.74 2.89 2.89 0 0 1 2.31-4.64 2.93 2.93 0 0 1 .88.13V9.4a6.84 6.84 0 0 0-1-.05A6.33 6.33 0 0 0 5 20.1a6.34 6.34 0 0 0 10.86-4.43v-7a8.16 8.16 0 0 0 4.77 1.52v-3.4a4.85 4.85 0 0 1-1-.1z" />
                   </svg>
                 </a>
                 <a

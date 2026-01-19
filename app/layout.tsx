@@ -4,6 +4,8 @@ import { Inter, Playfair_Display } from "next/font/google"
 import { Analytics } from "@vercel/analytics/next"
 import { CartProvider } from "@/contexts/cart-context"
 import { FavoritesProvider } from "@/contexts/favorites-context"
+import { AuthProvider } from "@/contexts/auth-context"
+import { Header } from "@/components/header"
 import { CartSidebar } from "@/components/cart-sidebar"
 import { Topbar } from "@/components/topbar"
 import { WhatsAppButton } from "@/components/whatsapp-button"
@@ -30,14 +32,17 @@ export default function RootLayout({
   return (
     <html lang="tr">
       <body className={`font-sans antialiased`} suppressHydrationWarning>
-        <CartProvider>
-          <FavoritesProvider>
-            <Topbar />
-            {children}
-            <CartSidebar />
-            <WhatsAppButton />
-          </FavoritesProvider>
-        </CartProvider>
+        <AuthProvider>
+          <CartProvider>
+            <FavoritesProvider>
+              <Topbar />
+              <Header />
+              {children}
+              <CartSidebar />
+              <WhatsAppButton />
+            </FavoritesProvider>
+          </CartProvider>
+        </AuthProvider>
         <Analytics />
       </body>
     </html>

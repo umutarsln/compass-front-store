@@ -6,6 +6,7 @@ import { useRouter, useSearchParams } from "next/navigation"
 import { motion } from "framer-motion"
 import { Search, Filter, ChevronRight, ChevronDown } from "lucide-react"
 import { ProductCard } from "@/components/product-card"
+import { ProductCardSkeleton } from "@/components/product-card-skeleton"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
@@ -701,10 +702,7 @@ export function ProductsWithFilters({
             {loading ? (
               <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 lg:gap-8">
                 {[...Array(8)].map((_, i) => (
-                  <div
-                    key={i}
-                    className="aspect-[4/5] bg-secondary animate-pulse rounded"
-                  />
+                  <ProductCardSkeleton key={i} />
                 ))}
               </div>
             ) : products.length > 0 ? (

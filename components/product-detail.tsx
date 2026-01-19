@@ -186,6 +186,8 @@ export function ProductDetail({ product }: ProductDetailProps) {
       image: images[0],
       color: color || 'N/A',
       size: size || 'N/A',
+      productId: product.productId,
+      variantId: product.type === 'VARIANT' ? (currentCombination?.id || null) : null,
     }
 
     addToCart(cartItem)
@@ -236,12 +238,12 @@ export function ProductDetail({ product }: ProductDetailProps) {
             </li>
             {categorySlug && (
               <>
-                <li>/</li>
-                <li>
+            <li>/</li>
+            <li>
                   <Link href={`/urunler?categorySlugs=${categorySlug}`} className="hover:text-foreground transition-colors">
                     {categoryName}
-                  </Link>
-                </li>
+              </Link>
+            </li>
               </>
             )}
             <li>/</li>
@@ -282,21 +284,21 @@ export function ProductDetail({ product }: ProductDetailProps) {
             {images.length > 1 && (
               <div className="flex gap-3 mt-4 overflow-x-auto">
                 {images.map((image, index) => (
-                  <button
-                    key={index}
-                    onClick={() => setSelectedImage(index)}
+                <button
+                  key={index}
+                  onClick={() => setSelectedImage(index)}
                     className={`relative w-20 h-20 overflow-hidden rounded-lg shrink-0 ${selectedImage === index ? "ring-2 ring-foreground" : ""
-                      }`}
-                  >
-                    <Image
-                      src={image || "/placeholders/placeholder.svg"}
-                      alt={`${product.name} - Görsel ${index + 1}`}
-                      fill
-                      className="object-cover"
-                    />
-                  </button>
-                ))}
-              </div>
+                  }`}
+                >
+                  <Image
+                    src={image || "/placeholders/placeholder.svg"}
+                    alt={`${product.name} - Görsel ${index + 1}`}
+                    fill
+                    className="object-cover"
+                  />
+                </button>
+              ))}
+            </div>
             )}
           </div>
 
@@ -329,13 +331,13 @@ export function ProductDetail({ product }: ProductDetailProps) {
 
             {/* Varyasyon Seçenekleri (Varyasyonlu Ürünler için) */}
             {product.type === 'VARIANT' && product.variantOptions && product.variantOptions.length > 0 && (
-              <div className="mt-8 space-y-6">
+            <div className="mt-8 space-y-6">
                 {product.variantOptions.map((option) => (
                   <div key={option.id}>
                     <label className="block text-sm font-medium text-foreground mb-3">
                       {option.name} {option.isRequired && <span className="text-red-500">*</span>}
                     </label>
-                    <div className="flex flex-wrap gap-2">
+                <div className="flex flex-wrap gap-2">
                       {option.values
                         .filter(value => value.isActive)
                         .map((value) => {
@@ -344,7 +346,7 @@ export function ProductDetail({ product }: ProductDetailProps) {
                           const isDisabled = !isSelectable
 
                           return (
-                            <button
+                    <button
                               key={value.id}
                               onClick={() => {
                                 if (!isDisabled) {
@@ -355,9 +357,9 @@ export function ProductDetail({ product }: ProductDetailProps) {
                               className={`px-4 py-2 text-sm border transition-colors rounded-lg relative ${isDisabled
                                 ? "opacity-40 cursor-not-allowed border-muted/50 bg-muted/20"
                                 : isSelected
-                                  ? "border-foreground bg-foreground text-background"
-                                  : "border-border hover:border-foreground"
-                                }`}
+                          ? "border-foreground bg-foreground text-background"
+                          : "border-border hover:border-foreground"
+                      }`}
                               title={isDisabled ? "Bu seçenek mevcut değil" : undefined}
                             >
                               <span className={`relative ${isDisabled ? "line-through decoration-2" : ""}`}>
@@ -378,21 +380,21 @@ export function ProductDetail({ product }: ProductDetailProps) {
                                   {value.priceDelta > 0 ? '+' : ''}{value.priceDelta.toLocaleString("tr-TR")} ₺
                                 </span>
                               )}
-                            </button>
+                    </button>
                           )
                         })}
-                    </div>
-                  </div>
-                ))}
+                </div>
               </div>
+                  ))}
+                </div>
             )}
 
             {/* Stok Durumu */}
             {product.type === 'SIMPLE' && product.stock && product.stock.usableQuantity > 0 && (
               <div className="mt-6">
                 <p className="text-sm text-muted-foreground">Stokta var ({product.stock.usableQuantity} adet)</p>
-              </div>
-            )}
+                    </div>
+                  )}
 
             {product.type === 'VARIANT' && currentCombination && currentCombination.stock && currentCombination.stock.usableQuantity > 0 && (
               <div className="mt-6">
@@ -420,23 +422,23 @@ export function ProductDetail({ product }: ProductDetailProps) {
                 }
 
                 return (
-                  <button
-                    onClick={handleAddToCart}
-                    disabled={isAddingToCart}
+              <button
+                onClick={handleAddToCart}
+                disabled={isAddingToCart}
                     className="flex-1 py-4 bg-primary text-primary-foreground font-medium text-sm uppercase tracking-wider hover:bg-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 rounded-lg"
-                  >
-                    {isAddingToCart ? (
-                      <>
-                        <div className="w-4 h-4 border-2 border-primary-foreground border-t-transparent rounded-full animate-spin" />
-                        Ekleniyor...
-                      </>
-                    ) : (
-                      <>
-                        <ShoppingCart className="w-4 h-4" />
-                        Sepete Ekle
-                      </>
-                    )}
-                  </button>
+              >
+                {isAddingToCart ? (
+                  <>
+                    <div className="w-4 h-4 border-2 border-primary-foreground border-t-transparent rounded-full animate-spin" />
+                    Ekleniyor...
+                  </>
+                ) : (
+                  <>
+                    <ShoppingCart className="w-4 h-4" />
+                    Sepete Ekle
+                  </>
+                )}
+              </button>
                 )
               })()}
               <Link
@@ -481,8 +483,8 @@ export function ProductDetail({ product }: ProductDetailProps) {
         >
           <Tabs defaultValue="description" className="w-full">
             <TabsList className="w-full lg:w-fit mb-0 h-auto bg-transparent border-b border-border rounded-none p-0">
-              <TabsTrigger
-                value="description"
+              <TabsTrigger 
+                value="description" 
                 className="px-6 py-3 text-base font-medium data-[state=active]:border-b-2 data-[state=active]:border-foreground data-[state=active]:bg-transparent rounded-none"
               >
                 Ürün Açıklaması

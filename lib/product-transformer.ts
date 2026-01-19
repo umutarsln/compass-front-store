@@ -2,7 +2,8 @@ import { ProductListItem } from '@/services/products';
 
 // Frontend ProductCard için gerekli format
 export interface FrontendProduct {
-  id: string;
+  id: string; // Product ID (for display/URL purposes)
+  productId: string; // Real product ID (for API calls)
   name: string;
   subtitle: string | null;
   price: number;
@@ -43,7 +44,8 @@ export function transformProductListItem(product: ProductListItem): FrontendProd
   const categoryName = product.categories[0]?.name || 'Genel';
 
   return {
-    id: product.id,
+    id: product.id, // Keep id for display/URL purposes
+    productId: product.productId, // Real product ID for API calls
     name: product.name,
     subtitle: product.subtitle,
     price: product.price,

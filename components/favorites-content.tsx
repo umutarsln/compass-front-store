@@ -7,6 +7,8 @@ import Link from "next/link"
 import { Heart, ShoppingCart, AlertCircle, Sparkles, Tag } from "lucide-react"
 import { useFavorites } from "@/contexts/favorites-context"
 import { useCart } from "@/contexts/cart-context"
+import { useAuth } from "@/contexts/auth-context"
+import { mergeFavoritesOnPageLoad } from "@/lib/favorites-sync"
 
 const marketingMessages = [
   {
@@ -39,9 +41,24 @@ const marketingMessages = [
 ]
 
 export function FavoritesContent() {
-  const { items, removeFromFavorites, isFavorite } = useFavorites()
+  const { items, removeFromFavorites, isFavorite, syncFavorites } = useFavorites()
   const { addToCart } = useCart()
+  const { isAuthenticated } = useAuth()
   const [currentMessage, setCurrentMessage] = useState(0)
+
+  // Merge favorites on page load
+  useEffect(() => {
+    if (isAuthenticated) {
+      mergeFavoritesOnPageLoad()
+        .then(() => {
+          // After merge, sync favorites to update UI
+          syncFavorites()
+        })
+        .catch((error) => {
+          console.warn("Favorites merge failed:", error)
+        })
+    }
+  }, [isAuthenticated, syncFavorites])
 
   useEffect(() => {
     if (items.length === 0) return

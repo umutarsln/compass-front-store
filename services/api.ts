@@ -19,11 +19,13 @@ const apiClient: AxiosInstance = axios.create({
 // Request interceptor - istek gönderilmeden önce
 apiClient.interceptors.request.use(
   (config) => {
-    // İsteğe token veya diğer header'ları ekleyebilirsiniz
-    // const token = localStorage.getItem('token');
-    // if (token) {
-    //   config.headers.Authorization = `Bearer ${token}`;
-    // }
+    // İsteğe token ekle
+    if (typeof window !== 'undefined') {
+      const token = localStorage.getItem('auth_token');
+      if (token) {
+        config.headers.Authorization = `Bearer ${token}`;
+      }
+    }
     return config;
   },
   (error) => {
@@ -48,8 +50,28 @@ apiClient.interceptors.response.use(
           console.error('Bad Request:', message);
           break;
         case 401:
-          console.error('Unauthorized:', message);
-          // Token yenileme veya login'e yönlendirme yapılabilir
+          // 401 hatası sadece /me/* endpoint'leri için logout yap
+          // Cart işlemleri (/carts/*), login, register gibi işlemlerde logout yapma
+          const requestUrl = error.config?.url || '';
+          const isAuthEndpoint = requestUrl.includes('/auth/');
+          const isCartEndpoint = requestUrl.includes('/carts/');
+          const isMeEndpoint = requestUrl.includes('/me/') && !isAuthEndpoint;
+          
+          // Sadece /me/* endpoint'lerinde ve login/register/cart işlemleri dışında logout yap
+          if (isMeEndpoint && !isAuthEndpoint && !isCartEndpoint) {
+            // Sadece authenticated endpoint'lerde 401 hatası geldiğinde logout yap
+            console.error('Unauthorized:', message);
+            if (typeof window !== 'undefined') {
+              localStorage.removeItem('auth_token');
+              localStorage.removeItem('auth_refresh_token');
+              localStorage.removeItem('auth_user');
+              // Sadece login/register sayfalarında değilsek yönlendir
+              if (!window.location.pathname.includes('/giris') && !window.location.pathname.includes('/kayit')) {
+                window.location.href = '/giris';
+              }
+            }
+          }
+          // Diğer durumlarda (cart merge, login, register vb.) sessizce hatayı fırlat, console'a yazma
           break;
         case 403:
           console.error('Forbidden:', message);
