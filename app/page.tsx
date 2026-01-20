@@ -6,18 +6,22 @@ import { LifestyleSection } from "@/components/home/lifestyle-section"
 import { TrustSection } from "@/components/home/trust-section"
 import { InstagramSection } from "@/components/home/instagram-section"
 import { CTASection } from "@/components/home/cta-section"
+import { Footer } from "@/components/footer"
 
 export default function HomePage() {
   return (
-    <main>
-      <HeroSection />
-      <DiscountCountdown />
-      <CategoriesSection />
-      <HowItWorksSection />
-      <LifestyleSection />
-      <TrustSection />
-      <InstagramSection />
-      <CTASection />
-    </main>
+    <>
+      <main>
+        <HeroSection />
+        <DiscountCountdown />
+        <CategoriesSection />
+        <HowItWorksSection />
+        <LifestyleSection />
+        <TrustSection />
+        <InstagramSection />
+        <CTASection />
+      </main>
+      <Footer />
+    </>
   )
 }

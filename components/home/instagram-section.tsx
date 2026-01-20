@@ -5,12 +5,10 @@ import Image from "next/image"
 import { Instagram } from "lucide-react"
 
 const instagramImages = [
-  "/led-lamp-product-photo-aesthetic-minimalist.jpg",
-  "/couple-holding-personalized-lamp-gift.jpg",
-  "/bedroom-interior-with-glowing-led-lamp.jpg",
-  "/unboxing-personalized-lamp-gift-moment.jpg",
-  "/led-lamp-on-desk-home-office-decor.jpg",
-  "/close-up-led-lamp-detail-craftsmanship.jpg",
+  "/instagram-post/post1-kareend.jpg",
+  "/instagram-post/post1-silindir-end.jpg",
+  "/instagram-post/post2-1.jpg",
+  "/instagram-post/post2-2.png",
 ]
 
 export function InstagramSection() {
@@ -35,11 +33,11 @@ export function InstagramSection() {
             className="inline-flex items-center gap-2 mt-4 text-sm font-medium text-accent hover:underline"
           >
             <Instagram className="w-4 h-4" />
-            @isikanilar
+            @shawk.lamp
           </a>
         </motion.div>
 
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-2">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
           {instagramImages.map((src, index) => (
             <motion.a
               key={index}
@@ -50,15 +48,21 @@ export function InstagramSection() {
               whileInView={{ opacity: 1 }}
               viewport={{ once: true }}
               transition={{ duration: 0.4, delay: index * 0.05 }}
-              className="relative aspect-square group overflow-hidden"
+              className={`relative w-full group overflow-hidden flex items-center justify-center bg-secondary ${
+                index < 2 ? "aspect-[4/5]" : ""
+              }`}
             >
               <Image
                 src={src || "/placeholders/placeholder.svg"}
                 alt={`Instagram gönderi ${index + 1}`}
-                fill
-                className="object-cover transition-transform duration-300 group-hover:scale-105"
+                width={1000}
+                height={1000}
+                sizes="(max-width: 768px) 50vw, 25vw"
+                className={`transition-transform duration-300 group-hover:scale-105 ${
+                  index < 2 ? "w-full h-full object-cover" : "w-full h-auto object-contain"
+                }`}
               />
-              <div className="absolute inset-0 bg-foreground/0 group-hover:bg-foreground/20 transition-colors duration-300 flex items-center justify-center">
+              <div className="absolute inset-0 bg-foreground/0 group-hover:bg-foreground/20 transition-colors duration-300 flex items-center justify-center pointer-events-none">
                 <Instagram className="w-6 h-6 text-background opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
               </div>
             </motion.a>
