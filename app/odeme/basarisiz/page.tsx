@@ -1,13 +1,14 @@
 "use client"
 
+import { Suspense } from "react"
 import { useSearchParams, useRouter } from "next/navigation"
 import { motion } from "framer-motion"
 import Link from "next/link"
 import { Header } from "@/components/header"
 import { Footer } from "@/components/footer"
-import { XCircle, RefreshCw, ShoppingBag, ArrowLeft } from "lucide-react"
+import { XCircle, RefreshCw, ShoppingBag, ArrowLeft, Loader2 } from "lucide-react"
 
-export default function PaymentFailedPage() {
+function PaymentFailedContent() {
   const searchParams = useSearchParams()
   const router = useRouter()
   const orderId = searchParams.get("orderId")
@@ -109,5 +110,27 @@ export default function PaymentFailedPage() {
       </main>
       <Footer />
     </>
+  )
+}
+
+export default function PaymentFailedPage() {
+  return (
+    <Suspense fallback={
+      <>
+        <Header />
+        <main className="pt-26 md:pt-[108px]">
+          <section className="py-24 bg-background min-h-screen">
+            <div className="mx-auto max-w-7xl px-6 lg:px-8">
+              <div className="flex items-center justify-center py-24">
+                <Loader2 className="w-8 h-8 animate-spin text-muted-foreground" />
+              </div>
+            </div>
+          </section>
+        </main>
+        <Footer />
+      </>
+    }>
+      <PaymentFailedContent />
+    </Suspense>
   )
 }

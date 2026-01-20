@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useEffect, useState, Suspense } from "react"
 import { useSearchParams, useRouter } from "next/navigation"
 import { motion } from "framer-motion"
 import Link from "next/link"
@@ -10,7 +10,7 @@ import { CheckCircle2, Package, Home, ShoppingBag, Loader2 } from "lucide-react"
 import { orderService, Order } from "@/services/order.service"
 import { useCart } from "@/contexts/cart-context"
 
-export default function PaymentSuccessPage() {
+function PaymentSuccessContent() {
   const searchParams = useSearchParams()
   const router = useRouter()
   const orderId = searchParams.get("orderId")
@@ -169,5 +169,27 @@ export default function PaymentSuccessPage() {
       </main>
       <Footer />
     </>
+  )
+}
+
+export default function PaymentSuccessPage() {
+  return (
+    <Suspense fallback={
+      <>
+        <Header />
+        <main className="pt-26 md:pt-[108px]">
+          <section className="py-24 bg-background min-h-screen">
+            <div className="mx-auto max-w-7xl px-6 lg:px-8">
+              <div className="flex items-center justify-center py-24">
+                <Loader2 className="w-8 h-8 animate-spin text-muted-foreground" />
+              </div>
+            </div>
+          </section>
+        </main>
+        <Footer />
+      </>
+    }>
+      <PaymentSuccessContent />
+    </Suspense>
   )
 }
