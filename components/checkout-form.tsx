@@ -50,7 +50,7 @@ export function CheckoutForm() {
   // Sepet boşsa sepet sayfasına yönlendir
   useEffect(() => {
     if (!cartLoading && items.length === 0) {
-      router.push("/sepet")
+      // router.push("/sepet")
     }
   }, [cartLoading, items.length, router])
 
@@ -130,51 +130,76 @@ export function CheckoutForm() {
   }
 
   const handleSubmit = async () => {
-    if (!validateStep1() || !validateStep2()) {
+    console.log('[CHECKOUT] handleSubmit başladı')
+    console.log('[CHECKOUT] Form data:', formData)
+    console.log('[CHECKOUT] Is authenticated:', isAuthenticated)
+
+    const step1Valid = validateStep1()
+    const step2Valid = validateStep2()
+    console.log('[CHECKOUT] Validation - Step 1:', step1Valid, 'Step 2:', step2Valid)
+
+    if (!step1Valid || !step2Valid) {
+      console.log('[CHECKOUT] Validation başarısız, işlem durduruldu')
       return
     }
 
     setIsSubmitting(true)
+    console.log('[CHECKOUT] Submitting state true yapıldı')
 
     try {
       // Sync cart first to ensure cart ID is up to date
+      console.log('[CHECKOUT] Cart sync başlatılıyor...')
       try {
         await syncCart()
+        console.log('[CHECKOUT] Cart sync başarılı')
       } catch (error) {
-        console.error("Failed to sync cart:", error)
+        console.error("[CHECKOUT] Cart sync hatası:", error)
       }
 
       // Get cart ID - try from context first, then localStorage, then user cart if authenticated
-      let cartId = getCartIdFromContext() || getCartId()
+      const cartIdFromContext = getCartIdFromContext()
+      const cartIdFromStorage = getCartId()
+      console.log('[CHECKOUT] Cart ID - Context:', cartIdFromContext, 'Storage:', cartIdFromStorage)
+
+      let cartId = cartIdFromContext || cartIdFromStorage
+      console.log('[CHECKOUT] İlk cart ID:', cartId)
 
       if (!cartId && isAuthenticated) {
+        console.log('[CHECKOUT] Cart ID bulunamadı, authenticated user için getUserCart deneniyor...')
         // If no cart ID, try to get user cart
         try {
           const userCart = await cartService.getUserCart()
+          console.log('[CHECKOUT] getUserCart response:', userCart)
           if (userCart) {
             cartId = userCart.id
+            console.log('[CHECKOUT] User cart ID alındı:', cartId)
             // Save to localStorage for next time
             if (typeof window !== 'undefined') {
               localStorage.setItem('shawk_cart_id', userCart.id)
+              console.log('[CHECKOUT] Cart ID localStorage\'a kaydedildi')
             }
           }
         } catch (error) {
-          console.error("Failed to get user cart:", error)
+          console.error("[CHECKOUT] getUserCart hatası:", error)
         }
       }
 
+      console.log('[CHECKOUT] Final cart ID:', cartId)
+
       if (!cartId) {
+        console.error('[CHECKOUT] Cart ID bulunamadı, işlem durduruluyor')
         toast({
           title: "Sepet Bulunamadı",
           description: "Sepetiniz bulunamadı. Lütfen sepet sayfasına dönün ve tekrar deneyin.",
           variant: "destructive",
         })
-        router.push("/sepet")
+        // router.push("/sepet")
         setIsSubmitting(false)
         return
       }
 
       // Shipping address oluştur
+      console.log('[CHECKOUT] Shipping address oluşturuluyor...')
       const shippingAddress: Address = {
         firstName: formData.firstName,
         lastName: formData.lastName,
@@ -185,10 +210,12 @@ export function CheckoutForm() {
         postalCode: formData.postalCode,
         country: formData.country,
       }
+      console.log('[CHECKOUT] Shipping address:', shippingAddress)
 
       // Billing address oluştur (varsa)
       let billingAddress
       if (formData.useBillingAddress) {
+        console.log('[CHECKOUT] Billing address oluşturuluyor...')
         billingAddress = {
           firstName: formData.firstName,
           lastName: formData.lastName,
@@ -201,9 +228,13 @@ export function CheckoutForm() {
           taxNumber: formData.billingTaxNumber || undefined,
           taxOffice: formData.billingTaxOffice || undefined,
         }
+        console.log('[CHECKOUT] Billing address:', billingAddress)
+      } else {
+        console.log('[CHECKOUT] Billing address kullanılmıyor (useBillingAddress: false)')
       }
 
       // Order oluştur
+      console.log('[CHECKOUT] Order DTO oluşturuluyor...')
       const createOrderDto: CreateOrderDto = {
         cartId,
         shippingAddress,
@@ -215,35 +246,62 @@ export function CheckoutForm() {
 
       // Guest checkout için bilgiler
       if (!isAuthenticated) {
+        console.log('[CHECKOUT] Guest checkout bilgileri ekleniyor...')
         createOrderDto.guestEmail = formData.email
         createOrderDto.guestPhone = formData.phone
         createOrderDto.guestFirstName = formData.firstName
         createOrderDto.guestLastName = formData.lastName
+        console.log('[CHECKOUT] Guest info:', {
+          email: createOrderDto.guestEmail,
+          phone: createOrderDto.guestPhone,
+          firstName: createOrderDto.guestFirstName,
+          lastName: createOrderDto.guestLastName,
+        })
       }
+
+      console.log('[CHECKOUT] Order DTO:', JSON.stringify(createOrderDto, null, 2))
+      console.log('[CHECKOUT] Order oluşturuluyor (orderService.createOrder)...')
 
       const order = await orderService.createOrder(createOrderDto)
 
-      console.log('Order created:', order)
+      console.log('[CHECKOUT] Order oluşturuldu:', order)
+      console.log('[CHECKOUT] Order ID:', order.id)
 
       // Payment checkout başlat
+      console.log('[CHECKOUT] Payment checkout başlatılıyor...')
+      console.log('[CHECKOUT] Checkout request:', {
+        orderId: order.id,
+        provider: PaymentProvider.IYZICO,
+      })
+
       const checkoutResponse = await paymentService.createCheckout({
         orderId: order.id,
         provider: PaymentProvider.IYZICO,
       })
 
-      console.log('Checkout response:', checkoutResponse)
+      console.log('[CHECKOUT] Checkout response alındı:', checkoutResponse)
+      console.log('[CHECKOUT] Redirect URL:', checkoutResponse.redirectUrl)
 
       // Iyzico payment sayfasına yönlendir
       if (!checkoutResponse.redirectUrl) {
+        console.error('[CHECKOUT] Redirect URL bulunamadı!')
         throw new Error("Ödeme sayfası URL'i alınamadı. Lütfen tekrar deneyin.")
       }
 
-      console.log('Redirecting to Iyzico payment page:', checkoutResponse.redirectUrl)
+      console.log('[CHECKOUT] Iyzico payment sayfasına yönlendiriliyor:', checkoutResponse.redirectUrl)
+      console.log('[CHECKOUT] İşlem başarıyla tamamlandı!')
 
       // Iyzico ödeme sayfasına yönlendir
-      // window.location.href = checkoutResponse.redirectUrl
+      window.location.href = checkoutResponse.redirectUrl
     } catch (error: any) {
-      console.error("Checkout error:", error)
+      console.error("[CHECKOUT] HATA YAKALANDI!")
+      console.error("[CHECKOUT] Error type:", typeof error)
+      console.error("[CHECKOUT] Error:", error)
+      console.error("[CHECKOUT] Error message:", error?.message)
+      console.error("[CHECKOUT] Error response:", error?.response)
+      console.error("[CHECKOUT] Error response data:", error?.response?.data)
+      console.error("[CHECKOUT] Error stack:", error?.stack)
+
       toast({
         title: "Ödeme Hatası",
         description: error?.response?.data?.message || error?.message || "Ödeme işlemi başlatılamadı. Lütfen tekrar deneyin.",
