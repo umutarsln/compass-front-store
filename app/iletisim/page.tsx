@@ -210,7 +210,7 @@ export default function ContactPage() {
                   </p>
                   <div className="flex gap-3">
                     <a
-                      href="https://instagram.com"
+                      href="https://www.instagram.com/shawk.lamp/"
                       target="_blank"
                       rel="noopener noreferrer"
                       className="w-10 h-10 flex items-center justify-center bg-background text-foreground hover:bg-accent hover:text-accent-foreground transition-colors rounded-md"
