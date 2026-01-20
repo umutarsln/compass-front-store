@@ -7,49 +7,37 @@ import Image from "next/image"
 export function HeroSection() {
   return (
     <section className="relative flex items-start justify-center pt-24 md:pt-28 pb-20 px-6 lg:px-8">
-      {/* Mobil Container - Görselin tamamını göster */}
+      {/* Mobil Container - Arka plan görseli */}
       <div className="relative w-full md:hidden">
         <div className="relative w-full rounded-lg overflow-hidden">
-          {/* Mobil Görsel - Tamamı görünsün */}
-          <div className="relative w-full">
-            <Image
-              src="/hero/herosection-mobil.png"
-              alt="Anılarınızı Işığa Dönüştürün"
-              width={1080}
-              height={1920}
-              className="w-full h-auto"
-              priority
-            />
-            {/* Gradient Overlay - Mobilde daha hafif */}
-            <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/20 to-black/30" />
+          <Image
+            src="/hero/heromobil-görsel.png"
+            alt="Anılarınızı Işığa Dönüştürün"
+            width={1080}
+            height={1920}
+            className="w-full h-auto"
+            priority
+          />
+          {/* Gradient Overlay - Yazıların okunabilirliği için */}
+          <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/30 to-transparent" />
 
-            {/* Mobil İçerik - Görselin üzerine overlay */}
-            <div className="absolute inset-0 flex flex-col justify-between pt-8 pb-40 px-4 z-10">
-              {/* Mobil Üst - Başlık */}
-              <motion.div
-                initial={{ opacity: 0, y: -20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.8, ease: "easeOut" }}
-                className="text-center px-2"
-              >
-                <h1 className="font-serif text-3xl sm:text-4xl text-white leading-tight text-balance">
-                  Anılarınızı Işığa Dönüştürün
-                </h1>
-              </motion.div>
-
-              {/* Mobil Alt - Açıklama */}
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.8, ease: "easeOut" }}
-                className="text-center px-2 pb-6"
-              >
-                <p className="text-base text-white/90 max-w-lg mx-auto leading-relaxed">
-                  Shawk ile fotoğraflarınızdan benzersiz, kişiselleştirilmiş 3D LED lambalar yaratıyoruz. Her lamba bir hikaye, her
-                  ışık bir anı taşır. Sevdiklerinize unutulmaz hediyeler hazırlayın.
-                </p>
-              </motion.div>
-            </div>
+          {/* Mobil İçerik - Üste yaslanmış */}
+          <div className="absolute inset-0 flex flex-col justify-start pt-12 px-6 z-10">
+            <motion.div
+              initial={{ opacity: 0, y: -20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8, ease: "easeOut" }}
+              className="text-center"
+            >
+              <h1 className="font-serif text-3xl sm:text-4xl text-white leading-tight text-balance mb-4">
+                Anılarınızı Işığa Dönüştürün
+              </h1>
+              <p className="text-sm sm:text-base text-white/90 max-w-lg mx-auto leading-relaxed">
+                <b>Fotoğraflarınızdan hazırlanan</b> <br /> <b>kişiye özel lambalarla,</b>
+                <br /> <b>en değerli anılarınızı sıcak bir ışıkla</b> <br /> <b>yeniden yaşayın.</b>
+                <br /> <b>Her lamba size özel, her ışık bir anı taşır.</b>
+              </p>
+            </motion.div>
           </div>
         </div>
       </div>
@@ -83,8 +71,9 @@ export function HeroSection() {
                 Anılarınızı Işığa Dönüştürün
               </h1>
               <p className="mt-6 text-lg text-white/90 max-w-lg leading-relaxed">
-                Shawk ile fotoğraflarınızdan benzersiz, kişiselleştirilmiş 3D LED lambalar yaratıyoruz. Her lamba bir hikaye, her
-                ışık bir anı taşır. Sevdiklerinize unutulmaz hediyeler hazırlayın.
+              Fotoğraflarınızdan hazırlanan kişiye özel lambalarla,
+              <br /> en değerli anılarınızı sıcak bir ışıkla yeniden yaşatın.
+              <br /> Her lamba size özel, her ışık bir anı taşır.
               </p>
               <div className="mt-10 flex flex-col sm:flex-row gap-4">
                 <Link
