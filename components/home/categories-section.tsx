@@ -24,7 +24,7 @@ const categories = [
   {
     id: "yaklasan-ozel-gun",
     title: "Yaklaşan Özel Gün",
-    image: "/gifts/special-occasion-celebration-led-lamp-gift.jpg",
+    image: "/category/yaklaşan özel günler.png",
     href: "/urunler",
     colSpan: 1, // 1 sütun
     rowSpan: 1, // 1 satır
