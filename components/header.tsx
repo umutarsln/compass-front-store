@@ -57,10 +57,26 @@ export function Header() {
   const isAuthenticated = contextIsAuthenticated || initialIsAuthenticated
 
   return (
-    <header
-      className={`fixed top-7 md:top-8 left-0 right-0 z-[49] transition-all duration-300 ${isScrolled ? "bg-background/95 backdrop-blur-sm shadow-sm" : "bg-transparent"
-        }`}
-    >
+    <>
+      {/* Çıkış Butonu - Sol tarafta, dikey ortada */}
+      {isAuthenticated && user && (
+        <motion.button
+          initial={{ opacity: 0, x: -20 }}
+          animate={{ opacity: 1, x: 0 }}
+          exit={{ opacity: 0, x: -20 }}
+          onClick={logout}
+          className="fixed left-0 top-1/2 -translate-y-1/2 z-[50] bg-primary text-primary-foreground rounded-r-2xl shadow-2xl hover:bg-primary/90 transition-all duration-300 flex flex-col items-center justify-center gap-2 px-3 py-4 min-w-[60px] group border-r-4 border-primary hover:border-primary/50 cursor-pointer"
+          aria-label="Çıkış Yap"
+        >
+          <LogOut className="w-5 h-5 transition-transform duration-300 group-hover:rotate-180" />
+          <span className="text-[9px] uppercase tracking-wider font-medium opacity-80">Çıkış</span>
+        </motion.button>
+      )}
+
+      <header
+        className={`fixed top-7 md:top-8 left-0 right-0 z-[49] transition-all duration-300 ${isScrolled ? "bg-background/95 backdrop-blur-sm shadow-sm" : "bg-transparent"
+          }`}
+      >
       <div className="mx-auto max-w-7xl px-6 lg:px-8">
         <nav className="flex items-center justify-between h-20">
           <Link href="/" className="flex items-center gap-2">
@@ -287,5 +303,6 @@ export function Header() {
         )}
       </AnimatePresence>
     </header>
+    </>
   )
 }
