@@ -5,11 +5,13 @@ import Image from "next/image"
 import Link from "next/link"
 import { Trash2, Plus, Minus, ShoppingBag } from "lucide-react"
 import { useCart } from "@/contexts/cart-context"
+import { useAuth } from "@/contexts/auth-context"
 import { Spinner } from "@/components/ui/spinner"
 import { Skeleton } from "@/components/ui/skeleton"
 
 export function CartContent() {
   const { items, isLoading, removeFromCart, updateQuantity, getTotalPrice, getTotalItems, isUpdatingItem, isRemovingItem } = useCart()
+  const { isAuthenticated } = useAuth()
 
   // Loading state - show skeleton
   if (isLoading) {
@@ -227,7 +229,7 @@ export function CartContent() {
                   </div>
                 </div>
                 <Link
-                  href="/odeme"
+                  href={isAuthenticated ? "/odeme" : "/odeme-auth"}
                   className="block w-full py-4 bg-primary text-primary-foreground font-medium text-sm uppercase tracking-wider hover:bg-primary/90 transition-colors text-center"
                 >
                   Ödemeye Geç

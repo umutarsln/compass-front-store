@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react"
 import { motion } from "framer-motion"
-import { useRouter } from "next/navigation"
+import { useRouter, useSearchParams } from "next/navigation"
 import Link from "next/link"
 import { Header } from "@/components/header"
 import { Footer } from "@/components/footer"
@@ -21,13 +21,15 @@ export default function LoginPage() {
     const { login, isAuthenticated } = useAuth()
     const { toast } = useToast()
     const router = useRouter()
+    const searchParams = useSearchParams()
+    const redirect = searchParams.get("redirect")
 
-    // Eğer zaten giriş yapılmışsa ana sayfaya yönlendir
+    // Eğer zaten giriş yapılmışsa redirect varsa oraya, yoksa ana sayfaya yönlendir
     useEffect(() => {
         if (isAuthenticated) {
-            router.push("/")
+            router.push(redirect || "/")
         }
-    }, [isAuthenticated, router])
+    }, [isAuthenticated, router, redirect])
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault()
@@ -39,6 +41,10 @@ export default function LoginPage() {
                 title: "Giriş Başarılı",
                 description: "Hoş geldiniz!",
             })
+            // Redirect varsa oraya yönlendir, yoksa ana sayfaya
+            if (redirect) {
+                router.push(redirect)
+            }
         } catch (error: any) {
             toast({
                 title: "Giriş Başarısız",

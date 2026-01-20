@@ -48,6 +48,7 @@ interface CartContextType {
   clearCart: () => void
   getTotalItems: () => number
   getTotalPrice: () => number
+  getCartId: () => string | null
   syncCart: () => Promise<void>
   isAddingToCart: (productId: string, variantId: string | null) => boolean
   isUpdatingItem: (productId: string, variantId: string | null) => boolean
@@ -382,6 +383,10 @@ export function CartProvider({ children }: { children: ReactNode }) {
     return items.reduce((total, item) => total + item.price * item.quantity, 0)
   }
 
+  const getCartIdFromContext = (): string | null => {
+    return getCartId()
+  }
+
   return (
     <CartContext.Provider
       value={{
@@ -399,6 +404,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
         clearCart,
         getTotalItems,
         getTotalPrice,
+        getCartId: getCartIdFromContext,
         syncCart,
         isAddingToCart,
         isUpdatingItem,
