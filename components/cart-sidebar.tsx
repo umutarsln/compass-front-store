@@ -91,7 +91,7 @@ export function CartSidebar() {
                     <X className="w-4 h-4 md:w-5 md:h-5 text-black transition-transform duration-300 group-hover:rotate-90" />
                   </motion.button>
                   {/* Mobil Çıkış Butonu */}
-                  {isAuthenticated && (
+                  {/* {isAuthenticated && (
                     <button
                       onClick={() => {
                         logout()
@@ -103,7 +103,7 @@ export function CartSidebar() {
                       <LogOut className="w-3.5 h-3.5" />
                       <span>Çıkış</span>
                     </button>
-                  )}
+                  )} */}
                 </div>
               </div>
 
