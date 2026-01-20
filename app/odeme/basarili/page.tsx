@@ -113,7 +113,7 @@ function PaymentSuccessContent() {
                     <Package className="w-5 h-5 text-muted-foreground" />
                     <div>
                       <p className="text-sm text-muted-foreground">Sipariş Numarası</p>
-                      <p className="font-medium text-foreground">{order.id}</p>
+                      <p className="font-medium text-foreground text-lg">{order.orderNo || order.id}</p>
                     </div>
                   </div>
                   <div className="flex items-center gap-3">

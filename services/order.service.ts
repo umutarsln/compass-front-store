@@ -54,6 +54,7 @@ export interface CreateOrderDto {
 
 export interface Order {
   id: string;
+  orderNo: string; // 8 haneli unique sipariş numarası
   userId: string | null;
   cartId: string | null;
   guestEmail: string | null;
@@ -85,10 +86,18 @@ class OrderService {
   }
 
   /**
-   * Get order by ID
+   * Get order by ID or order number
+   * Supports both UUID (order ID) and 8-digit order number
    */
   async getOrderById(id: string): Promise<Order> {
     return await api.get<Order>(`${this.endpoint}/${id}`);
+  }
+
+  /**
+   * Get order by order number (8 digits)
+   */
+  async getOrderByOrderNo(orderNo: string): Promise<Order> {
+    return await api.get<Order>(`${this.endpoint}/${orderNo}`);
   }
 }
 
