@@ -17,7 +17,7 @@ export function CategoriesGrid() {
         >
           <h1 className="font-serif text-4xl sm:text-5xl lg:text-6xl text-foreground">Kategoriler</h1>
           <p className="mt-6 text-lg text-muted-foreground max-w-2xl mx-auto">
-            Her an için özel tasarımlar. İhtiyacınıza uygun kategoriyi seçin.
+          Her kategori, farklı bir anıya ışık tutmak için tasarlandı.
           </p>
         </motion.div>
 

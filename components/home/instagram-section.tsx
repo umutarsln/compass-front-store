@@ -29,7 +29,7 @@ export function InstagramSection() {
             Müşterilerimizin paylaşımlarını ve yeni tasarımlarımızı keşfedin.
           </p>
           <a
-            href="https://instagram.com"
+            href="https://www.instagram.com/shawk.lamp/"
             target="_blank"
             rel="noopener noreferrer"
             className="inline-flex items-center gap-2 mt-4 text-sm font-medium text-accent hover:underline"
@@ -43,7 +43,7 @@ export function InstagramSection() {
           {instagramImages.map((src, index) => (
             <motion.a
               key={index}
-              href="https://instagram.com"
+              href="https://www.instagram.com/shawk.lamp/"
               target="_blank"
               rel="noopener noreferrer"
               initial={{ opacity: 0 }}

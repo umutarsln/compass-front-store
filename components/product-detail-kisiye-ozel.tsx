@@ -98,8 +98,7 @@ export function ProductDetailKisiyeOzel() {
         name: sampleProduct.name,
         price: sampleProduct.price,
         image: sampleProduct.image,
-        color: `${selectedDiameter}cm Çap`,
-        size: `${selectedHeight}cm Yükseklik`,
+        productId: sampleProduct.id,
       }, false) // Sidebar açılmasın, sepet sayfasına yönlendirilecek
       
       setTimeout(() => {
@@ -497,11 +496,11 @@ export function ProductDetailKisiyeOzel() {
                         {Object.entries(sampleProduct.specifications)
                           .filter(([key]) => !["Malzeme", "Güç", "Garanti"].includes(key))
                           .map(([key, value]) => (
-                            <div key={key} className="flex flex-col">
-                              <span className="text-sm font-medium text-muted-foreground mb-2 uppercase tracking-wider">{key}</span>
-                              <span className="text-sm text-foreground leading-relaxed">{value}</span>
-                            </div>
-                          ))}
+                          <div key={key} className="flex flex-col">
+                            <span className="text-sm font-medium text-muted-foreground mb-2 uppercase tracking-wider">{key}</span>
+                            <span className="text-sm text-foreground leading-relaxed">{value}</span>
+                          </div>
+                        ))}
                       </div>
                     </div>
                   )}
