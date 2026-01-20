@@ -241,7 +241,7 @@ export function CheckoutForm() {
       console.log('Redirecting to Iyzico payment page:', checkoutResponse.redirectUrl)
 
       // Iyzico ödeme sayfasına yönlendir
-      window.location.href = checkoutResponse.redirectUrl
+      // window.location.href = checkoutResponse.redirectUrl
     } catch (error: any) {
       console.error("Checkout error:", error)
       toast({
