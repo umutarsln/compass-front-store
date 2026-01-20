@@ -38,16 +38,7 @@ export function AboutStory() {
             </h2>
             <div className="mt-6 space-y-4 text-muted-foreground leading-relaxed">
               <p>
-                Shawk, 2020 yılında İstanbul'da küçük bir atölyede başladı. Kurucumuz, sevdiği birine özel bir
-                hediye ararken, fotoğrafların ışıkla birleşerek ne kadar büyülü bir etki yaratabileceğini fark etti.
-              </p>
-              <p>
-                O günden bu yana, binlerce aileye, çifte ve arkadaşa anlamlı hediyeler ürettik. Her lamba, bir anının
-                ışıkla dans etmesi, bir duygunun kalıcı hale gelmesidir. Shawk ile her ürün, sizin için özel olarak tasarlanır ve üretilir.
-              </p>
-              <p>
-                Bugün, modern 3D baskı teknolojisi ve geleneksel el işçiliğini bir araya getirerek, Türkiye'nin her
-                yerine benzersiz ürünler ulaştırıyoruz. Her sipariş, bizim için bir tutku ve sevgi işidir.
+              Shawk, sıradan bir üründen çok daha fazlasını ortaya koyma hayaliyle yola çıktı. Ev ortamında doğan küçük bir fikir, bugün binlerce insanın en özel anılarına eşlik eden, duygusu olan bir ürüne dönüştü. Her lamba; sevgiyle seçilen bir fotoğrafın, özenli bir üretim sürecinin ve karşı tarafta oluşan gerçek bir gülümsemenin birleşimidir. Biz, anıları sadece saklamıyor; her gün yeniden yaşanabilir hale getiriyoruz.
               </p>
             </div>
           </motion.div>

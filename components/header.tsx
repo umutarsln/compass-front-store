@@ -20,6 +20,7 @@ import { getUser as getCookieUser, isAuthenticated as isCookieAuthenticated } fr
 const navItems = [
   { href: "/", label: "Anasayfa" },
   { href: "/urunler", label: "Ürünler" },
+  { href: "/sevgililer-gunu", label: "Sevgililer Günü" },
   { href: "/hakkimizda", label: "Hakkımızda" },
   { href: "/iletisim", label: "İletişim" },
 ]

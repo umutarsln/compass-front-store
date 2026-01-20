@@ -27,7 +27,7 @@ export function AboutHero() {
           >
             <div className="relative aspect-[4/3] w-full">
               <Image
-                src="/close-up-led-lamp-detail-craftsmanship.jpg"
+                src="/hakkimizda/hakkımızdagorsel1.png"
                 alt="El işçiliği LED lamba üretimi"
                 fill
                 className="object-cover"
