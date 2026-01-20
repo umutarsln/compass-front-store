@@ -57,7 +57,7 @@ export function HowItWorksSection() {
                 />
               </div>
               <div className="text-sm font-medium text-accent mb-2 uppercase tracking-wider">Adım {index + 1}</div>
-              <h3 className="font-serif text-xl text-foreground mb-2">{step.title}</h3>
+              <h3 className="font-serif font-bold text-xl text-foreground mb-2">{step.title}</h3>
               <p className="text-base text-muted-foreground leading-relaxed">{step.description}</p>
             </motion.div>
           ))}

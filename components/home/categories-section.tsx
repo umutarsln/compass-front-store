@@ -8,7 +8,7 @@ const categories = [
   {
     id: "kisiye-ozel-tasarimlar",
     title: "Kişiye Özel Tasarımlar",
-    image: "/campaigns/KENDİ LAMBANI TASARLA -c (kare) kopyası.png",
+    image: "/campaigns/Kişiye Özel Tasarımlar -c -kare-.jpg",
     href: "/urunler?categorySlugs=kiiye-zel-tasarmlar%2Cak-sevgiliye-zel%2Caile-annebabaya-zel%2Ckurumsal-baar-ofis%2Cdoum-gn-kutlama&orderBy=created_at_desc",
     colSpan: 2, // 2 sütun
     rowSpan: 2, // 2 satır
@@ -16,7 +16,7 @@ const categories = [
   {
     id: "hazir-tasarim-koleksiyonlari",
     title: "Hazır Tasarım Koleksiyonları",
-    image: "/campaigns/hazır tasarım koleksiyonları (yatay).png",
+    image: "/campaigns/Hazır Tasarım Koleksiyonları -c -yatay-.jpg",
     href: "/urunler?categorySlugs=hazr-tasarmlar%2Cmzik-temal-tasarmlar%2Cspor-temal-tasarmlar%2Cpopler-kltr-anime-dizi-film%2Cminimalist-sanat&orderBy=created_at_desc",
     colSpan: 2, // 2 sütun
     rowSpan: 1, // 1 satır
@@ -25,7 +25,7 @@ const categories = [
     id: "yaklasan-ozel-gun",
     title: "Yaklaşan Özel Gün",
     image: "/gifts/special-occasion-celebration-led-lamp-gift.jpg",
-    href: "/kategoriler/yaklasan-ozel-gun",
+    href: "/urunler",
     colSpan: 1, // 1 sütun
     rowSpan: 1, // 1 satır
   },
@@ -33,7 +33,7 @@ const categories = [
     id: "en-cok-satanlar",
     title: "En Çok Satanlar",
     image: "/products/sports-team-logo-led-lamp-decorative-lighting.jpg",
-    href: "/kategoriler/en-cok-satanlar",
+    href: "/urunler",
     colSpan: 1, // 1 sütun
     rowSpan: 1, // 1 satır
   },

@@ -7,8 +7,6 @@ import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { Truck, Shield, Clock, ChevronLeft, ChevronRight, ShoppingCart, Eye, Star } from "lucide-react"
 import { useCart } from "@/contexts/cart-context"
-import { SimilarProducts } from "@/components/similar-products"
-import { getProductsByCategory } from "@/lib/products"
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
 
 const diameters = [10, 12, 15]
@@ -49,11 +47,7 @@ export function ProductDetailPage() {
   const [activeTab, setActiveTab] = useState("specifications")
   const { addToCart } = useCart()
   const router = useRouter()
-  const similarProductsRef = useRef<HTMLDivElement>(null)
   const productDetailsRef = useRef<HTMLDivElement>(null)
-  
-  // Benzer ürünleri getir (diğer kategorilerden örnek)
-  const similarProducts = getProductsByCategory("hazir-tasarim-koleksiyonlari").slice(0, 4)
 
   const nextImage = () => {
     setSelectedImage((prev) => (prev + 1) % sampleProduct.images.length)
@@ -71,8 +65,8 @@ export function ProductDetailPage() {
         name: sampleProduct.name,
         price: sampleProduct.price,
         image: sampleProduct.image,
-        color: `${selectedDiameter}cm Çap`,
-        size: `${selectedHeight}cm Yükseklik`,
+        productId: sampleProduct.id,
+        variantId: null,
       }, false) // Sidebar açılmasın, sepet sayfasına yönlendirilecek
       
       setTimeout(() => {
@@ -83,10 +77,8 @@ export function ProductDetailPage() {
   }
 
   const handleViewSimilarProducts = () => {
-    // Benzer ürünler bölümüne scroll yap
-    setTimeout(() => {
-      similarProductsRef.current?.scrollIntoView({ behavior: "smooth", block: "start" })
-    }, 100)
+    // Benzer ürünler bölümüne scroll yap (şimdilik devre dışı)
+    // TODO: API'den benzer ürünler çekildiğinde aktif edilecek
   }
 
   const handleViewProductDetails = () => {
@@ -499,11 +491,7 @@ export function ProductDetailPage() {
         </motion.div>
 
         {/* Benzer Ürünler Bölümü - Footer'ın üstünde */}
-        {similarProducts.length > 0 && (
-          <div ref={similarProductsRef} className="mt-24">
-            <SimilarProducts products={similarProducts} />
-          </div>
-        )}
+        {/* Not: Benzer ürünler API'den çekilebilir - şimdilik devre dışı */}
       </div>
     </section>
   )

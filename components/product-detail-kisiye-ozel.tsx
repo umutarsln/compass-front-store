@@ -16,11 +16,11 @@ const sampleProduct = {
   id: "kisiye-ozel-urun",
   name: "Kişiye Özel Tasarım",
   price: 349,
-  image: "/KENDİ LAMBANI TASARLA -c (kare) kopyası.png",
+  image: "/campaigns/Kişiye Özel Tasarımlar -c -kare-.jpg",
   category: "Kişiye Özel Tasarımlar",
   description: "Fotoğraflarınızdan özel olarak tasarlanan bu lamba, odanıza romantik bir atmosfer katar. LED ışıklar ile aydınlatılan silüet, karanlıkta büyüleyici bir görünüm sunar.",
   images: [
-    "/KENDİ LAMBANI TASARLA -c (kare) kopyası.png",
+    "/campaigns/Kişiye Özel Tasarımlar -c -kare-.jpg",
     "/led-lamp-glowing-in-dark-room-creating-ambient-lig.jpg",
     "/cozy-bedroom-with-led-lamp-on-nightstand-warm-roma.jpg",
   ],

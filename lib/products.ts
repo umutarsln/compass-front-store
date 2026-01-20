@@ -170,13 +170,13 @@ export const categories = [
     slug: "kisiye-ozel-tasarimlar",
     name: "Kişiye Özel Tasarımlar",
     description: "Fotoğraflarınızdan özel olarak tasarlanan benzersiz LED lambalar.",
-    image: "/campaigns/KENDİ LAMBANI TASARLA -c (kare) kopyası.png",
+    image: "/campaigns/Kişiye Özel Tasarımlar -c -kare-.jpg",
   },
   {
     slug: "hazir-tasarim-koleksiyonlari",
     name: "Hazır Tasarım Koleksiyonları",
     description: "Önceden hazırlanmış özel tasarım koleksiyonlarımız.",
-    image: "/campaigns/hazır tasarım koleksiyonları (yatay).png",
+    image: "/campaigns/Hazır Tasarım Koleksiyonları -c -yatay-.jpg",
   },
   {
     slug: "yaklasan-ozel-gun",
