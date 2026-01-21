@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState, Suspense } from "react"
+import { useEffect, useState, Suspense, useRef } from "react"
 import { useSearchParams, useRouter } from "next/navigation"
 import { motion } from "framer-motion"
 import Link from "next/link"
@@ -17,6 +17,7 @@ function PaymentSuccessContent() {
   const { clearCart } = useCart()
   const [order, setOrder] = useState<Order | null>(null)
   const [isLoading, setIsLoading] = useState(true)
+  const hasFetched = useRef(false)
 
   useEffect(() => {
     if (!orderId) {
@@ -24,21 +25,29 @@ function PaymentSuccessContent() {
       return
     }
 
+    // Sadece bir kere fetch yap
+    if (hasFetched.current) {
+      return
+    }
+
     const fetchOrder = async () => {
       try {
+        hasFetched.current = true
         const orderData = await orderService.getOrderById(orderId)
         setOrder(orderData)
         // Sepeti temizle
         clearCart()
       } catch (error) {
         console.error("Failed to fetch order:", error)
+        hasFetched.current = false // Hata durumunda tekrar denemek için
       } finally {
         setIsLoading(false)
       }
     }
 
     fetchOrder()
-  }, [orderId, router, clearCart])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [orderId]) // router ve clearCart'ı dependency'den çıkardık
 
   if (isLoading) {
     return (
