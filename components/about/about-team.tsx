@@ -19,25 +19,22 @@ export function AboutTeam() {
             Tutkulu Bir Ekip
           </h2>
           <p className="mt-6 text-lg text-muted-foreground leading-relaxed">
-            Tasarımcılar, mühendisler ve müşteri temsilcilerinden oluşan tutkulu ekibimiz, her gün anılarınızı ışığa
-            dönüştürmek için çalışıyor. Her sipariş bizim için sadece bir ürün değil, bir aşk hikayesi, bir dostluk anısı 
-            veya bir aile bağıdır. Shawk ekibi olarak, bu özel anları en güzel şekilde yansıtmak için varız.
-          </p>
+          Shawk’ın arkasında, yaptığı işe inanan ve her detayı önemseyen tutkulu bir ekip var. Fikir aşamasından üretime, paketlemeden teslimata kadar her adım; özen, emek ve sorumluluk bilinciyle ilerliyor. Bizim için her ürün yalnızca bir lamba değil, birine hediye edilecek bir duygu, paylaşılacak bir anıdır. Bu yüzden her siparişi, kendi sevdiklerimize hazırlıyormuş gibi titizlikle hayata geçiriyoruz.</p>
 
-          <div className="mt-12 grid grid-cols-3 gap-8">
+          {/* <div className="mt-12 grid grid-cols-3 gap-8">
             <div>
               <div className="font-serif text-4xl text-foreground">10K+</div>
               <div className="text-sm text-muted-foreground mt-2">Mutlu Müşteri</div>
             </div>
             <div>
-              <div className="font-serif text-4xl text-foreground">15</div>
+              <div className="font-serif text-4xl text-foreground">3</div>
               <div className="text-sm text-muted-foreground mt-2">Ekip Üyesi</div>
             </div>
             <div>
               <div className="font-serif text-4xl text-foreground">4.9</div>
               <div className="text-sm text-muted-foreground mt-2">Ortalama Puan</div>
             </div>
-          </div>
+          </div> */}
 
           <div className="mt-12">
             <Link

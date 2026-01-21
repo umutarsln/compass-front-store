@@ -5,16 +5,16 @@ import Image from "next/image"
 
 const images = [
   {
-    src: "/lifestyle/cozy-bedroom-with-led-lamp-on-nightstand-warm-roma.jpg",
-    alt: "Yatak odası dekorasyonu",
+    src: "/hergeceozelbirani/hergeceozelbirani1.png",
+    alt: "Her gece özel bir anı",
   },
   {
-    src: "/gifts/couple-looking-at-personalized-led-lamp-gift-unwra.jpg",
-    alt: "Hediye anı",
+    src: "/hergeceozelbirani/hergeceozelbirani2.png",
+    alt: "Her gece özel bir anı",
   },
   {
-    src: "/products/led-lamp-glowing-in-dark-room-creating-ambient-lig.jpg",
-    alt: "Gece lambası",
+    src: "/hergeceozelbirani/hergeceozelbirani3.png",
+    alt: "Her gece özel bir anı",
   },
 ]
 
@@ -52,34 +52,51 @@ export function LifestyleSection() {
             </div>
           </motion.div>
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="space-y-4">
+            {/* Yatay görsel - Üstte */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.6, delay: 0.1 }}
-              className="aspect-[4/5] relative"
+              className="w-full aspect-[16/9] relative rounded-lg overflow-hidden"
             >
-              <Image src={images[0].src || "/placeholders/placeholder.svg"} alt={images[0].alt} fill className="object-cover" />
+              <Image 
+                src={images[0].src || "/placeholders/placeholder.svg"} 
+                alt={images[0].alt} 
+                fill 
+                className="object-cover" 
+              />
             </motion.div>
-            <div className="space-y-4">
+            {/* Kare görseller - Altta yan yana */}
+            <div className="grid grid-cols-2 gap-4">
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ duration: 0.6, delay: 0.2 }}
-                className="aspect-square relative"
+                className="aspect-square relative rounded-lg overflow-hidden"
               >
-                <Image src={images[1].src || "/placeholders/placeholder.svg"} alt={images[1].alt} fill className="object-cover" />
+                <Image 
+                  src={images[1].src || "/placeholders/placeholder.svg"} 
+                  alt={images[1].alt} 
+                  fill 
+                  className="object-cover" 
+                />
               </motion.div>
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ duration: 0.6, delay: 0.3 }}
-                className="aspect-square relative"
+                className="aspect-square relative rounded-lg overflow-hidden"
               >
-                <Image src={images[2].src || "/placeholders/placeholder.svg"} alt={images[2].alt} fill className="object-cover" />
+                <Image 
+                  src={images[2].src || "/placeholders/placeholder.svg"} 
+                  alt={images[2].alt} 
+                  fill 
+                  className="object-cover" 
+                />
               </motion.div>
             </div>
           </div>
