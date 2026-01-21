@@ -1,18 +1,27 @@
 "use client"
 
-import { Suspense } from "react"
+import { Suspense, useEffect } from "react"
 import { useSearchParams, useRouter } from "next/navigation"
 import { motion } from "framer-motion"
 import Link from "next/link"
 import { Header } from "@/components/header"
 import { Footer } from "@/components/footer"
 import { XCircle, RefreshCw, ShoppingBag, ArrowLeft, Loader2 } from "lucide-react"
+import { useCart } from "@/contexts/cart-context"
 
 function PaymentFailedContent() {
   const searchParams = useSearchParams()
   const router = useRouter()
   const orderId = searchParams.get("orderId")
   const error = searchParams.get("error")
+  const { syncCart } = useCart()
+
+  // Sync cart when page loads (backend will reactivate cart if payment failed)
+  useEffect(() => {
+    syncCart().catch((error) => {
+      console.error("Failed to sync cart:", error)
+    })
+  }, [syncCart])
 
   const handleRetry = () => {
     if (orderId) {
