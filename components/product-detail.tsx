@@ -10,6 +10,7 @@ import { useCart } from "@/contexts/cart-context"
 import type { ProductDetail as ProductDetailType } from "@/services/products"
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
 import { Badge } from "@/components/ui/badge"
+import { PersonalizationFormRenderer } from "@/components/personalization/PersonalizationFormRenderer"
 
 interface ProductDetailProps {
   product: ProductDetailType
@@ -100,101 +101,143 @@ export function ProductDetail({ product }: ProductDetailProps) {
 
   // Seçili kombinasyonu bul
   const currentCombination = useMemo(() => {
-    if (product.type === 'SIMPLE') return null
+    if (product.type === 'SIMPLE' || !validCombinations.length) return null
 
-    if (product.selectedCombination) {
-      // Seçili kombinasyon geçerli mi kontrol et
-      if (product.selectedCombination.isActive && !product.selectedCombination.isDisabled) {
-        return product.selectedCombination
-      }
-    }
+    const selectedValueIds = Object.values(selectedVariantValues)
+    if (selectedValueIds.length === 0) return null
 
-    // Seçili varyasyon değerlerine göre geçerli kombinasyon bul
-    if (validCombinations.length > 0 && Object.keys(selectedVariantValues).length > 0) {
-      const found = validCombinations.find((combination) => {
-        const combinationValueIds = combination.variantValues.map((vv: any) => vv.id).sort()
-        const selectedValueIds = Object.values(selectedVariantValues).sort()
-        return combinationValueIds.length === selectedValueIds.length &&
-          combinationValueIds.every((id, index) => id === selectedValueIds[index])
-      })
-      return found || null
-    }
-
-    return null
-  }, [product, selectedVariantValues, validCombinations])
+    // Tüm seçili değerleri içeren kombinasyonu bul
+    return validCombinations.find((combination) => {
+      const combinationValueIds = combination.variantValues.map((vv: any) => vv.id)
+      return (
+        selectedValueIds.length === combinationValueIds.length &&
+        selectedValueIds.every((id) => combinationValueIds.includes(id))
+      )
+    }) || null
+  }, [validCombinations, selectedVariantValues])
 
   // Fiyat hesapla
   const displayPrice = useMemo(() => {
     if (product.type === 'SIMPLE') {
-      return product.price
+      return product.discountedPrice || product.basePrice
     } else {
-      // Varyasyonlu ürün için seçili kombinasyonun fiyatını kullan
       if (currentCombination) {
         return currentCombination.price
       }
-      // Seçili kombinasyon yoksa en düşük fiyatlı kombinasyonu bul
-      if (product.variantCombinations && product.variantCombinations.length > 0) {
-        const prices = product.variantCombinations
-          .filter(c => c.isActive && !c.isDisabled)
-          .map(c => c.price)
-        return prices.length > 0 ? Math.min(...prices) : product.basePrice
-      }
-      return product.basePrice
+      // Kombinasyon seçilmediyse en düşük fiyatı göster
+      const prices = validCombinations.map((c) => c.price)
+      return prices.length > 0 ? Math.min(...prices) : product.basePrice
     }
-  }, [product, currentCombination])
+  }, [product, currentCombination, validCombinations])
 
-  // Kategori bilgisi
-  const category = product.categories[0]
-  const categoryName = category?.name || 'Genel'
-  const categorySlug = category?.slug || ''
-
-  const nextImage = () => {
-    setSelectedImage((prev) => (prev + 1) % images.length)
-  }
-
-  const prevImage = () => {
-    setSelectedImage((prev) => (prev - 1 + images.length) % images.length)
-  }
-
-  const handleAddToCart = () => {
+  const handleAddToCart = async () => {
     setIsAddingToCart(true)
 
-    // Sepete ekleme mantığı
-    let color = ''
-    let size = ''
+    try {
+      // Kişiselleştirme formu varsa işle
+      let personalizationData: {
+        formValues: Record<string, any>
+        fileIds: string[]
+      } | undefined = undefined
 
-    // Varyasyonlu ürünler için seçili kombinasyonun varyasyon değerlerini al
-    if (product.type === 'VARIANT' && currentCombination) {
-      currentCombination.variantValues.forEach((vv: any) => {
-        const option = product.variantOptions?.find(opt =>
-          opt.values.some(val => val.id === vv.id)
-        )
-        if (option) {
-          if (option.type === 'COLOR') {
-            color = vv.value || ''
-          } else if (option.type === 'SIZE' || option.name.toLowerCase().includes('boyut')) {
-            size = vv.value || ''
+      if (product.personalizationForm) {
+        const formData = (window as any).__personalizationFormData
+        
+        if (!formData) {
+          setIsAddingToCart(false)
+          return
+        }
+
+        // 1. Form validasyonu
+        if (formData.validate) {
+          const isValid = await formData.validate()
+          if (!isValid) {
+            setIsAddingToCart(false)
+            return
           }
         }
-      })
-    }
 
-    const cartItem = {
-      id: product.type === 'SIMPLE' ? product.productId : (currentCombination?.id || product.productId),
-      name: product.name,
-      price: displayPrice,
-      image: images[0],
-      color: color || 'N/A',
-      size: size || 'N/A',
-      productId: product.productId,
-      variantId: product.type === 'VARIANT' ? (currentCombination?.id || null) : null,
-    }
+        // 2. Dosyaları yükle (eğer varsa)
+        let uploadedFileIds: string[] = []
+        
+        if (formData.selectedFiles && Object.keys(formData.selectedFiles).length > 0) {
+          try {
+            const { uploadPersonalizationFiles, preparePersonalizationData } = await import('@/utils/personalization.helper')
+            
+            // Dosyaları yükle
+            uploadedFileIds = await uploadPersonalizationFiles(formData.selectedFiles)
+            
+            // Form değerlerini hazırla (File objelerini file ID'lere çevir)
+            const prepared = preparePersonalizationData(
+              formData.formValues || {},
+              formData.selectedFiles,
+              uploadedFileIds
+            )
+            
+            personalizationData = {
+              formValues: prepared.formValues,
+              fileIds: prepared.fileIds,
+            }
+          } catch (uploadError: any) {
+            console.error('[ProductDetail] File upload failed:', uploadError)
+            setIsAddingToCart(false)
+            return
+          }
+        } else {
+          // Dosya yoksa sadece form değerlerini kullan
+          personalizationData = {
+            formValues: formData.formValues || {},
+            fileIds: formData.fileIds || [],
+          }
+        }
+      }
 
-    addToCart(cartItem)
+      // 3. Sepete ekle
+      let color = ''
+      let size = ''
 
-    setTimeout(() => {
+      // Varyasyonlu ürünler için seçili kombinasyonun varyasyon değerlerini al
+      if (product.type === 'VARIANT' && currentCombination) {
+        currentCombination.variantValues.forEach((vv: any) => {
+          const option = product.variantOptions?.find(opt =>
+            opt.values.some(val => val.id === vv.id)
+          )
+          if (option) {
+            if (option.type === 'COLOR') {
+              color = vv.value || ''
+            } else if (option.type === 'SIZE' || option.name.toLowerCase().includes('boyut')) {
+              size = vv.value || ''
+            }
+          }
+        })
+      }
+
+      const cartItem = {
+        id: product.type === 'SIMPLE' ? product.productId : (currentCombination?.id || product.productId),
+        name: product.name,
+        price: displayPrice,
+        image: images[0],
+        color: color || 'N/A',
+        size: size || 'N/A',
+        productId: product.productId,
+        variantId: product.type === 'VARIANT' ? (currentCombination?.id || null) : null,
+      }
+
+      // Personalization data'yı window'dan temizle (bir sonraki ekleme için)
+      if (product.personalizationForm && (window as any).__personalizationFormData) {
+        // Form state'ini koru ama file ID'leri güncelle
+        ;(window as any).__personalizationFormData = {
+          ...(window as any).__personalizationFormData,
+          fileIds: personalizationData?.fileIds || [],
+        }
+      }
+
+      await addToCart(cartItem, personalizationData, true)
+    } catch (error: any) {
+      console.error("[ProductDetail] Failed to add to cart:", error)
+    } finally {
       setIsAddingToCart(false)
-    }, 500)
+    }
   }
 
   // Varyasyon değeri seçildiğinde
@@ -209,303 +252,223 @@ export function ProductDetail({ product }: ProductDetailProps) {
       [optionId]: valueId
     }
     setSelectedVariantValues(newSelectedValues)
+  }
 
-    // Yeni kombinasyonu bul (sadece geçerli kombinasyonlar arasından)
-    if (product.type === 'VARIANT' && validCombinations.length > 0) {
-      const newCombination = validCombinations.find((combination) => {
-        const combinationValueIds = combination.variantValues.map((vv: any) => vv.id).sort()
-        const selectedValueIds = Object.values(newSelectedValues).sort()
-        return combinationValueIds.length === selectedValueIds.length &&
-          combinationValueIds.every((id, index) => id === selectedValueIds[index])
-      })
+  const nextImage = () => {
+    setSelectedImage((prev) => (prev + 1) % images.length)
+  }
 
-      // Yeni kombinasyon bulunduysa ve slug'ı varsa, o slug'a yönlendir
-      if (newCombination && newCombination.slug) {
-        router.push(`/urun/${newCombination.slug}`)
-      }
-    }
+  const prevImage = () => {
+    setSelectedImage((prev) => (prev - 1 + images.length) % images.length)
   }
 
   return (
-    <section className="py-12 bg-background">
-      <div className="mx-auto max-w-7xl px-6 lg:px-8">
-        <nav className="mb-8">
-          <ol className="flex items-center gap-2 text-sm text-muted-foreground">
-            <li>
-              <Link href="/" className="hover:text-foreground transition-colors">
-                Anasayfa
-              </Link>
-            </li>
-            {categorySlug && (
+    <div className="container mx-auto px-4 py-8">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        {/* Sol Taraf - Görseller */}
+        <div className="space-y-4">
+          <div className="relative aspect-square bg-muted rounded-lg overflow-hidden">
+            <Image
+              src={images[selectedImage]}
+              alt={product.name}
+              fill
+              className="object-cover"
+              priority
+            />
+            {images.length > 1 && (
               <>
-            <li>/</li>
-            <li>
-                  <Link href={`/urunler?categorySlugs=${categorySlug}`} className="hover:text-foreground transition-colors">
-                    {categoryName}
-              </Link>
-            </li>
+                <button
+                  onClick={prevImage}
+                  className="absolute left-4 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white p-2 rounded-full transition-colors"
+                  aria-label="Önceki resim"
+                >
+                  <ChevronLeft className="w-6 h-6" />
+                </button>
+                <button
+                  onClick={nextImage}
+                  className="absolute right-4 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white p-2 rounded-full transition-colors"
+                  aria-label="Sonraki resim"
+                >
+                  <ChevronRight className="w-6 h-6" />
+                </button>
               </>
             )}
-            <li>/</li>
-            <li className="text-foreground">{product.name}</li>
-          </ol>
-        </nav>
-
-        <div className="grid lg:grid-cols-2 gap-12 lg:gap-20">
-          <div>
-            <div className="relative aspect-4/5 bg-secondary overflow-hidden rounded-lg">
-              <Image
-                src={images[selectedImage] || "/placeholders/placeholder.svg"}
-                alt={product.name}
-                fill
-                className="object-cover"
-                priority
-              />
-              {images.length > 1 && (
-                <>
-                  <button
-                    onClick={prevImage}
-                    className="absolute left-4 top-1/2 -translate-y-1/2 w-10 h-10 bg-background/80 backdrop-blur-sm flex items-center justify-center hover:bg-background transition-colors rounded-full"
-                    aria-label="Önceki resim"
-                  >
-                    <ChevronLeft className="w-5 h-5" />
-                  </button>
-                  <button
-                    onClick={nextImage}
-                    className="absolute right-4 top-1/2 -translate-y-1/2 w-10 h-10 bg-background/80 backdrop-blur-sm flex items-center justify-center hover:bg-background transition-colors rounded-full"
-                    aria-label="Sonraki resim"
-                  >
-                    <ChevronRight className="w-5 h-5" />
-                  </button>
-                </>
-              )}
-            </div>
-
-            {images.length > 1 && (
-              <div className="flex gap-3 mt-4 overflow-x-auto">
-                {images.map((image, index) => (
+          </div>
+          {images.length > 1 && (
+            <div className="grid grid-cols-4 gap-2">
+              {images.map((img, index) => (
                 <button
                   key={index}
                   onClick={() => setSelectedImage(index)}
-                    className={`relative w-20 h-20 overflow-hidden rounded-lg shrink-0 ${selectedImage === index ? "ring-2 ring-foreground" : ""
+                  className={`relative aspect-square rounded-lg overflow-hidden border-2 transition-colors ${
+                    selectedImage === index ? 'border-primary' : 'border-transparent'
                   }`}
                 >
                   <Image
-                    src={image || "/placeholders/placeholder.svg"}
-                    alt={`${product.name} - Görsel ${index + 1}`}
+                    src={img}
+                    alt={`${product.name} - Resim ${index + 1}`}
                     fill
                     className="object-cover"
                   />
                 </button>
               ))}
             </div>
+          )}
+        </div>
+
+        {/* Sağ Taraf - Ürün Bilgileri */}
+        <div className="space-y-6">
+          <div>
+            <h1 className="text-3xl font-bold text-foreground mb-2">{product.name}</h1>
+          </div>
+
+          <div className="flex items-center gap-4">
+            <span className="text-3xl font-bold text-foreground">
+              {displayPrice.toLocaleString('tr-TR')} ₺
+            </span>
+            {product.type === 'SIMPLE' && product.discountedPrice && (
+              <span className="text-xl text-muted-foreground line-through">
+                {product.basePrice.toLocaleString('tr-TR')} ₺
+              </span>
             )}
           </div>
 
-          <div>
-            <p className="text-sm text-muted-foreground uppercase tracking-wider">{categoryName}</p>
-            <h1 className="mt-2 font-serif text-3xl sm:text-4xl text-foreground">{product.name}</h1>
+          {/* Varyasyon Seçimi */}
+          {product.type === 'VARIANT' && product.variantOptions && (
+            <div className="space-y-4">
+              {product.variantOptions.map((option) => (
+                <div key={option.id}>
+                  <label className="block text-sm font-medium text-foreground mb-2">
+                    {option.name}
+                  </label>
+                  <div className="flex flex-wrap gap-2">
+                    {option.values.map((value) => {
+                      const isSelected = selectedVariantValues[option.id] === value.id
+                      const isSelectable = isVariantValueSelectable(option.id, value.id)
+                      const isDisabled = !isSelectable
 
-            {/* Fiyat ve İndirim */}
-            <div className="mt-4 flex items-baseline gap-2">
-              {product.isOnSale && product.discountedPrice && product.basePrice > product.discountedPrice ? (
-                <>
-                  <span className="text-2xl font-bold text-foreground">
-                    {displayPrice.toLocaleString("tr-TR")} ₺
-                  </span>
-                  <span className="text-lg text-muted-foreground line-through">
-                    {product.basePrice.toLocaleString("tr-TR")} ₺
-                  </span>
-                  <Badge className="bg-red-500 text-white">
-                    %{Math.round(((product.basePrice - product.discountedPrice) / product.basePrice) * 100)} İNDİRİM
-                  </Badge>
-                </>
-              ) : (
-                <span className="text-2xl font-bold text-foreground">
-                  {displayPrice.toLocaleString("tr-TR")} ₺
-                </span>
+                      return (
+                        <button
+                          key={value.id}
+                          onClick={() => handleVariantValueSelect(option.id, value.id)}
+                          disabled={isDisabled}
+                          className={`
+                            px-4 py-2 rounded-lg border-2 transition-all
+                            ${isSelected
+                              ? 'border-primary bg-primary text-primary-foreground'
+                              : 'border-border hover:border-primary/50'
+                            }
+                            ${isDisabled
+                              ? 'opacity-50 cursor-not-allowed'
+                              : 'cursor-pointer'
+                            }
+                          `}
+                        >
+                          {value.value}
+                        </button>
+                      )
+                    })}
+                  </div>
+                </div>
+              ))}
+              {currentCombination && (
+                <div className="mt-4 p-4 bg-muted rounded-lg">
+                  <p className="text-sm text-muted-foreground">
+                    Seçili kombinasyon
+                  </p>
+                  <p className="text-lg font-semibold text-foreground mt-2">
+                    {displayPrice.toLocaleString('tr-TR')} ₺
+                  </p>
+                </div>
               )}
             </div>
+          )}
 
-            <p className="mt-6 text-muted-foreground leading-relaxed">{product.description}</p>
-
-            {/* Varyasyon Seçenekleri (Varyasyonlu Ürünler için) */}
-            {product.type === 'VARIANT' && product.variantOptions && product.variantOptions.length > 0 && (
-            <div className="mt-8 space-y-6">
-                {product.variantOptions.map((option) => (
-                  <div key={option.id}>
-                    <label className="block text-sm font-medium text-foreground mb-3">
-                      {option.name} {option.isRequired && <span className="text-red-500">*</span>}
-                    </label>
-                <div className="flex flex-wrap gap-2">
-                      {option.values
-                        .filter(value => value.isActive)
-                        .map((value) => {
-                          const isSelected = selectedVariantValues[option.id] === value.id
-                          const isSelectable = isVariantValueSelectable(option.id, value.id)
-                          const isDisabled = !isSelectable
-
-                          return (
-                    <button
-                              key={value.id}
-                              onClick={() => {
-                                if (!isDisabled) {
-                                  handleVariantValueSelect(option.id, value.id)
-                                }
-                              }}
-                              disabled={isDisabled}
-                              className={`px-4 py-2 text-sm border transition-colors rounded-lg relative ${isDisabled
-                                ? "opacity-40 cursor-not-allowed border-muted/50 bg-muted/20"
-                                : isSelected
-                          ? "border-foreground bg-foreground text-background"
-                          : "border-border hover:border-foreground"
-                      }`}
-                              title={isDisabled ? "Bu seçenek mevcut değil" : undefined}
-                            >
-                              <span className={`relative ${isDisabled ? "line-through decoration-2" : ""}`}>
-                                {option.type === 'COLOR' && value.colorCode ? (
-                                  <div className="flex items-center gap-2">
-                                    <div
-                                      className="w-5 h-5 rounded-full border border-border"
-                                      style={{ backgroundColor: value.colorCode }}
-                                    />
-                                    <span>{value.value}</span>
-                                  </div>
-                                ) : (
-                                  value.value
-                                )}
-                              </span>
-                              {value.priceDelta !== 0 && (
-                                <span className={`ml-2 text-xs ${isDisabled ? "line-through decoration-2" : ""}`}>
-                                  {value.priceDelta > 0 ? '+' : ''}{value.priceDelta.toLocaleString("tr-TR")} ₺
-                                </span>
-                              )}
-                    </button>
-                          )
-                        })}
-                </div>
-              </div>
-                  ))}
-                </div>
-            )}
-
-            {/* Stok Durumu */}
-            {product.type === 'SIMPLE' && product.stock && product.stock.usableQuantity > 0 && (
-              <div className="mt-6">
-                <p className="text-sm text-muted-foreground">Stokta var ({product.stock.usableQuantity} adet)</p>
-                    </div>
-                  )}
-
-            {product.type === 'VARIANT' && currentCombination && currentCombination.stock && currentCombination.stock.usableQuantity > 0 && (
-              <div className="mt-6">
-                <p className="text-sm text-muted-foreground">Stokta var ({currentCombination.stock.usableQuantity} adet)</p>
-              </div>
-            )}
-
-            <div className="mt-8 flex gap-4">
-              {(() => {
-                // Stok durumunu kontrol et
-                const isOutOfStock =
-                  (product.type === 'SIMPLE' && product.stock?.usableQuantity === 0) ||
-                  (product.type === 'VARIANT' && currentCombination?.stock?.usableQuantity === 0) ||
-                  (product.type === 'VARIANT' && !currentCombination)
-
-                if (isOutOfStock) {
-                  return (
-                    <button
-                      disabled
-                      className="flex-1 py-4 bg-muted text-muted-foreground font-medium text-sm uppercase tracking-wider cursor-not-allowed flex items-center justify-center gap-2 rounded-lg"
-                    >
-                      Stokta Yok
-                    </button>
-                  )
-                }
-
-                return (
-              <button
-                onClick={handleAddToCart}
-                disabled={isAddingToCart}
-                    className="flex-1 py-4 bg-primary text-primary-foreground font-medium text-sm uppercase tracking-wider hover:bg-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 rounded-lg"
-              >
-                {isAddingToCart ? (
-                  <>
-                    <div className="w-4 h-4 border-2 border-primary-foreground border-t-transparent rounded-full animate-spin" />
-                    Ekleniyor...
-                  </>
-                ) : (
-                  <>
-                    <ShoppingCart className="w-4 h-4" />
-                    Sepete Ekle
-                  </>
-                )}
-              </button>
-                )
-              })()}
-              <Link
-                href="/sepet"
-                className="px-6 py-4 border-2 border-foreground text-foreground font-medium text-sm uppercase tracking-wider hover:bg-foreground hover:text-background transition-colors flex items-center justify-center rounded-lg"
-              >
-                Sepete Git
-              </Link>
+          {/* Kişiselleştirme Formu */}
+          {product.personalizationForm && (
+            <div className="mt-6">
+              <PersonalizationFormRenderer
+                formData={product.personalizationForm}
+                productId={product.productId}
+                variantId={product.type === 'VARIANT' ? currentCombination?.id : undefined}
+              />
             </div>
+          )}
 
-            <div className="mt-8 flex justify-center">
-              <div className="grid grid-cols-3 gap-4">
-                <div className="flex items-center gap-3">
-                  <Truck className="w-5 h-5 text-muted-foreground shrink-0" />
-                  <div>
-                    <p className="text-xs font-medium text-foreground">Teslimat</p>
-                    <p className="text-xs text-muted-foreground">3-5 iş günü</p>
-                  </div>
-                </div>
-                <div className="flex items-center gap-3">
-                  <Shield className="w-5 h-5 text-muted-foreground shrink-0" />
-                  <div>
-                    <p className="text-xs font-medium text-foreground">Güvenli</p>
-                    <p className="text-xs text-muted-foreground">SSL Ödeme</p>
-                  </div>
-                </div>
-                <div className="flex items-center gap-3">
-                  <Clock className="w-5 h-5 text-muted-foreground shrink-0" />
-                  <div>
-                    <p className="text-xs font-medium text-foreground">Özel Üretim</p>
-                    <p className="text-xs text-muted-foreground">Sizin için</p>
-                  </div>
-                </div>
+          {/* Sepete Ekle Butonu */}
+          <div className="flex gap-4">
+            {(() => {
+              const canAddToCart = product.type === 'SIMPLE' || currentCombination
+              return (
+                <button
+                  onClick={handleAddToCart}
+                  disabled={isAddingToCart || !canAddToCart}
+                  className="flex-1 py-4 bg-primary text-primary-foreground font-medium text-sm uppercase tracking-wider hover:bg-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 rounded-lg"
+                >
+                  {isAddingToCart ? (
+                    <>
+                      <div className="w-4 h-4 border-2 border-primary-foreground border-t-transparent rounded-full animate-spin" />
+                      Ekleniyor...
+                    </>
+                  ) : (
+                    <>
+                      <ShoppingCart className="w-4 h-4" />
+                      Sepete Ekle
+                    </>
+                  )}
+                </button>
+              )
+            })()}
+            <Link
+              href="/sepet"
+              className="px-6 py-4 border-2 border-foreground text-foreground font-medium text-sm uppercase tracking-wider hover:bg-foreground hover:text-background transition-colors flex items-center justify-center rounded-lg"
+            >
+              Sepete Git
+            </Link>
+          </div>
+
+          {/* Ürün Özellikleri */}
+          <div className="grid grid-cols-3 gap-4 pt-6 border-t">
+            <div className="flex items-center gap-2">
+              <Truck className="w-5 h-5 text-muted-foreground" />
+              <div>
+                <p className="text-sm font-medium text-foreground">Ücretsiz Kargo</p>
+                <p className="text-xs text-muted-foreground">150₺ üzeri</p>
+              </div>
+            </div>
+            <div className="flex items-center gap-2">
+              <Shield className="w-5 h-5 text-muted-foreground" />
+              <div>
+                <p className="text-sm font-medium text-foreground">Güvenli Ödeme</p>
+                <p className="text-xs text-muted-foreground">SSL ile korumalı</p>
+              </div>
+            </div>
+            <div className="flex items-center gap-2">
+              <Clock className="w-5 h-5 text-muted-foreground" />
+              <div>
+                <p className="text-sm font-medium text-foreground">Hızlı Teslimat</p>
+                <p className="text-xs text-muted-foreground">3-5 iş günü</p>
               </div>
             </div>
           </div>
         </div>
+      </div>
 
-        {/* Ürün Açıklama Tab Bölümü */}
-        <div
-          className="mt-16 lg:mt-20"
-        >
+      {/* Ürün Açıklaması */}
+      {product.description && (
+        <div className="mt-12">
           <Tabs defaultValue="description" className="w-full">
-            <TabsList className="w-full lg:w-fit mb-0 h-auto bg-transparent border-b border-border rounded-none p-0">
-              <TabsTrigger 
-                value="description" 
-                className="px-6 py-3 text-base font-medium data-[state=active]:border-b-2 data-[state=active]:border-foreground data-[state=active]:bg-transparent rounded-none"
-              >
-                Ürün Açıklaması
-              </TabsTrigger>
+            <TabsList>
+              <TabsTrigger value="description">Açıklama</TabsTrigger>
             </TabsList>
-
-            <TabsContent value="description" className="mt-0">
-              <div className="bg-secondary/30 border-x border-b border-border p-6 lg:p-8 -mt-px">
-                <div className="space-y-6">
-                  <div>
-                    <h3 className="text-lg font-medium text-foreground mb-4">Ürün Hakkında</h3>
-                    <p className="text-sm text-muted-foreground leading-relaxed whitespace-pre-line">
-                      {product.description}
-                    </p>
-                  </div>
-                </div>
+            <TabsContent value="description" className="mt-6">
+              <div className="prose max-w-none">
+                <p className="text-muted-foreground whitespace-pre-line">{product.description}</p>
               </div>
             </TabsContent>
           </Tabs>
         </div>
-      </div>
-    </section>
+      )}
+    </div>
   )
 }

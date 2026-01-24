@@ -31,6 +31,7 @@ export interface CartItem {
       type: 'COLOR' | 'TEXT'
     } | null
   }>
+  personalization?: any // Personalization snapshot data
 }
 
 interface CartContextType {
@@ -42,9 +43,24 @@ interface CartContextType {
   removingItems: Set<string> // productId-variantId kombinasyonları için loading state
   openSidebar: () => void
   closeSidebar: () => void
-  addToCart: (item: Omit<CartItem, "quantity">, shouldOpenSidebar?: boolean) => Promise<void>
+  addToCart: (
+    item: Omit<CartItem, "quantity">,
+    personalizationData?: {
+      formValues: Record<string, any>
+      fileIds: string[]
+    } | undefined,
+    shouldOpenSidebar?: boolean
+  ) => Promise<void>
   removeFromCart: (productId: string, variantId: string | null) => Promise<void>
   updateQuantity: (productId: string, variantId: string | null, quantity: number) => Promise<void>
+  updatePersonalization: (
+    productId: string,
+    variantId: string | null,
+    personalizationData: {
+      formValues: Record<string, any>
+      fileIds: string[]
+    }
+  ) => Promise<void>
   clearCart: () => void
   getTotalItems: () => number
   getTotalPrice: () => number
@@ -194,6 +210,10 @@ export function CartProvider({ children }: { children: ReactNode }) {
 
   const addToCart = async (
     item: Omit<CartItem, "quantity">,
+    personalizationData?: {
+      formValues: Record<string, any>
+      fileIds: string[]
+    } | undefined,
     shouldOpenSidebar: boolean = true
   ) => {
     const productId = item.productId || item.id
@@ -213,11 +233,20 @@ export function CartProvider({ children }: { children: ReactNode }) {
         setCartId(cartId)
       }
 
+      // Personalization data parametreden geliyor (zaten hazırlanmış)
+      const personalization = personalizationData
+        ? {
+            formValues: personalizationData.formValues,
+            fileIds: personalizationData.fileIds,
+          }
+        : undefined
+
       // Add item to cart
       await cartService.addItem(cartId, {
         productId,
         variantId: variantId || undefined,
         quantity: 1,
+        personalization,
       })
 
       // Sync cart to get updated state
@@ -360,6 +389,53 @@ export function CartProvider({ children }: { children: ReactNode }) {
     }
   }
 
+  const updatePersonalization = async (
+    productId: string,
+    variantId: string | null,
+    personalizationData: {
+      formValues: Record<string, any>
+      fileIds: string[]
+    }
+  ) => {
+    const key = `${productId}-${variantId || 'null'}`
+    setUpdatingItems((prev) => new Set(prev).add(key))
+
+    try {
+      const cartId = getCartId()
+      if (!cartId) {
+        throw new Error('Sepet bulunamadı')
+      }
+
+      // Find backend item ID
+      const cart = await cartService.getCart(cartId)
+      const backendItem = cart.items.find(
+        (i) => i.productId === productId && i.variantId === variantId
+      )
+
+      if (!backendItem) {
+        throw new Error('Sepet öğesi bulunamadı')
+      }
+
+      // Update item with new personalization
+      await cartService.updateItem(cartId, backendItem.id, {
+        quantity: backendItem.quantity, // Keep existing quantity
+        personalization: personalizationData,
+      })
+
+      // Sync cart to get updated state
+      await syncCart()
+    } catch (error) {
+      console.error("Failed to update personalization:", error)
+      throw error
+    } finally {
+      setUpdatingItems((prev) => {
+        const next = new Set(prev)
+        next.delete(key)
+        return next
+      })
+    }
+  }
+
   const isUpdatingItem = (productId: string, variantId: string | null): boolean => {
     const key = `${productId}-${variantId || 'null'}`
     return updatingItems.has(key)
@@ -401,6 +477,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
         addToCart,
         removeFromCart,
         updateQuantity,
+        updatePersonalization,
         clearCart,
         getTotalItems,
         getTotalPrice,
@@ -444,7 +521,7 @@ function mapBackendItemsToLegacy(backendItems: BackendCartItem[]): CartItem[] {
     }
 
     return {
-      id: item.productId, // Use productId as id for legacy compatibility
+      id: item.id, // Use cart item ID (unique per item, even for same product with different personalizations)
       name: product?.name || 'Ürün',
       price: price,
       image: imageUrl,
@@ -452,6 +529,7 @@ function mapBackendItemsToLegacy(backendItems: BackendCartItem[]): CartItem[] {
       productId: item.productId,
       variantId: item.variantId,
       variantValues: variant?.variantValues || [],
+      personalization: item.personalization || undefined,
     }
   })
 }

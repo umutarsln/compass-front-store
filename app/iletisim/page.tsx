@@ -21,7 +21,6 @@ export default function ContactPage() {
     e.preventDefault()
     console.log("Form submitted:", formData)
     // TODO: Backend entegrasyonu
-    alert("Mesajınız alındı! En kısa sürede size dönüş yapacağız.")
     setFormData({ name: "", email: "", phone: "", message: "" })
   }
 

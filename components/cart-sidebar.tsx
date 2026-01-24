@@ -124,7 +124,7 @@ export function CartSidebar() {
                 ) : (
                   <div className="space-y-3 md:space-y-4">
                     {items.map((item) => (
-                      <div key={`${item.productId}-${item.variantId || 'simple'}`} className="flex gap-2 md:gap-3 pb-3 md:pb-4 border-b border-border last:border-0">
+                      <div key={item.id} className="flex gap-2 md:gap-3 pb-3 md:pb-4 border-b border-border last:border-0">
                         <div className="relative w-14 h-14 md:w-16 md:h-16 flex-shrink-0 bg-secondary rounded overflow-hidden">
                           <Image
                             src={item.image || "/placeholders/placeholder.svg"}

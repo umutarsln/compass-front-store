@@ -1,0 +1,734 @@
+"use client"
+
+import { useState, useCallback, useRef, useEffect } from "react"
+import { useDropzone } from "react-dropzone"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { Textarea } from "@/components/ui/textarea"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
+import { Checkbox } from "@/components/ui/checkbox"
+import { Switch } from "@/components/ui/switch"
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
+import { Alert, AlertDescription } from "@/components/ui/alert"
+import { AlertCircle, Upload, X, Loader2, Check, FileImage } from "lucide-react"
+import { uploadService } from "@/services/upload.service"
+import Image from "next/image"
+import { Button } from "@/components/ui/button"
+
+interface FieldRendererProps {
+  field: {
+    id: string
+    key: string
+    title: string
+    subtitle?: string | null
+    helperText?: string | null
+    required: boolean
+    type: string
+    defaultValue?: any
+    validationRules?: any
+    pricingRules?: any
+    config?: any
+    orderIndex: number
+  }
+  value: any
+  error?: string
+  onChange: (value: any) => void
+  onFileSelect?: (files: File[]) => void
+  existingFiles?: Array<{ id: string; url: string }> // Existing files with IDs and URLs (from cart/order)
+  onRemoveExistingFile?: (fileId: string) => void // Callback to remove an existing file
+  isLoadingExistingFiles?: boolean // Loading state for existing files
+}
+
+export function FieldRenderer({
+  field,
+  value,
+  error,
+  onChange,
+  onFileSelect,
+  existingFiles = [],
+  onRemoveExistingFile,
+  isLoadingExistingFiles = false,
+}: FieldRendererProps) {
+  const [uploadErrors, setUploadErrors] = useState<Record<string, string>>({})
+  const [selectedFiles, setSelectedFiles] = useState<Array<{ file: File; preview: string }>>([])
+  const fileInputRef = useRef<HTMLInputElement>(null)
+
+  const handleFileSelect = (files: File[]) => {
+    console.log('[FieldRenderer] handleFileSelect called', { files: files.length, fieldKey: field.key })
+    const isMulti = field.type.includes('MULTI')
+    const maxFiles = field.config?.maxFileCount
+    const allowedTypes = field.config?.allowedMimeTypes || []
+    const maxSize = field.config?.maxFileSize ? field.config.maxFileSize * 1024 * 1024 : undefined
+
+    // Validate file count (consider both existing and new files)
+    if (isMulti) {
+      const existingCount = existingFiles.length || 0
+      const currentCount = selectedFiles.length
+      const newCount = currentCount + files.length
+      const totalCount = existingCount + newCount
+      
+      if (maxFiles && totalCount > maxFiles) {
+        setUploadErrors((prev) => ({
+          ...prev,
+          [field.key]: `Maksimum ${maxFiles} dosya seçebilirsiniz (şu anda ${existingCount} mevcut dosya var)`,
+        }))
+        return
+      }
+    } else if (files.length > 1) {
+      setUploadErrors((prev) => ({
+        ...prev,
+        [field.key]: 'Sadece bir dosya seçebilirsiniz',
+      }))
+      return
+    }
+
+    // Validate file types and sizes
+    for (const file of files) {
+      if (allowedTypes.length > 0 && !allowedTypes.includes(file.type)) {
+        setUploadErrors((prev) => ({
+          ...prev,
+          [field.key]: `Dosya tipi desteklenmiyor. İzin verilen tipler: ${allowedTypes.join(', ')}`,
+        }))
+        return
+      }
+
+      if (maxSize && file.size > maxSize) {
+        setUploadErrors((prev) => ({
+          ...prev,
+          [field.key]: `Dosya boyutu çok büyük. Maksimum: ${field.config.maxFileSize}MB`,
+        }))
+        return
+      }
+    }
+
+    // Clear errors
+    setUploadErrors((prev) => {
+      const newErrors = { ...prev }
+      delete newErrors[field.key]
+      return newErrors
+    })
+
+    // Store files locally with preview URLs
+    const newFiles = files.map((file) => ({
+      file,
+      preview: field.type.includes('IMAGE') ? URL.createObjectURL(file) : '',
+    }))
+
+    if (isMulti) {
+      // For MULTI: Add new files to existing ones
+      setSelectedFiles((prev) => {
+        console.log('[FieldRenderer] Adding files to existing', {
+          existing: prev.length,
+          new: newFiles.length
+        })
+        return [...prev, ...newFiles]
+      })
+      // Store file objects in form value (will be uploaded when adding to cart)
+      // Get current files from selectedFiles state, not from value prop
+      const currentFileObjects = selectedFiles.map((f) => f.file)
+      const allFiles = [...currentFileObjects, ...files]
+      onChange(allFiles)
+      // Call onFileSelect callback
+      if (onFileSelect) {
+        onFileSelect(allFiles)
+      }
+    } else {
+      // For SINGLE: Replace existing file
+      // Revoke previous preview URL
+      if (selectedFiles[0]?.preview) {
+        URL.revokeObjectURL(selectedFiles[0].preview)
+      }
+      setSelectedFiles(newFiles)
+      onChange(files[0])
+      // Call onFileSelect callback
+      if (onFileSelect) {
+        onFileSelect([files[0]])
+      }
+    }
+  }
+
+  const onDrop = useCallback(
+    (acceptedFiles: File[]) => {
+      console.log('[FieldRenderer] onDrop called', { files: acceptedFiles.length })
+      handleFileSelect(acceptedFiles)
+    },
+    [field],
+  )
+
+  const { getRootProps, getInputProps, isDragActive, open } = useDropzone({
+    onDrop,
+    accept: field.type.includes('IMAGE')
+      ? { 'image/*': [] }
+      : field.config?.allowedMimeTypes
+        ? Object.fromEntries(field.config.allowedMimeTypes.map((type: string) => [type, []]))
+        : undefined,
+    multiple: field.type.includes('MULTI'),
+    maxFiles: field.config?.maxFileCount,
+    disabled: false,
+    noClick: true, // Disable default click behavior, we'll handle it manually
+    noKeyboard: false,
+  })
+
+  const handleClick = useCallback(() => {
+    console.log('[FieldRenderer] handleClick called', {
+      fieldKey: field.key,
+      isDragActive,
+      hasOpen: !!open,
+      openType: typeof open
+    })
+    if (!isDragActive && open && typeof open === 'function') {
+      console.log('[FieldRenderer] Opening file dialog')
+      try {
+        open()
+      } catch (error) {
+        console.error('[FieldRenderer] Error opening file dialog:', error)
+      }
+    } else {
+      console.log('[FieldRenderer] Cannot open dialog', {
+        isDragActive,
+        hasOpen: !!open,
+        openType: typeof open
+      })
+      // Fallback: try to click the input directly
+      if (fileInputRef.current) {
+        console.log('[FieldRenderer] Trying to click input directly')
+        fileInputRef.current.click()
+      }
+    }
+  }, [field.key, isDragActive, open])
+
+  const removeFile = (index: number) => {
+    const fileToRemove = selectedFiles[index]
+    if (fileToRemove?.preview) {
+      URL.revokeObjectURL(fileToRemove.preview)
+    }
+
+    if (field.type.includes('MULTI')) {
+      const newFiles = selectedFiles.filter((_, i) => i !== index)
+      setSelectedFiles(newFiles)
+      const fileObjects = newFiles.map((f) => f.file)
+      onChange(fileObjects)
+      if (onFileSelect) {
+        onFileSelect(fileObjects)
+      }
+    } else {
+      setSelectedFiles([])
+      onChange(null)
+      if (onFileSelect) {
+        onFileSelect([])
+      }
+    }
+  }
+
+  // Initialize selectedFiles from value prop
+  useEffect(() => {
+    if (value) {
+      const files = field.type.includes('MULTI')
+        ? (Array.isArray(value) ? value : [])
+        : [value]
+
+      // Check if value contains File objects
+      if (files.length > 0 && files[0] instanceof File) {
+        const fileData = files.map((file: File) => ({
+          file,
+          preview: field.type.includes('IMAGE') ? URL.createObjectURL(file) : '',
+        }))
+        setSelectedFiles(fileData)
+      }
+    } else {
+      setSelectedFiles([])
+    }
+  }, [value, field.type])
+
+  // Cleanup preview URLs on unmount
+  useEffect(() => {
+    return () => {
+      selectedFiles.forEach((file) => {
+        if (file.preview) {
+          URL.revokeObjectURL(file.preview)
+        }
+      })
+    }
+  }, [selectedFiles])
+
+  const renderField = () => {
+    switch (field.type) {
+      case "TEXT":
+      case "EMAIL":
+      case "PHONE":
+        return (
+          <Input
+            type={
+              field.type === "EMAIL"
+                ? "email"
+                : field.type === "PHONE"
+                  ? "tel"
+                  : "text"
+            }
+            value={value || ""}
+            onChange={(e) => onChange(e.target.value)}
+            placeholder={field.helperText || ""}
+            className={error ? "border-red-500" : ""}
+          />
+        )
+
+      case "TEXTAREA":
+        return (
+          <Textarea
+            value={value || ""}
+            onChange={(e) => onChange(e.target.value)}
+            placeholder={field.helperText || ""}
+            className={error ? "border-red-500" : ""}
+            rows={4}
+          />
+        )
+
+      case "NUMBER":
+        return (
+          <Input
+            type="number"
+            value={value || ""}
+            onChange={(e) => onChange(Number(e.target.value))}
+            placeholder={field.helperText || ""}
+            className={error ? "border-red-500" : ""}
+            min={field.validationRules?.min}
+            max={field.validationRules?.max}
+          />
+        )
+
+      case "SELECT":
+        const selectOptions = field.config?.options || []
+        return (
+          <Select
+            value={value || ""}
+            onValueChange={onChange}
+          >
+            <SelectTrigger className={error ? "border-red-500" : ""}>
+              <SelectValue placeholder="Seçiniz..." />
+            </SelectTrigger>
+            <SelectContent>
+              {selectOptions.map((option: string) => (
+                <SelectItem key={option} value={option}>
+                  {option}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        )
+
+      case "MULTISELECT":
+        const multiOptions = field.config?.options || []
+        const selectedValues = Array.isArray(value) ? value : []
+        return (
+          <div className="space-y-2">
+            {multiOptions.map((option: string) => (
+              <div key={option} className="flex items-center space-x-2">
+                <Checkbox
+                  id={`${field.key}-${option}`}
+                  checked={selectedValues.includes(option)}
+                  onCheckedChange={(checked) => {
+                    if (checked) {
+                      onChange([...selectedValues, option])
+                    } else {
+                      onChange(selectedValues.filter((v) => v !== option))
+                    }
+                  }}
+                />
+                <Label
+                  htmlFor={`${field.key}-${option}`}
+                  className="cursor-pointer"
+                >
+                  {option}
+                </Label>
+              </div>
+            ))}
+          </div>
+        )
+
+      case "RADIO":
+        const radioOptions = field.config?.options || []
+        return (
+          <RadioGroup
+            value={value || ""}
+            onValueChange={onChange}
+          >
+            {radioOptions.map((option: string) => (
+              <div key={option} className="flex items-center space-x-2">
+                <RadioGroupItem value={option} id={`${field.key}-${option}`} />
+                <Label htmlFor={`${field.key}-${option}`} className="cursor-pointer">
+                  {option}
+                </Label>
+              </div>
+            ))}
+          </RadioGroup>
+        )
+
+      case "CHECKBOX":
+        return (
+          <div className="flex items-center space-x-2">
+            <Checkbox
+              id={field.key}
+              checked={value || false}
+              onCheckedChange={onChange}
+            />
+            <Label htmlFor={field.key} className="cursor-pointer">
+              {field.subtitle || field.title}
+            </Label>
+          </div>
+        )
+
+      case "TOGGLE":
+        return (
+          <div className="flex items-center space-x-2">
+            <Switch
+              id={field.key}
+              checked={value || false}
+              onCheckedChange={onChange}
+            />
+            <Label htmlFor={field.key} className="cursor-pointer">
+              {field.subtitle || field.title}
+            </Label>
+          </div>
+        )
+
+      case "COLOR_PICKER":
+        return (
+          <div className="flex gap-2">
+            <Input
+              type="color"
+              value={value || "#000000"}
+              onChange={(e) => onChange(e.target.value)}
+              className="w-20 h-10"
+            />
+            <Input
+              type="text"
+              value={value || ""}
+              onChange={(e) => onChange(e.target.value)}
+              placeholder="#000000"
+              className={error ? "border-red-500" : ""}
+            />
+          </div>
+        )
+
+      case "DATE":
+        return (
+          <Input
+            type="date"
+            value={value || ""}
+            onChange={(e) => onChange(e.target.value)}
+            className={error ? "border-red-500" : ""}
+          />
+        )
+
+      case "TIME":
+        return (
+          <Input
+            type="time"
+            value={value || ""}
+            onChange={(e) => onChange(e.target.value)}
+            className={error ? "border-red-500" : ""}
+          />
+        )
+
+      case "RANGE_SLIDER":
+        const min = field.config?.min || 0
+        const max = field.config?.max || 100
+        return (
+          <div className="space-y-2">
+            <input
+              type="range"
+              min={min}
+              max={max}
+              value={value || min}
+              onChange={(e) => onChange(Number(e.target.value))}
+              className="w-full"
+            />
+            <div className="flex justify-between text-sm text-muted-foreground">
+              <span>{min}</span>
+              <span className="font-medium">{value || min}</span>
+              <span>{max}</span>
+            </div>
+          </div>
+        )
+
+      case "DIMENSIONS":
+        return (
+          <div className="grid grid-cols-3 gap-2">
+            <div>
+              <Label className="text-xs">Genişlik</Label>
+              <Input
+                type="number"
+                value={value?.width || ""}
+                onChange={(e) =>
+                  onChange({
+                    ...value,
+                    width: Number(e.target.value),
+                  })
+                }
+                placeholder="cm"
+              />
+            </div>
+            <div>
+              <Label className="text-xs">Yükseklik</Label>
+              <Input
+                type="number"
+                value={value?.height || ""}
+                onChange={(e) =>
+                  onChange({
+                    ...value,
+                    height: Number(e.target.value),
+                  })
+                }
+                placeholder="cm"
+              />
+            </div>
+            <div>
+              <Label className="text-xs">Derinlik</Label>
+              <Input
+                type="number"
+                value={value?.depth || ""}
+                onChange={(e) =>
+                  onChange({
+                    ...value,
+                    depth: Number(e.target.value),
+                  })
+                }
+                placeholder="cm"
+              />
+            </div>
+          </div>
+        )
+
+      case "IMAGE_PICKER_SINGLE":
+      case "IMAGE_PICKER_MULTI":
+      case "FILE_UPLOAD_SINGLE":
+      case "FILE_UPLOAD_MULTI":
+        const isMulti = field.type.includes("MULTI")
+        const isImageType = field.type.includes("IMAGE")
+
+        return (
+          <div className="space-y-3">
+            {/* Drag & Drop Area */}
+            <div
+              {...getRootProps()}
+              onClick={(e) => {
+                console.log('[FieldRenderer] Root div clicked', {
+                  isDragActive,
+                  hasOpen: !!open,
+                  eventType: e.type,
+                  target: e.target
+                })
+                e.preventDefault()
+                e.stopPropagation()
+                handleClick()
+              }}
+              className={`
+                relative border-2 border-dashed rounded-lg p-6 text-center cursor-pointer transition-all
+                ${isDragActive ? "border-primary bg-primary/5" : "border-border hover:border-primary/50"}
+                ${error ? "border-red-500" : ""}
+              `}
+            >
+              <input
+                {...getInputProps()}
+                ref={fileInputRef}
+                style={{ position: 'absolute', opacity: 0, width: '100%', height: '100%', cursor: 'pointer', zIndex: 1 }}
+                onChange={(e) => {
+                  console.log('[FieldRenderer] Input onChange', {
+                    files: e.target.files?.length,
+                    isMulti,
+                    currentSelected: selectedFiles.length
+                  })
+                  if (e.target.files && e.target.files.length > 0) {
+                    const newFiles = Array.from(e.target.files)
+                    handleFileSelect(newFiles)
+                  }
+                  // Reset input value to allow selecting the same file again
+                  if (e.target) {
+                    e.target.value = ''
+                  }
+                }}
+              />
+              <div className="flex flex-col items-center gap-3">
+                <Upload className="w-8 h-8 text-muted-foreground" />
+                <div>
+                  <p className="text-sm font-medium text-foreground">
+                    {isDragActive
+                      ? "Dosyaları buraya bırakın"
+                      : "Dosyaları buraya sürükleyin"}
+                  </p>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    veya tıklayarak seçin
+                  </p>
+                  {field.config?.maxFileSize && (
+                    <p className="text-xs text-muted-foreground mt-1">
+                      Maksimum dosya boyutu: {field.config.maxFileSize}MB
+                    </p>
+                  )}
+                  {field.config?.minFileCount && isMulti && (
+                    <p className="text-xs text-muted-foreground mt-1">
+                      Minimum {field.config.minFileCount} dosya gerekli
+                    </p>
+                  )}
+                  {field.config?.maxFileCount && isMulti && (
+                    <p className="text-xs text-muted-foreground mt-1">
+                      Maksimum {field.config.maxFileCount} dosya
+                    </p>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            {/* Existing Files Preview (from cart/order) */}
+            {existingFiles.length > 0 && (
+              <div className="space-y-2 overflow-x-hidden">
+                <Label className="text-sm font-medium">Mevcut Dosyalar:</Label>
+                {isLoadingExistingFiles ? (
+                  <div className="flex items-center justify-center py-4">
+                    <Loader2 className="w-5 h-5 animate-spin text-muted-foreground" />
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 overflow-x-hidden">
+                    {existingFiles.map((file, index) => (
+                      <div
+                        key={file.id}
+                        className="relative group border rounded-lg overflow-hidden bg-muted"
+                      >
+                        {isImageType ? (
+                          <div className="relative aspect-square">
+                            <img
+                              src={file.url}
+                              alt={`Mevcut dosya ${index + 1}`}
+                              className="w-full h-full object-cover"
+                            />
+                          </div>
+                        ) : (
+                          <div className="aspect-square flex items-center justify-center bg-muted">
+                            <FileImage className="w-8 h-8 text-muted-foreground" />
+                          </div>
+                        )}
+                        <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                          <Button
+                            type="button"
+                            variant="destructive"
+                            size="sm"
+                            onClick={() => {
+                              if (onRemoveExistingFile) {
+                                onRemoveExistingFile(file.id)
+                              }
+                            }}
+                            className="h-8 w-8 p-0"
+                          >
+                            <X className="w-4 h-4" />
+                          </Button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* Selected Files Preview (newly selected) */}
+            {selectedFiles.length > 0 && (
+              <div className="space-y-2 overflow-x-hidden">
+                <Label className="text-sm font-medium">Yeni Seçilen Dosyalar:</Label>
+                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 overflow-x-hidden">
+                  {selectedFiles.map((fileData, index) => (
+                    <div
+                      key={index}
+                      className="relative group border rounded-lg overflow-hidden bg-muted"
+                    >
+                      {isImageType && fileData.preview ? (
+                        <div className="relative aspect-square">
+                          <Image
+                            src={fileData.preview}
+                            alt={fileData.file.name}
+                            fill
+                            className="object-cover"
+                          />
+                        </div>
+                      ) : (
+                        <div className="aspect-square flex items-center justify-center bg-muted">
+                          <Upload className="w-8 h-8 text-muted-foreground" />
+                        </div>
+                      )}
+                      <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                        <Button
+                          type="button"
+                          variant="destructive"
+                          size="sm"
+                          onClick={() => removeFile(index)}
+                          className="h-8 w-8 p-0"
+                        >
+                          <X className="w-4 h-4" />
+                        </Button>
+                      </div>
+                      <div className="p-2">
+                        <p className="text-xs text-muted-foreground truncate">
+                          {fileData.file.name}
+                        </p>
+                        <p className="text-xs text-muted-foreground">
+                          {(fileData.file.size / 1024 / 1024).toFixed(2)} MB
+                        </p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {uploadErrors[field.key] && (
+              <Alert variant="destructive" className="py-2">
+                <AlertCircle className="h-4 w-4" />
+                <AlertDescription className="text-sm">
+                  {uploadErrors[field.key]}
+                </AlertDescription>
+              </Alert>
+            )}
+
+            {field.helperText && !uploadErrors[field.key] && (
+              <p className="text-xs text-muted-foreground">{field.helperText}</p>
+            )}
+          </div>
+        )
+
+      default:
+        return (
+          <Input
+            value={value || ""}
+            onChange={(e) => onChange(e.target.value)}
+            placeholder={field.helperText || ""}
+            className={error ? "border-red-500" : ""}
+          />
+        )
+    }
+  }
+
+  return (
+    <div className="space-y-2">
+      <Label htmlFor={field.key}>
+        {field.title}
+        {field.required && <span className="text-red-500 ml-1">*</span>}
+      </Label>
+      {field.subtitle && (
+        <p className="text-sm text-muted-foreground">{field.subtitle}</p>
+      )}
+      {renderField()}
+      {field.helperText && !error && (
+        <p className="text-xs text-muted-foreground">{field.helperText}</p>
+      )}
+      {error && (
+        <Alert variant="destructive" className="py-2">
+          <AlertCircle className="h-4 w-4" />
+          <AlertDescription className="text-sm">{error}</AlertDescription>
+        </Alert>
+      )}
+    </div>
+  )
+}
