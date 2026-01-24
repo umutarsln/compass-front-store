@@ -67,8 +67,8 @@ export function ProductDetailPage() {
         image: sampleProduct.image,
         productId: sampleProduct.id,
         variantId: null,
-      }, false) // Sidebar açılmasın, sepet sayfasına yönlendirilecek
-      
+      }, { formValues: {}, fileIds: [] } as { formValues: Record<string, any>; fileIds: string[] }, false) // Sidebar açılmasın, sepet sayfasına yönlendirilecek
+
       setTimeout(() => {
         setIsAddingToCart(false)
         router.push("/sepet")
@@ -154,9 +154,8 @@ export function ProductDetailPage() {
                 <button
                   key={index}
                   onClick={() => setSelectedImage(index)}
-                  className={`relative w-20 h-20 overflow-hidden ${
-                    selectedImage === index ? "ring-2 ring-foreground" : ""
-                  }`}
+                  className={`relative w-20 h-20 overflow-hidden ${selectedImage === index ? "ring-2 ring-foreground" : ""
+                    }`}
                 >
                   <Image
                     src={image || "/placeholders/placeholder.svg"}
@@ -187,11 +186,10 @@ export function ProductDetailPage() {
                     <button
                       key={diameter}
                       onClick={() => setSelectedDiameter(diameter)}
-                      className={`px-4 py-2 text-sm border transition-colors ${
-                        selectedDiameter === diameter
+                      className={`px-4 py-2 text-sm border transition-colors ${selectedDiameter === diameter
                           ? "border-foreground bg-foreground text-background"
                           : "border-border hover:border-foreground"
-                      }`}
+                        }`}
                     >
                       {diameter} cm
                     </button>
@@ -206,11 +204,10 @@ export function ProductDetailPage() {
                     <button
                       key={height}
                       onClick={() => setSelectedHeight(height)}
-                      className={`px-4 py-2 text-sm border transition-colors ${
-                        selectedHeight === height
+                      className={`px-4 py-2 text-sm border transition-colors ${selectedHeight === height
                           ? "border-foreground bg-foreground text-background"
                           : "border-border hover:border-foreground"
-                      }`}
+                        }`}
                     >
                       {height} cm
                     </button>
@@ -292,20 +289,20 @@ export function ProductDetailPage() {
         >
           <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
             <TabsList className="w-full lg:w-fit mb-0 h-auto bg-transparent border-b border-border rounded-none p-0">
-              <TabsTrigger 
-                value="specifications" 
+              <TabsTrigger
+                value="specifications"
                 className="px-6 py-3 text-base font-medium data-[state=active]:border-b-2 data-[state=active]:border-foreground data-[state=active]:bg-transparent rounded-none"
               >
                 Ürün Özellikleri
               </TabsTrigger>
-              <TabsTrigger 
-                value="description" 
+              <TabsTrigger
+                value="description"
                 className="px-6 py-3 text-base font-medium data-[state=active]:border-b-2 data-[state=active]:border-foreground data-[state=active]:bg-transparent rounded-none"
               >
                 Ürün Açıklaması
               </TabsTrigger>
-              <TabsTrigger 
-                value="reviews" 
+              <TabsTrigger
+                value="reviews"
                 className="px-6 py-3 text-base font-medium data-[state=active]:border-b-2 data-[state=active]:border-foreground data-[state=active]:bg-transparent rounded-none"
               >
                 Müşterilerimizin Yorumları
@@ -341,7 +338,7 @@ export function ProductDetailPage() {
                       <div className="bg-muted/50 border border-border p-4 rounded-lg">
                         <h5 className="text-sm font-medium text-foreground mb-2">1. Çap Seçimi</h5>
                         <p className="text-sm text-muted-foreground leading-relaxed mb-3">
-                          Çap, lambanızın genişliğini belirler. Ürün detay sayfasında "Çap (cm)" bölümünden istediğiniz boyutu seçin. 
+                          Çap, lambanızın genişliğini belirler. Ürün detay sayfasında "Çap (cm)" bölümünden istediğiniz boyutu seçin.
                           Seçim yapmak için butonlara tıklamanız yeterlidir. Seçtiğiniz çap, lambanızın yatay genişliğini belirleyecektir.
                         </p>
                         <ul className="text-sm text-muted-foreground space-y-1 ml-4 list-disc">
@@ -354,7 +351,7 @@ export function ProductDetailPage() {
                       <div className="bg-muted/50 border border-border p-4 rounded-lg">
                         <h5 className="text-sm font-medium text-foreground mb-2">2. Yükseklik Seçimi</h5>
                         <p className="text-sm text-muted-foreground leading-relaxed mb-3">
-                          Yükseklik, lambanızın dikey boyutunu belirler. "Yükseklik (cm)" bölümünden uygun seçeneği seçin. 
+                          Yükseklik, lambanızın dikey boyutunu belirler. "Yükseklik (cm)" bölümünden uygun seçeneği seçin.
                           Yükseklik seçimi, lambanızın ne kadar uzun olacağını belirler.
                         </p>
                         <ul className="text-sm text-muted-foreground space-y-1 ml-4 list-disc">
@@ -367,15 +364,15 @@ export function ProductDetailPage() {
                       <div className="bg-accent/10 border border-accent/20 p-4 rounded-lg">
                         <h5 className="text-sm font-medium text-foreground mb-2">İpucu</h5>
                         <p className="text-sm text-muted-foreground leading-relaxed">
-                          Çap ve yükseklik seçiminde, lambanızı nerede kullanacağınızı düşünün. Küçük masalar için 10-12cm çap, 
-                          geniş alanlar için 15cm çap önerilir. Yükseklik seçiminde ise odanızın tavan yüksekliğini ve dekorasyon 
-                          stilinizi göz önünde bulundurun. Her iki seçimi de yaptıktan sonra "Kişiselleştir" butonuna tıklayarak 
+                          Çap ve yükseklik seçiminde, lambanızı nerede kullanacağınızı düşünün. Küçük masalar için 10-12cm çap,
+                          geniş alanlar için 15cm çap önerilir. Yükseklik seçiminde ise odanızın tavan yüksekliğini ve dekorasyon
+                          stilinizi göz önünde bulundurun. Her iki seçimi de yaptıktan sonra "Kişiselleştir" butonuna tıklayarak
                           fotoğraf yükleme adımına geçebilirsiniz.
                         </p>
                       </div>
                     </div>
                   </div>
-                  
+
                   {sampleProduct.specifications && Object.keys(sampleProduct.specifications).length > 0 && (
                     <div className="mt-8 pt-8 border-t border-border">
                       <h4 className="text-base font-medium text-foreground mb-6">Teknik Özellikler</h4>
@@ -402,7 +399,7 @@ export function ProductDetailPage() {
                       {sampleProduct.description}
                     </p>
                   </div>
-                  
+
                   {sampleProduct.detailedDescription && (
                     <div className="pt-6 border-t border-border">
                       <h3 className="text-lg font-medium text-foreground mb-4">Detaylı Açıklama</h3>
@@ -435,7 +432,7 @@ export function ProductDetailPage() {
                       </div>
                     </div>
                     <p className="text-sm text-muted-foreground leading-relaxed">
-                      Harika bir ürün! Sevgilime hediye olarak aldım ve çok beğendi. Fotoğraf kalitesi mükemmel, 
+                      Harika bir ürün! Sevgilime hediye olarak aldım ve çok beğendi. Fotoğraf kalitesi mükemmel,
                       lamba çok şık görünüyor. Teslimat da hızlıydı, 3 günde geldi. Kesinlikle tavsiye ederim!
                     </p>
                   </div>
@@ -457,7 +454,7 @@ export function ProductDetailPage() {
                       </div>
                     </div>
                     <p className="text-sm text-muted-foreground leading-relaxed">
-                      Çap ve yükseklik seçimi çok kolaydı. Ürün tam istediğim gibi geldi. LED ışığı çok yumuşak 
+                      Çap ve yükseklik seçimi çok kolaydı. Ürün tam istediğim gibi geldi. LED ışığı çok yumuşak
                       ve göz yormuyor. Yatak odamızda mükemmel duruyor. Kalite fiyat dengesi harika!
                     </p>
                   </div>
@@ -480,7 +477,7 @@ export function ProductDetailPage() {
                       </div>
                     </div>
                     <p className="text-sm text-muted-foreground leading-relaxed">
-                      Genel olarak memnun kaldım. Fotoğraf yükleme süreci biraz karışık geldi ama sonuç güzel. 
+                      Genel olarak memnun kaldım. Fotoğraf yükleme süreci biraz karışık geldi ama sonuç güzel.
                       Ürün kaliteli ve paketleme özenliydi. Tek eksik, daha fazla renk seçeneği olabilirdi.
                     </p>
                   </div>
