@@ -8,6 +8,7 @@ import { useRouter } from "next/navigation"
 import { Truck, Shield, Clock, ChevronLeft, ChevronRight, ShoppingCart, Eye, Star } from "lucide-react"
 import { useCart } from "@/contexts/cart-context"
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
+import { MarkdownContent } from "@/components/markdown-content"
 
 const diameters = [10, 12, 15]
 const heights = [10, 12, 15]
@@ -17,9 +18,10 @@ const sampleProduct = {
   id: "urun-detay",
   name: "Ürün Detay",
   price: 349,
+  subtitle: "Fotoğraflarınızdan özel olarak tasarlanan, sıcak ışıkla aydınlanan premium lamba",
   image: "/romantic-couple-heart-shaped-led-lamp-warm-glow.jpg",
   category: "Kişiye Özel Tasarımlar",
-  description: "Fotoğraflarınızdan özel olarak tasarlanan bu lamba, odanıza romantik bir atmosfer katar. LED ışıklar ile aydınlatılan silüet, karanlıkta büyüleyici bir görünüm sunar.",
+  description: "# Premium LED Lamba\n\nFotoğraflarınızdan özel olarak tasarlanan bu lamba, odanıza romantik bir atmosfer katar. LED ışıklar ile aydınlatılan silüet, karanlıkta büyüleyici bir görünüm sunar.\n\n## Özellikler\n\n- 🎨 Kişiye özel tasarım\n- 💡 Ayarlanabilir renk seçenekleri\n- ⚡ Enerji verimli LED teknolojisi\n- 🛡️ Dayanıklı akrilik malzeme\n\n## Kullanım Alanları\n\n1. Yatak odası dekorasyonu\n2. Oturma odası aksesuarı\n3. Özel günler için hediye\n4. Romantik atmosfer yaratma\n\n## Teknik Özellikler\n\n| Özellik | Değer |\n|---------|-------|\n| Malzeme | Yüksek kaliteli akrilik |\n| Enerji Tüketimi | 5W |\n| Yaşam Süresi | 50.000+ saat |\n| Garanti | 2 yıl |\n\n> 💝 Her lamba size özel, her ışık bir anı taşır.",
   images: [
     "/romantic-couple-heart-shaped-led-lamp-warm-glow.jpg",
     "/led-lamp-glowing-in-dark-room-creating-ambient-lig.jpg",
@@ -176,8 +178,14 @@ export function ProductDetailPage() {
           >
             <p className="text-sm text-muted-foreground uppercase tracking-wider">{sampleProduct.category}</p>
             <h1 className="mt-2 font-serif text-3xl sm:text-4xl text-foreground">{sampleProduct.name}</h1>
+            
+            {/* Ürün Alt Başlığı (Sub-title) */}
+            {sampleProduct.subtitle && (
+              <p className="mt-4 text-sm text-muted-foreground italic">{sampleProduct.subtitle}</p>
+            )}
+
+            {/* Fiyat */}
             <p className="mt-4 text-2xl font-medium text-foreground">{sampleProduct.price.toLocaleString("tr-TR")} ₺</p>
-            <p className="mt-6 text-muted-foreground leading-relaxed">{sampleProduct.description}</p>
 
             <div className="mt-8 space-y-6">
               <div>
@@ -398,17 +406,13 @@ export function ProductDetailPage() {
                 <div className="space-y-6">
                   <div>
                     <h3 className="text-lg font-medium text-foreground mb-4">Ürün Hakkında</h3>
-                    <p className="text-sm text-muted-foreground leading-relaxed whitespace-pre-line">
-                      {sampleProduct.description}
-                    </p>
+                    <MarkdownContent content={sampleProduct.description} />
                   </div>
                   
                   {sampleProduct.detailedDescription && (
                     <div className="pt-6 border-t border-border">
                       <h3 className="text-lg font-medium text-foreground mb-4">Detaylı Açıklama</h3>
-                      <p className="text-sm text-muted-foreground leading-relaxed whitespace-pre-line">
-                        {sampleProduct.detailedDescription}
-                      </p>
+                      <MarkdownContent content={sampleProduct.detailedDescription} />
                     </div>
                   )}
                 </div>

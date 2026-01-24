@@ -9,7 +9,7 @@ const categories = [
     id: "kisiye-ozel-tasarimlar",
     title: "Kişiye Özel Tasarımlar",
     image: "/category/Kişiye Özel Tasarımlar -c -kare-.jpg",
-    href: "/urunler?categorySlugs=kiiye-zel-tasarmlar%2Cak-sevgiliye-zel%2Caile-annebabaya-zel%2Ckurumsal-baar-ofis%2Cdoum-gn-kutlama&orderBy=created_at_desc",
+    href: "/urunler?categorySlugs=kisiye-ozel-tasarimlar%2Cak-sevgiliye-zel%2Caile-annebabaya-zel%2Ckurumsal-baar-ofis%2Cdoum-gn-kutlama&orderBy=created_at_desc",
     colSpan: 2, // 2 sütun
     rowSpan: 2, // 2 satır
   },
@@ -17,7 +17,7 @@ const categories = [
     id: "hazir-tasarim-koleksiyonlari",
     title: "Hazır Tasarım Koleksiyonları",
     image: "/category/Hazır Tasarım Koleksiyonları -c -yatay-.jpg",
-    href: "/urunler?categorySlugs=hazr-tasarmlar%2Cmzik-temal-tasarmlar%2Cspor-temal-tasarmlar%2Cpopler-kltr-anime-dizi-film%2Cminimalist-sanat&orderBy=created_at_desc",
+    href: "/urunler?categorySlugs=hazır-tasarimlar%2Cmzik-temal-tasarmlar%2Cspor-temal-tasarmlar%2Cpopler-kltr-anime-dizi-film%2Cminimalist-sanat&orderBy=created_at_desc",
     colSpan: 2, // 2 sütun
     rowSpan: 1, // 1 satır
   },

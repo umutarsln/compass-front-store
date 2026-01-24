@@ -10,15 +10,17 @@ import { Upload, Check, Truck, Shield, Clock, ChevronLeft, ChevronRight, Shoppin
 import { useCart } from "@/contexts/cart-context"
 import { SimilarProducts } from "@/components/similar-products"
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
+import { MarkdownContent } from "@/components/markdown-content"
 
 // Örnek ürün verisi - tasarım için
 const sampleProduct = {
   id: "kisiye-ozel-urun",
   name: "Kişiye Özel Tasarım",
   price: 349,
+  subtitle: "Sevdiklerinizin fotoğraflarından özel olarak tasarlanan, sıcak ışıkla parlayan lamba",
   image: "/campaigns/Kişiye Özel Tasarımlar -c -kare-.jpg",
   category: "Kişiye Özel Tasarımlar",
-  description: "Fotoğraflarınızdan özel olarak tasarlanan bu lamba, odanıza romantik bir atmosfer katar. LED ışıklar ile aydınlatılan silüet, karanlıkta büyüleyici bir görünüm sunar.",
+  description: "# Kişiye Özel Tasarım Lamba\n\nFotoğraflarınızdan özel olarak tasarlanan bu lamba, odanıza romantik bir atmosfer katar. LED ışıklar ile aydınlatılan silüet, karanlıkta büyüleyici bir görünüm sunar.\n\n## Neden Bizi Seçmelisiniz?\n\n- ✨ Tamamen kişiye özel tasarım\n- 📸 Kendi fotoğraflarınızı kullanın\n- 💎 Premium kalite ve dayanıklılık\n- 🎁 Mükemmel hediye seçeneği\n\n## Üretim Süreci\n\n1. Fotoğrafınızı yükleyin\n2. Çap ve yükseklik seçeneklerini belirleyin\n3. Tasarımınız profesyonel olarak hazırlanır\n4. 3-5 iş günü içinde kapınıza teslim edilir\n\n## Mükemmel Hediye Alıcıları\n\n- Eşler ve partnerler\n- Ebeveynler\n- Arkadaşlar\n- Aile üyeleri\n- Sevdikleriniz\n\n> **Not:** Her lamba el yapımı olup, fotoğrafınızın kalitesine göre sonuç değişebilir.",
   images: [
     "/campaigns/Kişiye Özel Tasarımlar -c -kare-.jpg",
     "/led-lamp-glowing-in-dark-room-creating-ambient-lig.jpg",
@@ -213,8 +215,14 @@ export function ProductDetailKisiyeOzel() {
           >
             <p className="text-sm text-muted-foreground uppercase tracking-wider">{sampleProduct.category}</p>
             <h1 className="mt-2 font-serif text-3xl sm:text-4xl text-foreground">{sampleProduct.name}</h1>
+            
+            {/* Ürün Alt Başlığı (Sub-title) */}
+            {sampleProduct.subtitle && (
+              <p className="mt-4 text-sm text-muted-foreground italic">{sampleProduct.subtitle}</p>
+            )}
+
+            {/* Fiyat */}
             <p className="mt-4 text-2xl font-medium text-foreground">{sampleProduct.price.toLocaleString("tr-TR")} ₺</p>
-            <p className="mt-6 text-muted-foreground leading-relaxed">{sampleProduct.description}</p>
 
             <div className="mt-8 space-y-6">
               <div>
@@ -513,17 +521,13 @@ export function ProductDetailKisiyeOzel() {
                 <div className="space-y-6">
                   <div>
                     <h3 className="text-lg font-medium text-foreground mb-4">Ürün Hakkında</h3>
-                    <p className="text-sm text-muted-foreground leading-relaxed whitespace-pre-line">
-                      {sampleProduct.description}
-                    </p>
+                    <MarkdownContent content={sampleProduct.description} />
                   </div>
                   
                   {sampleProduct.detailedDescription && (
                     <div className="pt-6 border-t border-border">
                       <h3 className="text-lg font-medium text-foreground mb-4">Detaylı Açıklama</h3>
-                      <p className="text-sm text-muted-foreground leading-relaxed whitespace-pre-line">
-                        {sampleProduct.detailedDescription}
-                      </p>
+                      <MarkdownContent content={sampleProduct.detailedDescription} />
                     </div>
                   )}
                 </div>

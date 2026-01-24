@@ -11,12 +11,14 @@ export function HeroSection() {
       <div className="relative w-full md:hidden">
         <div className="relative w-full rounded-lg overflow-hidden">
           <Image
-            src="/hero/heromobil-görsel.png"
+            src="/hero/heromobil-görsel.webp"
             alt="Anılarınızı Işığa Dönüştürün"
             width={1080}
             height={1920}
             className="w-full h-auto"
             priority
+            sizes="100vw"
+            quality={85}
           />
           {/* Gradient Overlay - Yazıların okunabilirliği için */}
           <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/30 to-transparent" />

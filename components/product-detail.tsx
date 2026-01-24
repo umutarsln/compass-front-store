@@ -10,6 +10,7 @@ import { useCart } from "@/contexts/cart-context"
 import type { ProductDetail as ProductDetailType } from "@/services/products"
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
 import { Badge } from "@/components/ui/badge"
+import { MarkdownContent } from "@/components/markdown-content"
 
 interface ProductDetailProps {
   product: ProductDetailType
@@ -306,15 +307,20 @@ export function ProductDetail({ product }: ProductDetailProps) {
             <p className="text-sm text-muted-foreground uppercase tracking-wider">{categoryName}</p>
             <h1 className="mt-2 font-serif text-3xl sm:text-4xl text-foreground">{product.name}</h1>
 
+            {/* Ürün Alt Başlığı (Sub-title) */}
+            {product.subtitle && (
+              <p className="mt-4 text-sm text-muted-foreground italic">{product.subtitle}</p>
+            )}
+
             {/* Fiyat ve İndirim */}
             <div className="mt-4 flex items-baseline gap-2">
               {product.isOnSale && product.discountedPrice && product.basePrice > product.discountedPrice ? (
                 <>
-                  <span className="text-2xl font-bold text-foreground">
-                    {displayPrice.toLocaleString("tr-TR")} ₺
-                  </span>
                   <span className="text-lg text-muted-foreground line-through">
                     {product.basePrice.toLocaleString("tr-TR")} ₺
+                  </span>
+                  <span className="text-2xl font-bold text-foreground">
+                    {displayPrice.toLocaleString("tr-TR")} ₺
                   </span>
                   <Badge className="bg-red-500 text-white">
                     %{Math.round(((product.basePrice - product.discountedPrice) / product.basePrice) * 100)} İNDİRİM
@@ -326,8 +332,6 @@ export function ProductDetail({ product }: ProductDetailProps) {
                 </span>
               )}
             </div>
-
-            <p className="mt-6 text-muted-foreground leading-relaxed">{product.description}</p>
 
             {/* Varyasyon Seçenekleri (Varyasyonlu Ürünler için) */}
             {product.type === 'VARIANT' && product.variantOptions && product.variantOptions.length > 0 && (
@@ -496,9 +500,7 @@ export function ProductDetail({ product }: ProductDetailProps) {
                 <div className="space-y-6">
                   <div>
                     <h3 className="text-lg font-medium text-foreground mb-4">Ürün Hakkında</h3>
-                    <p className="text-sm text-muted-foreground leading-relaxed whitespace-pre-line">
-                      {product.description}
-                    </p>
+                    <MarkdownContent content={product.description} />
                   </div>
                 </div>
               </div>
