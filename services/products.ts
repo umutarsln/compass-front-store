@@ -132,6 +132,7 @@ export interface VariantCombination {
 export interface SimpleProductDetail {
   productId: string;
   name: string;
+  subtitle: string | null;
   slug: string;
   description: string;
   basePrice: number;
@@ -164,6 +165,7 @@ export interface SimpleProductDetail {
 export interface VariantProductDetail {
   productId: string;
   name: string;
+  subtitle: string | null;
   slug: string;
   description: string;
   basePrice: number;

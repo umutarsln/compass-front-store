@@ -319,16 +319,25 @@ export function ProductDetail({ product }: ProductDetailProps) {
         {/* Sağ Taraf - Ürün Bilgileri */}
         <div className="space-y-6">
           <div>
-            <h1 className="text-3xl font-bold text-foreground mb-2">{product.name}</h1>
+            <h1 className="text-4xl sm:text-5xl font-serif font-bold text-foreground leading-tight mb-2">{product.name}</h1>
+            {product.subtitle && (
+              <p className="mt-2 text-sm text-muted-foreground">{product.subtitle}</p>
+            )}
           </div>
 
           <div className="flex items-center gap-4">
-            <span className="text-3xl font-bold text-foreground">
-              {displayPrice.toLocaleString('tr-TR')} ₺
-            </span>
-            {product.type === 'SIMPLE' && product.discountedPrice && (
-              <span className="text-xl text-muted-foreground line-through">
-                {product.basePrice.toLocaleString('tr-TR')} ₺
+            {product.type === 'SIMPLE' && product.discountedPrice ? (
+              <>
+                <span className="text-3xl font-bold text-foreground">
+                  {product.discountedPrice.toLocaleString('tr-TR')} ₺
+                </span>
+                <span className="text-xl text-muted-foreground line-through">
+                  {product.basePrice.toLocaleString('tr-TR')} ₺
+                </span>
+              </>
+            ) : (
+              <span className="text-3xl font-bold text-foreground">
+                {displayPrice.toLocaleString('tr-TR')} ₺
               </span>
             )}
           </div>
@@ -371,16 +380,6 @@ export function ProductDetail({ product }: ProductDetailProps) {
                   </div>
                 </div>
               ))}
-              {currentCombination && (
-                <div className="mt-4 p-4 bg-muted rounded-lg">
-                  <p className="text-sm text-muted-foreground">
-                    Seçili kombinasyon
-                  </p>
-                  <p className="text-lg font-semibold text-foreground mt-2">
-                    {displayPrice.toLocaleString('tr-TR')} ₺
-                  </p>
-                </div>
-              )}
             </div>
           )}
 
@@ -466,7 +465,7 @@ export function ProductDetail({ product }: ProductDetailProps) {
               <div className="bg-secondary/30 border-x border-b border-border p-6 lg:p-8 -mt-px">
                 <div className="space-y-6">
                   <div>
-                    <h3 className="text-lg font-medium text-foreground mb-4">Ürün Hakkında</h3>
+                    <h3 className="text-lg font-serif font-medium text-foreground mb-4">Ürün Hakkında</h3>
                     <MarkdownContent content={product.description} />
                   </div>
                 </div>

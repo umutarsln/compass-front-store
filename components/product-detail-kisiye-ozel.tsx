@@ -218,11 +218,13 @@ export function ProductDetailKisiyeOzel() {
             
             {/* Ürün Alt Başlığı (Sub-title) */}
             {sampleProduct.subtitle && (
-              <p className="mt-4 text-sm text-muted-foreground italic">{sampleProduct.subtitle}</p>
+              <p className="mt-2 text-sm text-muted-foreground">{sampleProduct.subtitle}</p>
             )}
 
             {/* Fiyat */}
-            <p className="mt-4 text-2xl font-medium text-foreground">{sampleProduct.price.toLocaleString("tr-TR")} ₺</p>
+            <div className="mt-4 flex items-center gap-4">
+              <p className="text-2xl font-medium text-foreground">{sampleProduct.price.toLocaleString("tr-TR")} ₺</p>
+            </div>
 
             <div className="mt-8 space-y-6">
               <div>
