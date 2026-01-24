@@ -73,7 +73,7 @@ export function PersonalizationFormRenderer({
     const loadExistingFiles = async () => {
       // Extract file IDs from initialValues if initialFileIds not provided
       const fileIdsByField: Record<string, string[]> = {}
-      
+
       if (initialFileIds) {
         // Use provided initialFileIds
         Object.assign(fileIdsByField, initialFileIds)
@@ -341,7 +341,7 @@ export function PersonalizationFormRenderer({
             const existingCount = existingFiles[field.key]?.length || 0
             const newFiles = selectedFiles[field.key] || []
             const totalFileCount = existingCount + newFiles.length
-            
+
             if (field.type.includes('MULTI')) {
               if (totalFileCount === 0) {
                 newErrors[field.key] = `${field.title} zorunludur`
@@ -365,7 +365,7 @@ export function PersonalizationFormRenderer({
           const existingCount = existingFiles[field.key]?.length || 0
           const newFiles = selectedFiles[field.key] || []
           const totalFileCount = existingCount + newFiles.length
-          
+
           if (totalFileCount < field.config.minFileCount) {
             newErrors[field.key] = `En az ${field.config.minFileCount} dosya seçmelisiniz (şu anda ${totalFileCount} dosya var)`
           }
@@ -374,7 +374,7 @@ export function PersonalizationFormRenderer({
           const existingCount = existingFiles[field.key]?.length || 0
           const newFiles = selectedFiles[field.key] || []
           const totalFileCount = existingCount + newFiles.length
-          
+
           if (totalFileCount > field.config.maxFileCount) {
             newErrors[field.key] = `En fazla ${field.config.maxFileCount} dosya seçebilirsiniz (şu anda ${totalFileCount} dosya var)`
           }
@@ -403,7 +403,7 @@ export function PersonalizationFormRenderer({
   // Expose form values and validation function to parent
   useEffect(() => {
     // This will be used by ProductDetail to get personalization data
-    ;(window as any).__personalizationFormData = {
+    ; (window as any).__personalizationFormData = {
       formValues,
       fileIds,
       selectedFiles, // Expose selected files for upload
@@ -434,40 +434,40 @@ export function PersonalizationFormRenderer({
 
       <div className="space-y-6 overflow-x-hidden">
         {visibleFields.map((field) => (
-            <FieldRenderer
-              key={field.id}
-              field={field}
-              value={formValues[field.key]}
-              error={errors[field.key]}
-              onChange={(value) => handleFieldChange(field.key, value)}
-              onFileSelect={(files) => {
-                handleFileSelect(field.key, files)
-              }}
-              existingFiles={existingFiles[field.key] || []}
-              onRemoveExistingFile={(fileId) => {
-                // Remove from existing files
-                setExistingFiles((prev) => {
-                  const newFiles = [...(prev[field.key] || [])]
-                  const index = newFiles.findIndex((f) => f.id === fileId)
-                  if (index > -1) {
-                    newFiles.splice(index, 1)
-                  }
-                  return {
-                    ...prev,
-                    [field.key]: newFiles,
-                  }
-                })
-                // Update form values to remove the file ID
-                const currentValue = formValues[field.key]
-                if (Array.isArray(currentValue)) {
-                  const newValue = currentValue.filter((id) => id !== fileId)
-                  handleFieldChange(field.key, newValue.length > 0 ? newValue : null)
-                } else {
-                  handleFieldChange(field.key, null)
+          <FieldRenderer
+            key={field.id}
+            field={field}
+            value={formValues[field.key]}
+            error={errors[field.key]}
+            onChange={(value) => handleFieldChange(field.key, value)}
+            onFileSelect={(files) => {
+              handleFileSelect(field.key, files)
+            }}
+            existingFiles={existingFiles[field.key] || []}
+            onRemoveExistingFile={(fileId) => {
+              // Remove from existing files
+              setExistingFiles((prev) => {
+                const newFiles = [...(prev[field.key] || [])]
+                const index = newFiles.findIndex((f) => f.id === fileId)
+                if (index > -1) {
+                  newFiles.splice(index, 1)
                 }
-              }}
-              isLoadingExistingFiles={loadingExistingFiles[field.key] || false}
-            />
+                return {
+                  ...prev,
+                  [field.key]: newFiles,
+                }
+              })
+              // Update form values to remove the file ID
+              const currentValue = formValues[field.key]
+              if (Array.isArray(currentValue)) {
+                const newValue = currentValue.filter((id) => id !== fileId)
+                handleFieldChange(field.key, newValue.length > 0 ? newValue : null)
+              } else {
+                handleFieldChange(field.key, null)
+              }
+            }}
+            isLoadingExistingFiles={loadingExistingFiles[field.key] || false}
+          />
         ))}
       </div>
 

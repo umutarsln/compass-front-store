@@ -142,7 +142,7 @@ export function ProductDetail({ product }: ProductDetailProps) {
 
       if (product.personalizationForm) {
         const formData = (window as any).__personalizationFormData
-        
+
         if (!formData) {
           setIsAddingToCart(false)
           return
@@ -159,21 +159,21 @@ export function ProductDetail({ product }: ProductDetailProps) {
 
         // 2. Dosyaları yükle (eğer varsa)
         let uploadedFileIds: string[] = []
-        
+
         if (formData.selectedFiles && Object.keys(formData.selectedFiles).length > 0) {
           try {
             const { uploadPersonalizationFiles, preparePersonalizationData } = await import('@/utils/personalization.helper')
-            
+
             // Dosyaları yükle
             uploadedFileIds = await uploadPersonalizationFiles(formData.selectedFiles)
-            
+
             // Form değerlerini hazırla (File objelerini file ID'lere çevir)
             const prepared = preparePersonalizationData(
               formData.formValues || {},
               formData.selectedFiles,
               uploadedFileIds
             )
-            
+
             personalizationData = {
               formValues: prepared.formValues,
               fileIds: prepared.fileIds,
@@ -226,7 +226,7 @@ export function ProductDetail({ product }: ProductDetailProps) {
       // Personalization data'yı window'dan temizle (bir sonraki ekleme için)
       if (product.personalizationForm && (window as any).__personalizationFormData) {
         // Form state'ini koru ama file ID'leri güncelle
-        ;(window as any).__personalizationFormData = {
+        ; (window as any).__personalizationFormData = {
           ...(window as any).__personalizationFormData,
           fileIds: personalizationData?.fileIds || [],
         }
@@ -300,9 +300,8 @@ export function ProductDetail({ product }: ProductDetailProps) {
                 <button
                   key={index}
                   onClick={() => setSelectedImage(index)}
-                  className={`relative aspect-square rounded-lg overflow-hidden border-2 transition-colors ${
-                    selectedImage === index ? 'border-primary' : 'border-transparent'
-                  }`}
+                  className={`relative aspect-square rounded-lg overflow-hidden border-2 transition-colors ${selectedImage === index ? 'border-primary' : 'border-transparent'
+                    }`}
                 >
                   <Image
                     src={img}

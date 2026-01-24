@@ -72,7 +72,7 @@ export function FieldRenderer({
       const currentCount = selectedFiles.length
       const newCount = currentCount + files.length
       const totalCount = existingCount + newCount
-      
+
       if (maxFiles && totalCount > maxFiles) {
         setUploadErrors((prev) => ({
           ...prev,
