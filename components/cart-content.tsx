@@ -1,17 +1,27 @@
 "use client"
 
+import { useState } from "react"
 import { motion } from "framer-motion"
 import Image from "next/image"
 import Link from "next/link"
-import { Trash2, Plus, Minus, ShoppingBag } from "lucide-react"
+import { Trash2, Plus, Minus, ShoppingBag, Edit } from "lucide-react"
 import { useCart } from "@/contexts/cart-context"
 import { useAuth } from "@/contexts/auth-context"
 import { Spinner } from "@/components/ui/spinner"
 import { Skeleton } from "@/components/ui/skeleton"
+import { PersonalizationSummary } from "@/components/personalization/PersonalizationSummary"
+import { PersonalizationFormRenderer } from "@/components/personalization/PersonalizationFormRenderer"
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog"
+import { Button } from "@/components/ui/button"
+import { getProductDetail } from "@/services/products"
+import { uploadPersonalizationFiles, preparePersonalizationData } from "@/utils/personalization.helper"
 
 export function CartContent() {
-  const { items, isLoading, removeFromCart, updateQuantity, getTotalPrice, getTotalItems, isUpdatingItem, isRemovingItem } = useCart()
+  const { items, isLoading, removeFromCart, updateQuantity, updatePersonalization, getTotalPrice, getTotalItems, isUpdatingItem, isRemovingItem } = useCart()
   const { isAuthenticated } = useAuth()
+  const [editingItem, setEditingItem] = useState<{ productId: string; variantId: string | null; product: any } | null>(null)
+  const [isLoadingProduct, setIsLoadingProduct] = useState(false)
+  const [isSavingPersonalization, setIsSavingPersonalization] = useState(false)
 
   // Loading state - show skeleton
   if (isLoading) {
@@ -118,7 +128,7 @@ export function CartContent() {
             <div className="lg:col-span-2 space-y-4">
               {items.map((item) => (
                 <motion.div
-                  key={`${item.productId}-${item.variantId || 'simple'}`}
+                  key={item.id}
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   className="flex gap-4 p-4 border border-border bg-background"
@@ -153,6 +163,42 @@ export function CartContent() {
                         ))}
                       </div>
                     ) : null}
+                    {/* Personalization Summary */}
+                    {item.personalization && (
+                      <div className="mt-4">
+                        <div className="flex items-center justify-between mb-2">
+                          <span className="text-sm font-medium text-foreground">Kişiselleştirme</span>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={async () => {
+                              setIsLoadingProduct(true)
+                              try {
+                                // Get product detail to load personalization form
+                                const productId = item.productId || item.id
+                                const product = await getProductDetail(productId)
+
+                                setEditingItem({
+                                  productId: product.productId,
+                                  variantId: item.variantId || null,
+                                  product,
+                                })
+                              } catch (error) {
+                                console.error('Failed to load product:', error)
+                              } finally {
+                                setIsLoadingProduct(false)
+                              }
+                            }}
+                            disabled={isLoadingProduct || isUpdatingItem(item.productId || item.id, item.variantId || null)}
+                            className="h-7 text-xs"
+                          >
+                            <Edit className="w-3 h-3 mr-1" />
+                            Düzenle
+                          </Button>
+                        </div>
+                        <PersonalizationSummary personalization={item.personalization} readOnly />
+                      </div>
+                    )}
                     <div className="flex items-center justify-between mt-4">
                       <div className="flex items-center gap-2">
                         <button
@@ -245,6 +291,181 @@ export function CartContent() {
           </div>
         </motion.div>
       </div>
+
+      {/* Personalization Edit Dialog */}
+      <Dialog open={!!editingItem} onOpenChange={(open) => !open && setEditingItem(null)}>
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto overflow-x-hidden">
+          <DialogHeader>
+            <DialogTitle>Kişiselleştirmeyi Düzenle</DialogTitle>
+            <DialogDescription>
+              Kişiselleştirme formunu düzenleyin. Değişiklikler sepetteki ürün fiyatını etkileyebilir.
+            </DialogDescription>
+          </DialogHeader>
+
+          {editingItem && editingItem.product.personalizationForm && (
+            <div className="mt-4 overflow-x-hidden">
+              <PersonalizationFormRenderer
+                formData={editingItem.product.personalizationForm}
+                productId={editingItem.productId}
+                variantId={editingItem.variantId || undefined}
+                initialValues={(() => {
+                  // Find the cart item to get existing personalization values
+                  const cartItem = items.find(
+                    (i) => i.productId === editingItem.productId && i.variantId === editingItem.variantId
+                  )
+                  return cartItem?.personalization?.userValues || {}
+                })()}
+                initialFileIds={(() => {
+                  // Extract file IDs from personalization snapshot
+                  const cartItem = items.find(
+                    (i) => i.productId === editingItem.productId && i.variantId === editingItem.variantId
+                  )
+                  if (!cartItem?.personalization?.userValues) return undefined
+
+                  const fileIdsByField: Record<string, string[]> = {}
+                  const schema = editingItem.product.personalizationForm.schemaSnapshot
+
+                  schema.fields.forEach((field: any) => {
+                    const value = cartItem.personalization.userValues[field.key]
+                    if (!value) return
+
+                    const isFileField =
+                      field.type === 'IMAGE_PICKER_SINGLE' ||
+                      field.type === 'IMAGE_PICKER_MULTI' ||
+                      field.type === 'FILE_UPLOAD_SINGLE' ||
+                      field.type === 'FILE_UPLOAD_MULTI'
+
+                    if (isFileField) {
+                      const ids = Array.isArray(value) ? value : [value]
+                      const validIds = ids.filter(
+                        (id) => typeof id === 'string' && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id)
+                      )
+                      if (validIds.length > 0) {
+                        fileIdsByField[field.key] = validIds
+                      }
+                    }
+                  })
+
+                  return Object.keys(fileIdsByField).length > 0 ? fileIdsByField : undefined
+                })()}
+              />
+            </div>
+          )}
+
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => setEditingItem(null)}
+              disabled={isSavingPersonalization}
+            >
+              İptal
+            </Button>
+            <Button
+              onClick={async () => {
+                if (!editingItem) return
+
+                setIsSavingPersonalization(true)
+                try {
+                  // Get personalization data from form
+                  const formData = (window as any).__personalizationFormData
+
+                  if (!formData) {
+                    setIsSavingPersonalization(false)
+                    return
+                  }
+
+                  // 1. Validate form
+                  if (formData.validate) {
+                    const isValid = await formData.validate()
+                    if (!isValid) {
+                      setIsSavingPersonalization(false)
+                      return
+                    }
+                  }
+
+                  // 2. Upload new files if they exist
+                  let finalFormValues = { ...formData.formValues }
+                  let allFileIds: string[] = []
+
+                  const selectedFiles = formData.selectedFiles as Record<string, File[]> | undefined
+
+                  if (selectedFiles && Object.keys(selectedFiles).length > 0) {
+                    try {
+                      // Upload new files
+                      const uploadedFileIds = await uploadPersonalizationFiles(selectedFiles)
+
+                      // Prepare personalization data (combines existing + new files)
+                      const prepared = preparePersonalizationData(
+                        finalFormValues,
+                        selectedFiles,
+                        uploadedFileIds
+                      )
+
+                      finalFormValues = prepared.formValues
+                      allFileIds = prepared.fileIds
+                    } catch (uploadError: any) {
+                      console.error('[CartContent] File upload failed:', uploadError)
+                      setIsSavingPersonalization(false)
+                      return
+                    }
+                  } else {
+                    // No new files, just collect existing file IDs from form values
+                    Object.entries(finalFormValues).forEach(([key, value]) => {
+                      if (value) {
+                        const field = editingItem.product.personalizationForm.schemaSnapshot.fields.find(
+                          (f: any) => f.key === key
+                        )
+                        if (field) {
+                          const isFileField =
+                            field.type === 'IMAGE_PICKER_SINGLE' ||
+                            field.type === 'IMAGE_PICKER_MULTI' ||
+                            field.type === 'FILE_UPLOAD_SINGLE' ||
+                            field.type === 'FILE_UPLOAD_MULTI'
+
+                          if (isFileField) {
+                            const ids = Array.isArray(value) ? value : [value]
+                            const validIds = ids.filter(
+                              (id) => typeof id === 'string' && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id)
+                            )
+                            allFileIds.push(...validIds)
+                          }
+                        }
+                      }
+                    })
+                  }
+
+                  // 3. Update personalization with final values
+                  await updatePersonalization(
+                    editingItem.productId,
+                    editingItem.variantId,
+                    {
+                      formValues: finalFormValues,
+                      fileIds: allFileIds,
+                    }
+                  )
+
+                  // Close dialog
+                  setEditingItem(null)
+                } catch (error: any) {
+                  console.error('[CartContent] Failed to update personalization:', error)
+                } finally {
+                  setIsSavingPersonalization(false)
+                }
+              }}
+              disabled={isSavingPersonalization}
+            >
+              {isSavingPersonalization ? (
+                <>
+                  <Spinner className="w-4 h-4 mr-2" />
+                  Kaydediliyor...
+                </>
+              ) : (
+                'Kaydet'
+              )}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </section>
   )
 }

@@ -60,6 +60,7 @@ export async function syncOnLogin(): Promise<void> {
                                 quantity: item.quantity,
                                 basePrice: item.basePrice,
                                 discountedPrice: item.discountedPrice,
+                                personalization: item.personalization, // Preserve personalization data
                             })),
                             updatedAt: mergedCart.updatedAt,
                         });
@@ -86,6 +87,7 @@ export async function syncOnLogin(): Promise<void> {
                                 quantity: item.quantity,
                                 basePrice: item.basePrice,
                                 discountedPrice: item.discountedPrice,
+                                personalization: item.personalization, // Preserve personalization data
                             })),
                             updatedAt: userCart.updatedAt,
                         });
@@ -109,6 +111,7 @@ export async function syncOnLogin(): Promise<void> {
                     quantity: item.quantity,
                     basePrice: item.basePrice,
                     discountedPrice: item.discountedPrice,
+                    personalization: item.personalization, // Preserve personalization data
                 })),
                 updatedAt: cloudCart.updatedAt,
             });

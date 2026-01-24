@@ -725,7 +725,7 @@ export function CheckoutForm() {
                 <h3 className="font-serif text-lg text-foreground mb-6">Sipariş Özeti</h3>
 
                 {items.map((item) => (
-                  <div key={`${item.productId}-${item.variantId || 'simple'}`} className="flex gap-4 pb-6 border-b border-border mb-6">
+                  <div key={item.id} className="flex gap-4 pb-6 border-b border-border mb-6">
                     <div className="relative w-20 h-20 bg-background shrink-0">
                       <Image
                         src={item.image || "/placeholders/placeholder.svg"}

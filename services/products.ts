@@ -150,6 +150,12 @@ export interface SimpleProductDetail {
   seoTitle?: string;
   seoDescription?: string;
   seoKeywords?: string[];
+  personalizationForm?: {
+    formId: string;
+    versionId: string;
+    version: number;
+    schemaSnapshot: any;
+  } | null;
   createdAt: string;
   updatedAt: string;
 }
@@ -176,6 +182,12 @@ export interface VariantProductDetail {
   seoTitle?: string;
   seoDescription?: string;
   seoKeywords?: string[];
+  personalizationForm?: {
+    formId: string;
+    versionId: string;
+    version: number;
+    schemaSnapshot: any;
+  } | null;
   createdAt: string;
   updatedAt: string;
 }

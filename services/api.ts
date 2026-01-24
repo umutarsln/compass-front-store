@@ -19,11 +19,21 @@ const apiClient: AxiosInstance = axios.create({
 // Request interceptor - istek gönderilmeden önce
 apiClient.interceptors.request.use(
   (config) => {
-    // İsteğe token ekle
+    // İsteğe token ve guest ID ekle
     if (typeof window !== 'undefined') {
       const token = localStorage.getItem('auth_token');
       if (token) {
         config.headers.Authorization = `Bearer ${token}`;
+      }
+      
+      // Guest ID'yi ekle (authenticated değilse)
+      if (!token) {
+        let guestId = localStorage.getItem('guest_id');
+        if (!guestId) {
+          guestId = `guest_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+          localStorage.setItem('guest_id', guestId);
+        }
+        config.headers['x-guest-id'] = guestId;
       }
     }
     return config;

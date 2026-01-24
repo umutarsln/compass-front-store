@@ -58,6 +58,7 @@ export interface CartItem {
       } | null;
     }>;
   } | null;
+  personalization?: any | null;
   createdAt: string;
   updatedAt: string;
 }
@@ -75,10 +76,18 @@ export interface AddItemDto {
   productId: string;
   variantId?: string;
   quantity: number;
+  personalization?: {
+    formValues: Record<string, any>;
+    fileIds?: string[];
+  };
 }
 
 export interface UpdateItemDto {
   quantity: number;
+  personalization?: {
+    formValues: Record<string, any>;
+    fileIds?: string[];
+  };
 }
 
 class CartService {
@@ -107,7 +116,7 @@ class CartService {
   }
 
   /**
-   * Update item quantity
+   * Update item quantity and/or personalization
    */
   async updateItem(
     cartId: string,
