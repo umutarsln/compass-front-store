@@ -23,8 +23,9 @@ export function HeroSection() {
           {/* Gradient Overlay - Yazıların okunabilirliği için */}
           <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/30 to-transparent" />
 
-          {/* Mobil İçerik - Üste yaslanmış */}
-          <div className="absolute inset-0 flex flex-col justify-start pt-12 px-6 z-10">
+          {/* Mobil İçerik */}
+          <div className="absolute inset-0 flex flex-col justify-between pt-12 pb-8 px-6 z-10">
+            {/* Üst İçerik - Başlık ve Açıklama */}
             <motion.div
               initial={{ opacity: 0, y: -20 }}
               animate={{ opacity: 1, y: 0 }}
@@ -39,6 +40,21 @@ export function HeroSection() {
                 <br /> <b>en değerli anılarınızı sıcak bir ışıkla</b> <br /> <b>yeniden yaşayın.</b>
                 <br /> <b>Her lamba size özel, her ışık bir anı taşır.</b>
               </p>
+            </motion.div>
+            
+            {/* Alt İçerik - Butonlar */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8, ease: "easeOut", delay: 0.2 }}
+              className="flex flex-col gap-3 px-4"
+            >
+              <Link
+                href="/urunler"
+                className="inline-flex items-center justify-center px-8 py-4 bg-transparent border-2 border-white text-white font-medium text-sm uppercase tracking-wider hover:bg-white/10 transition-colors"
+              >
+                Ürünleri Keşfet
+              </Link>
             </motion.div>
           </div>
         </div>

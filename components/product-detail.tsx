@@ -355,6 +355,13 @@ export function ProductDetail({ product }: ProductDetailProps) {
               ))}
             </div>
           )}
+          {/* Mobil Ürünler Butonu */}
+          <Link
+            href="/urunler"
+            className="lg:hidden w-full py-4 border-2 border-foreground text-foreground font-medium text-sm uppercase tracking-wider hover:bg-foreground hover:text-background transition-colors flex items-center justify-center rounded-lg mt-4"
+          >
+            Ürünleri Keşfet
+          </Link>
         </div>
 
         {/* Sağ Taraf - Ürün Bilgileri */}
