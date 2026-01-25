@@ -5,15 +5,15 @@ import Image from "next/image"
 
 const images = [
   {
-    src: "/hergeceozelbirani/hergeceozelbirani1.png",
+    src: "/hergeceozelbirani/hergeceozelbirani1.webp",
     alt: "Her gece özel bir anı",
   },
   {
-    src: "/hergeceozelbirani/hergeceozelbirani2.png",
+    src: "/hergeceozelbirani/hergeceozelbirani2.webp",
     alt: "Her gece özel bir anı",
   },
   {
-    src: "/hergeceozelbirani/hergeceozelbirani3.png",
+    src: "/hergeceozelbirani/hergeceozelbirani3.webp",
     alt: "Her gece özel bir anı",
   },
 ]
