@@ -315,8 +315,9 @@ export function PersonalizationFormRenderer({
       ...prev,
       [fieldKey]: files,
     }))
-    // Store file objects in form values (will be uploaded when adding to cart)
-    handleFieldChange(fieldKey, files)
+    // Don't update formValues with File objects - keep existing file IDs in formValues
+    // File objects are stored in selectedFiles state and will be uploaded separately
+    // formValues should keep existing file IDs for validation
   }
 
   // Upload files and get file IDs - uses helper utility

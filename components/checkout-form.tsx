@@ -742,9 +742,22 @@ export function CheckoutForm() {
                         </p>
                       )}
                       <p className="text-xs text-muted-foreground mt-1">Adet: {item.quantity}</p>
-                      <p className="text-sm font-medium text-foreground mt-2">
-                        {(item.price * item.quantity).toLocaleString("tr-TR")} ₺
-                      </p>
+                      <div className="mt-2">
+                        {item.discountedPrice && item.basePrice && item.discountedPrice < item.basePrice ? (
+                          <>
+                            <p className="text-sm font-medium text-foreground">
+                              {(item.discountedPrice * item.quantity).toLocaleString("tr-TR")} ₺
+                            </p>
+                            <p className="text-xs text-muted-foreground line-through">
+                              {(item.basePrice * item.quantity).toLocaleString("tr-TR")} ₺
+                            </p>
+                          </>
+                        ) : (
+                          <p className="text-sm font-medium text-foreground">
+                            {((item.basePrice || item.price) * item.quantity).toLocaleString("tr-TR")} ₺
+                          </p>
+                        )}
+                      </div>
                     </div>
                   </div>
                 ))}

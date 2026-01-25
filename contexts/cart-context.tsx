@@ -16,10 +16,13 @@ export interface CartItem {
   id: string
   name: string
   price: number
+  basePrice?: number
+  discountedPrice?: number | null
   image: string
   quantity: number
   // New fields
   productId?: string
+  productSlug?: string
   variantId?: string | null
   variantValues?: Array<{
     id: string
@@ -524,9 +527,12 @@ function mapBackendItemsToLegacy(backendItems: BackendCartItem[]): CartItem[] {
       id: item.id, // Use cart item ID (unique per item, even for same product with different personalizations)
       name: product?.name || 'Ürün',
       price: price,
+      basePrice: item.basePrice,
+      discountedPrice: item.discountedPrice,
       image: imageUrl,
       quantity: item.quantity,
       productId: item.productId,
+      productSlug: product?.slug,
       variantId: item.variantId,
       variantValues: variant?.variantValues || [],
       personalization: item.personalization || undefined,

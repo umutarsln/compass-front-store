@@ -19,7 +19,6 @@ export function ProductCard({
   subtitle,
   price,
   basePrice,
-  isOnSale,
   discountedPrice,
   image,
   category,
@@ -37,7 +36,7 @@ export function ProductCard({
   const isAdding = isAddingToCart(realProductId, null)
 
   // İndirim yüzdesini hesapla
-  const discountPercent = isOnSale && discountedPrice && basePrice > discountedPrice
+  const discountPercent = discountedPrice && basePrice > discountedPrice
     ? Math.round(((basePrice - discountedPrice) / basePrice) * 100)
     : 0
 
@@ -91,7 +90,7 @@ export function ProductCard({
           )}
 
           {/* İndirim Badge - Sol Üst */}
-          {isOnSale && discountPercent > 0 && (
+          {discountedPrice && discountPercent > 0 && (
             <div className="absolute top-3 left-3 z-10">
               <Badge className="bg-red-500 text-white font-bold text-xs px-2 py-1 shadow-lg">
                 %{discountPercent} İNDİRİM
@@ -137,7 +136,7 @@ export function ProductCard({
 
           {/* Fiyat ve İndirim */}
           <div className="mt-2 flex items-baseline gap-2">
-            {isOnSale && discountedPrice && basePrice > discountedPrice ? (
+            {discountedPrice && basePrice > discountedPrice ? (
               <>
                 <span className="text-lg font-bold text-foreground">
                   {discountedPrice.toLocaleString("tr-TR")} ₺

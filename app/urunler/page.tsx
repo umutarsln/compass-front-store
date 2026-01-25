@@ -75,8 +75,6 @@ export const metadata = {
 export default async function ProductsPage({ searchParams }: ProductsPageProps) {
   const params = await searchParams;
 
-  console.log("ALO");
-
   try {
     // Backend'den kategorileri ve tag'leri paralel olarak çek
     const [categories, tags] = await Promise.all([

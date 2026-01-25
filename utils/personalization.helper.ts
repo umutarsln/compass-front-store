@@ -73,11 +73,13 @@ export async function uploadPersonalizationFiles(
 
 /**
  * Form değerlerini hazırla (File objelerini file ID'lere çevir)
+ * Mevcut dosyaları korur ve yeni dosyaları ekler
  */
 export function preparePersonalizationData(
   formValues: Record<string, any>,
   selectedFiles: Record<string, File[]>,
-  uploadedFileIds: string[]
+  uploadedFileIds: string[],
+  existingFileIds?: Record<string, string[]> // Mevcut dosya ID'leri (field key -> file IDs array)
 ): {
   formValues: Record<string, any>
   fileIds: string[]
@@ -85,27 +87,71 @@ export function preparePersonalizationData(
   // Form değerlerini kopyala
   const preparedFormValues: Record<string, any> = { ...formValues }
   
-  // File objelerini file ID'lere çevir
+  // Tüm file ID'leri topla (mevcut + yeni)
+  const allFileIds: string[] = []
+  
+  // File objelerini file ID'lere çevir ve mevcut dosyalarla birleştir
   let fileIdIndex = 0
   
-  Object.entries(selectedFiles).forEach(([fieldKey, files]) => {
-    if (Array.isArray(files) && files.length > 0) {
-      // Bu field için kaç dosya var?
-      const fileCount = files.length
-      const fieldFileIds = uploadedFileIds.slice(fileIdIndex, fileIdIndex + fileCount)
+  // Önce tüm field'ları bul (hem selectedFiles hem existingFileIds hem formValues'dan)
+  const allFieldKeys = new Set([
+    ...Object.keys(selectedFiles),
+    ...(existingFileIds ? Object.keys(existingFileIds) : []),
+    ...Object.keys(formValues)
+  ])
+  
+  allFieldKeys.forEach((fieldKey) => {
+    // Mevcut dosya ID'lerini bul (önce existingFileIds'den, yoksa formValues'dan)
+    let existingIds: string[] = []
+    
+    if (existingFileIds?.[fieldKey]) {
+      // existingFileIds parametresinden al
+      existingIds = existingFileIds[fieldKey]
+    } else {
+      // formValues'dan al (eğer file ID ise)
+      const formValue = formValues[fieldKey]
+      if (formValue) {
+        const ids = Array.isArray(formValue) ? formValue : [formValue]
+        const validIds = ids.filter(
+          (id) => typeof id === 'string' && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id)
+        )
+        existingIds = validIds
+      }
+    }
+    
+    const newFiles = selectedFiles[fieldKey] || []
+    
+    if (newFiles.length > 0) {
+      // Yeni dosyalar var, onları yükle ve ID'lerini al
+      const fileCount = newFiles.length
+      const fieldNewFileIds = uploadedFileIds.slice(fileIdIndex, fileIdIndex + fileCount)
       fileIdIndex += fileCount
       
-      // Form değerinde File objelerini file ID'lere çevir
-      if (fileCount === 1) {
-        preparedFormValues[fieldKey] = fieldFileIds[0]
+      // Mevcut dosyalar + yeni dosyalar
+      const combinedFileIds = [...existingIds, ...fieldNewFileIds]
+      allFileIds.push(...combinedFileIds)
+      
+      // Form değerine kaydet
+      if (combinedFileIds.length === 1) {
+        preparedFormValues[fieldKey] = combinedFileIds[0]
       } else {
-        preparedFormValues[fieldKey] = fieldFileIds
+        preparedFormValues[fieldKey] = combinedFileIds
+      }
+    } else if (existingIds.length > 0) {
+      // Sadece mevcut dosyalar var, onları koru
+      allFileIds.push(...existingIds)
+      
+      // Form değerine kaydet (zaten formValues'da olabilir, ama emin olmak için)
+      if (existingIds.length === 1) {
+        preparedFormValues[fieldKey] = existingIds[0]
+      } else {
+        preparedFormValues[fieldKey] = existingIds
       }
     }
   })
   
   return {
     formValues: preparedFormValues,
-    fileIds: uploadedFileIds,
+    fileIds: allFileIds,
   }
 }

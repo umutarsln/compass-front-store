@@ -175,8 +175,9 @@ export function CartContent() {
                               setIsLoadingProduct(true)
                               try {
                                 // Get product detail to load personalization form
-                                const productId = item.productId || item.id
-                                const product = await getProductDetail(productId)
+                                // Use product slug if available, otherwise fallback to productId
+                                const productIdentifier = item.productSlug || item.productId || item.id
+                                const product = await getProductDetail(productIdentifier)
 
                                 setEditingItem({
                                   productId: product.productId,
@@ -226,9 +227,22 @@ export function CartContent() {
                         </button>
                       </div>
                       <div className="flex items-center gap-4">
-                        <p className="text-sm font-medium text-foreground">
-                          {(item.price * item.quantity).toLocaleString("tr-TR")} ₺
-                        </p>
+                        <div className="flex flex-col items-end">
+                          {item.discountedPrice && item.basePrice && item.discountedPrice < item.basePrice ? (
+                            <>
+                              <p className="text-sm font-medium text-foreground">
+                                {(item.discountedPrice * item.quantity).toLocaleString("tr-TR")} ₺
+                              </p>
+                              <p className="text-xs text-muted-foreground line-through">
+                                {(item.basePrice * item.quantity).toLocaleString("tr-TR")} ₺
+                              </p>
+                            </>
+                          ) : (
+                            <p className="text-sm font-medium text-foreground">
+                              {((item.basePrice || item.price) * item.quantity).toLocaleString("tr-TR")} ₺
+                            </p>
+                          )}
+                        </div>
                         <button
                           onClick={() => removeFromCart(item.productId || item.id, item.variantId || null)}
                           disabled={isRemovingItem(item.productId || item.id, item.variantId || null) || isUpdatingItem(item.productId || item.id, item.variantId || null)}
@@ -389,6 +403,63 @@ export function CartContent() {
 
                   const selectedFiles = formData.selectedFiles as Record<string, File[]> | undefined
 
+                  // Extract existing file IDs from cart item (mevcut dosyalar)
+                  // Bu, initialFileIds'den alınmalı çünkü formValues içinde File objeleri olabilir
+                  const cartItem = items.find(
+                    (i) => i.productId === editingItem.productId && i.variantId === editingItem.variantId
+                  )
+                  
+                  const existingFileIds: Record<string, string[]> = {}
+                  if (cartItem?.personalization?.userValues) {
+                    const schema = editingItem.product.personalizationForm.schemaSnapshot
+                    schema.fields.forEach((field: any) => {
+                      const value = cartItem.personalization.userValues[field.key]
+                      if (!value) return
+
+                      const isFileField =
+                        field.type === 'IMAGE_PICKER_SINGLE' ||
+                        field.type === 'IMAGE_PICKER_MULTI' ||
+                        field.type === 'FILE_UPLOAD_SINGLE' ||
+                        field.type === 'FILE_UPLOAD_MULTI'
+
+                      if (isFileField) {
+                        const ids = Array.isArray(value) ? value : [value]
+                        const validIds = ids.filter(
+                          (id) => typeof id === 'string' && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id)
+                        )
+                        if (validIds.length > 0) {
+                          existingFileIds[field.key] = validIds
+                        }
+                      }
+                    })
+                  }
+                  
+                  // Also check formValues for any file IDs that might be there
+                  Object.entries(finalFormValues).forEach(([key, value]) => {
+                    if (value && !existingFileIds[key]) {
+                      const field = editingItem.product.personalizationForm.schemaSnapshot.fields.find(
+                        (f: any) => f.key === key
+                      )
+                      if (field) {
+                        const isFileField =
+                          field.type === 'IMAGE_PICKER_SINGLE' ||
+                          field.type === 'IMAGE_PICKER_MULTI' ||
+                          field.type === 'FILE_UPLOAD_SINGLE' ||
+                          field.type === 'FILE_UPLOAD_MULTI'
+
+                        if (isFileField) {
+                          const ids = Array.isArray(value) ? value : [value]
+                          const validIds = ids.filter(
+                            (id) => typeof id === 'string' && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id)
+                          )
+                          if (validIds.length > 0) {
+                            existingFileIds[key] = validIds
+                          }
+                        }
+                      }
+                    }
+                  })
+
                   if (selectedFiles && Object.keys(selectedFiles).length > 0) {
                     try {
                       // Upload new files
@@ -398,41 +469,52 @@ export function CartContent() {
                       const prepared = preparePersonalizationData(
                         finalFormValues,
                         selectedFiles,
-                        uploadedFileIds
+                        uploadedFileIds,
+                        existingFileIds // Mevcut dosyaları da geçir
                       )
 
                       finalFormValues = prepared.formValues
                       allFileIds = prepared.fileIds
+                      
+                      // Debug: Log final form values to verify file counts
+                      console.log('[CartContent] Final form values after prepare:', finalFormValues)
+                      console.log('[CartContent] Existing file IDs:', existingFileIds)
+                      console.log('[CartContent] Selected files:', selectedFiles)
+                      console.log('[CartContent] Uploaded file IDs:', uploadedFileIds)
                     } catch (uploadError: any) {
                       console.error('[CartContent] File upload failed:', uploadError)
                       setIsSavingPersonalization(false)
                       return
                     }
                   } else {
-                    // No new files, just collect existing file IDs from form values
-                    Object.entries(finalFormValues).forEach(([key, value]) => {
-                      if (value) {
-                        const field = editingItem.product.personalizationForm.schemaSnapshot.fields.find(
-                          (f: any) => f.key === key
-                        )
-                        if (field) {
-                          const isFileField =
-                            field.type === 'IMAGE_PICKER_SINGLE' ||
-                            field.type === 'IMAGE_PICKER_MULTI' ||
-                            field.type === 'FILE_UPLOAD_SINGLE' ||
-                            field.type === 'FILE_UPLOAD_MULTI'
-
-                          if (isFileField) {
-                            const ids = Array.isArray(value) ? value : [value]
-                            const validIds = ids.filter(
-                              (id) => typeof id === 'string' && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id)
-                            )
-                            allFileIds.push(...validIds)
-                          }
-                        }
+                    // No new files, just use existing file IDs
+                    // Make sure existing file IDs are in finalFormValues
+                    Object.entries(existingFileIds).forEach(([key, ids]) => {
+                      allFileIds.push(...ids)
+                      // Ensure existing file IDs are in finalFormValues
+                      if (ids.length === 1) {
+                        finalFormValues[key] = ids[0]
+                      } else {
+                        finalFormValues[key] = ids
                       }
                     })
                   }
+
+                  // Debug: Log final values before sending to backend
+                  console.log('[CartContent] Final values before update:', {
+                    formValues: finalFormValues,
+                    fileIds: allFileIds,
+                    existingFileIds,
+                  })
+                  
+                  // Verify file counts for each field
+                  editingItem.product.personalizationForm.schemaSnapshot.fields.forEach((field: any) => {
+                    if (field.type.includes('MULTI') && (field.config?.minFileCount || field.config?.maxFileCount)) {
+                      const fieldValue = finalFormValues[field.key]
+                      const fileCount = fieldValue ? (Array.isArray(fieldValue) ? fieldValue.length : 1) : 0
+                      console.log(`[CartContent] Field "${field.title}": ${fileCount} files (min: ${field.config?.minFileCount || 0}, max: ${field.config?.maxFileCount || 'unlimited'})`)
+                    }
+                  })
 
                   // 3. Update personalization with final values
                   await updatePersonalization(

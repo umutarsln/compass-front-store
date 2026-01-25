@@ -71,7 +71,6 @@ export interface ProductListItem {
   description: string;
   price: number;
   basePrice: number;
-  isOnSale: boolean;
   discountedPrice: number | null;
   sku: string;
   stock: Stock;
@@ -123,6 +122,8 @@ export interface VariantCombination {
   isActive: boolean;
   isDisabled: boolean;
   price: number;
+  basePrice: number;
+  discountedPrice: number | null;
   stock: Stock;
   gallery: Gallery;
   variantValues: any[];
@@ -136,7 +137,6 @@ export interface SimpleProductDetail {
   slug: string;
   description: string;
   basePrice: number;
-  isOnSale: boolean;
   discountedPrice: number | null;
   type: 'SIMPLE';
   price: number;
@@ -169,7 +169,6 @@ export interface VariantProductDetail {
   slug: string;
   description: string;
   basePrice: number;
-  isOnSale: boolean;
   discountedPrice: number | null;
   type: 'VARIANT';
   price: null;

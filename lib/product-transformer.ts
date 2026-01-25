@@ -8,7 +8,6 @@ export interface FrontendProduct {
   subtitle: string | null;
   price: number;
   basePrice: number;
-  isOnSale: boolean;
   discountedPrice: number | null;
   image: string;
   category: string;
@@ -35,13 +34,15 @@ export interface FrontendProduct {
  */
 export function transformProductListItem(product: ProductListItem): FrontendProduct {
   // Görsel URL'ini belirle: önce mainImage, yoksa thumbnailImage, yoksa placeholder
-  const imageUrl = 
-    product.gallery?.mainImage?.s3Url || 
-    product.gallery?.thumbnailImage?.s3Url || 
+  const imageUrl =
+    product.gallery?.mainImage?.s3Url ||
+    product.gallery?.thumbnailImage?.s3Url ||
     '/placeholders/placeholder.svg';
 
   // Kategori adını al: ilk kategori veya "Genel"
   const categoryName = product.categories[0]?.name || 'Genel';
+
+  console.log("product: ", product);
 
   return {
     id: product.id, // Keep id for display/URL purposes
@@ -50,7 +51,6 @@ export function transformProductListItem(product: ProductListItem): FrontendProd
     subtitle: product.subtitle,
     price: product.price,
     basePrice: product.basePrice,
-    isOnSale: product.isOnSale,
     discountedPrice: product.discountedPrice,
     image: imageUrl,
     category: categoryName,

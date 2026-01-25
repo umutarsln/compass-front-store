@@ -49,7 +49,6 @@ export function AllProducts() {
               subtitle={null}
               price={product.price}
               basePrice={product.price}
-              isOnSale={false}
               discountedPrice={null}
               image={product.image}
               category={product.category}

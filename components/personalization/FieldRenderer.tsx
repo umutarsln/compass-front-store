@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useCallback, useRef, useEffect } from "react"
+import { useState, useCallback, useRef, useEffect, useMemo, startTransition } from "react"
 import { useDropzone } from "react-dropzone"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -58,27 +58,55 @@ export function FieldRenderer({
   const [uploadErrors, setUploadErrors] = useState<Record<string, string>>({})
   const [selectedFiles, setSelectedFiles] = useState<Array<{ file: File; preview: string }>>([])
   const fileInputRef = useRef<HTMLInputElement>(null)
+  const selectedFilesRef = useRef<Array<{ file: File; preview: string }>>([])
+  const pendingCallbacksRef = useRef<Array<{ onChange?: any; onFileSelect?: File[] }>>([])
+  
+  // Keep ref in sync with state
+  useEffect(() => {
+    selectedFilesRef.current = selectedFiles
+  }, [selectedFiles])
 
-  const handleFileSelect = (files: File[]) => {
+  // Process pending callbacks after state updates
+  useEffect(() => {
+    if (pendingCallbacksRef.current.length > 0) {
+      const callbacks = pendingCallbacksRef.current.shift()
+      if (callbacks) {
+        if (callbacks.onChange !== undefined) {
+          onChange(callbacks.onChange)
+        }
+        if (callbacks.onFileSelect && onFileSelect) {
+          onFileSelect(callbacks.onFileSelect)
+        }
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedFiles])
+
+  const handleFileSelect = useCallback((files: File[]) => {
     console.log('[FieldRenderer] handleFileSelect called', { files: files.length, fieldKey: field.key })
     const isMulti = field.type.includes('MULTI')
     const maxFiles = field.config?.maxFileCount
-    const allowedTypes = field.config?.allowedMimeTypes || []
+    const minFiles = field.config?.minFileCount
+    const allowedTypes = Array.isArray(field.config?.allowedMimeTypes) 
+      ? field.config.allowedMimeTypes 
+      : []
     const maxSize = field.config?.maxFileSize ? field.config.maxFileSize * 1024 * 1024 : undefined
 
     // Validate file count (consider both existing and new files)
     if (isMulti) {
       const existingCount = existingFiles.length || 0
-      const currentCount = selectedFiles.length
+      // Use ref to get the most current value (avoids stale closure)
+      const currentCount = selectedFilesRef.current.length
       const newCount = currentCount + files.length
       const totalCount = existingCount + newCount
 
+      // Check max file count (considering existing files)
       if (maxFiles && totalCount > maxFiles) {
         setUploadErrors((prev) => ({
           ...prev,
-          [field.key]: `Maksimum ${maxFiles} dosya seçebilirsiniz (şu anda ${existingCount} mevcut dosya var)`,
+          [field.key]: `Maksimum ${maxFiles} dosya seçebilirsiniz (şu anda ${existingCount} mevcut dosya var, ${currentCount} yeni seçili dosya var)`,
         }))
-        return
+        return // Validation failed, don't proceed
       }
     } else if (files.length > 1) {
       setUploadErrors((prev) => ({
@@ -122,54 +150,66 @@ export function FieldRenderer({
 
     if (isMulti) {
       // For MULTI: Add new files to existing ones
-      setSelectedFiles((prev) => {
-        console.log('[FieldRenderer] Adding files to existing', {
-          existing: prev.length,
-          new: newFiles.length
-        })
-        return [...prev, ...newFiles]
+      // Calculate the updated files first
+      const updated = [...selectedFilesRef.current, ...newFiles]
+      const currentFileObjects = updated.map((f) => f.file)
+      
+      // Update state
+      setSelectedFiles(updated)
+      selectedFilesRef.current = updated
+      
+      // Queue callbacks to be called after state update completes
+      pendingCallbacksRef.current.push({
+        onChange: currentFileObjects,
+        onFileSelect: currentFileObjects,
       })
-      // Store file objects in form value (will be uploaded when adding to cart)
-      // Get current files from selectedFiles state, not from value prop
-      const currentFileObjects = selectedFiles.map((f) => f.file)
-      const allFiles = [...currentFileObjects, ...files]
-      onChange(allFiles)
-      // Call onFileSelect callback
-      if (onFileSelect) {
-        onFileSelect(allFiles)
-      }
     } else {
       // For SINGLE: Replace existing file
       // Revoke previous preview URL
-      if (selectedFiles[0]?.preview) {
-        URL.revokeObjectURL(selectedFiles[0].preview)
+      if (selectedFilesRef.current[0]?.preview) {
+        URL.revokeObjectURL(selectedFilesRef.current[0].preview)
       }
+      
+      // Update state
       setSelectedFiles(newFiles)
-      onChange(files[0])
-      // Call onFileSelect callback
-      if (onFileSelect) {
-        onFileSelect([files[0]])
-      }
+      selectedFilesRef.current = newFiles
+      
+      // Queue callbacks to be called after state update completes
+      pendingCallbacksRef.current.push({
+        onChange: files[0],
+        onFileSelect: [files[0]],
+      })
     }
-  }
+  }, [field, existingFiles, onChange, onFileSelect])
 
   const onDrop = useCallback(
     (acceptedFiles: File[]) => {
       console.log('[FieldRenderer] onDrop called', { files: acceptedFiles.length })
       handleFileSelect(acceptedFiles)
     },
-    [field],
+    [handleFileSelect],
   )
+
+  // Calculate maxFiles for useDropzone (considering existing files)
+  const maxFilesForDropzone = useMemo(() => {
+    if (!field.type.includes('MULTI') || !field.config?.maxFileCount) {
+      return undefined
+    }
+    const existingCount = existingFiles.length || 0
+    const currentSelectedCount = selectedFiles.length
+    const availableSlots = field.config.maxFileCount - existingCount - currentSelectedCount
+    return Math.max(0, availableSlots) // Don't allow negative values
+  }, [field.type, field.config?.maxFileCount, existingFiles.length, selectedFiles.length])
 
   const { getRootProps, getInputProps, isDragActive, open } = useDropzone({
     onDrop,
     accept: field.type.includes('IMAGE')
       ? { 'image/*': [] }
-      : field.config?.allowedMimeTypes
+      : Array.isArray(field.config?.allowedMimeTypes) && field.config.allowedMimeTypes.length > 0
         ? Object.fromEntries(field.config.allowedMimeTypes.map((type: string) => [type, []]))
         : undefined,
     multiple: field.type.includes('MULTI'),
-    maxFiles: field.config?.maxFileCount,
+    maxFiles: maxFilesForDropzone, // Use calculated maxFiles that considers existing files
     disabled: false,
     noClick: true, // Disable default click behavior, we'll handle it manually
     noKeyboard: false,
@@ -210,19 +250,29 @@ export function FieldRenderer({
     }
 
     if (field.type.includes('MULTI')) {
+      // Calculate new files first
       const newFiles = selectedFiles.filter((_, i) => i !== index)
-      setSelectedFiles(newFiles)
       const fileObjects = newFiles.map((f) => f.file)
-      onChange(fileObjects)
-      if (onFileSelect) {
-        onFileSelect(fileObjects)
-      }
+      
+      // Update state
+      setSelectedFiles(newFiles)
+      selectedFilesRef.current = newFiles
+      
+      // Queue callbacks to be called after state update completes
+      pendingCallbacksRef.current.push({
+        onChange: fileObjects,
+        onFileSelect: fileObjects,
+      })
     } else {
+      // Update state
       setSelectedFiles([])
-      onChange(null)
-      if (onFileSelect) {
-        onFileSelect([])
-      }
+      selectedFilesRef.current = []
+      
+      // Queue callbacks to be called after state update completes
+      pendingCallbacksRef.current.push({
+        onChange: null,
+        onFileSelect: [],
+      })
     }
   }
 

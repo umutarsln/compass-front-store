@@ -5,7 +5,7 @@ import { motion } from "framer-motion"
 import Image from "next/image"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
-import { Truck, Shield, Clock, ChevronLeft, ChevronRight, ShoppingCart } from "lucide-react"
+import { Award, Shield, Clock, ChevronLeft, ChevronRight, ShoppingCart } from "lucide-react"
 import { useCart } from "@/contexts/cart-context"
 import type { ProductDetail as ProductDetailType } from "@/services/products"
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
@@ -326,20 +326,58 @@ export function ProductDetail({ product }: ProductDetailProps) {
           </div>
 
           <div className="flex items-center gap-4">
-            {product.type === 'SIMPLE' && product.discountedPrice ? (
-              <>
+            {(() => {
+              // SIMPLE ürünler için
+              if (product.type === 'SIMPLE') {
+                if (product.discountedPrice) {
+                  return (
+                    <>
+                      <span className="text-3xl font-bold text-foreground">
+                        {product.discountedPrice.toLocaleString('tr-TR')} ₺
+                      </span>
+                      <span className="text-xl text-muted-foreground line-through">
+                        {product.basePrice.toLocaleString('tr-TR')} ₺
+                      </span>
+                    </>
+                  )
+                } else {
+                  return (
+                    <span className="text-3xl font-bold text-foreground">
+                      {product.basePrice.toLocaleString('tr-TR')} ₺
+                    </span>
+                  )
+                }
+              }
+
+              // VARIANT ürünler için
+              if (product.type === 'VARIANT' && currentCombination) {
+                if (currentCombination.discountedPrice) {
+                  return (
+                    <>
+                      <span className="text-3xl font-bold text-foreground">
+                        {currentCombination.discountedPrice.toLocaleString('tr-TR')} ₺
+                      </span>
+                      <span className="text-xl text-muted-foreground line-through">
+                        {currentCombination.basePrice.toLocaleString('tr-TR')} ₺
+                      </span>
+                    </>
+                  )
+                } else {
+                  return (
+                    <span className="text-3xl font-bold text-foreground">
+                      {currentCombination.basePrice.toLocaleString('tr-TR')} ₺
+                    </span>
+                  )
+                }
+              }
+
+              // Kombinasyon seçilmediyse
+              return (
                 <span className="text-3xl font-bold text-foreground">
-                  {product.discountedPrice.toLocaleString('tr-TR')} ₺
+                  {displayPrice.toLocaleString('tr-TR')} ₺
                 </span>
-                <span className="text-xl text-muted-foreground line-through">
-                  {product.basePrice.toLocaleString('tr-TR')} ₺
-                </span>
-              </>
-            ) : (
-              <span className="text-3xl font-bold text-foreground">
-                {displayPrice.toLocaleString('tr-TR')} ₺
-              </span>
-            )}
+              )
+            })()}
           </div>
 
           {/* Varyasyon Seçimi */}
@@ -429,10 +467,10 @@ export function ProductDetail({ product }: ProductDetailProps) {
           {/* Ürün Özellikleri */}
           <div className="grid grid-cols-3 gap-4 pt-6 border-t">
             <div className="flex items-center gap-2">
-              <Truck className="w-5 h-5 text-muted-foreground" />
+              <Award className="w-5 h-5 text-muted-foreground" />
               <div>
-                <p className="text-sm font-medium text-foreground">Ücretsiz Kargo</p>
-                <p className="text-xs text-muted-foreground">150₺ üzeri</p>
+                <p className="text-sm font-medium text-foreground">Kaliteli Ürün</p>
+                <p className="text-xs text-muted-foreground">Ahşap Plaka</p>
               </div>
             </div>
             <div className="flex items-center gap-2">
@@ -446,7 +484,7 @@ export function ProductDetail({ product }: ProductDetailProps) {
               <Clock className="w-5 h-5 text-muted-foreground" />
               <div>
                 <p className="text-sm font-medium text-foreground">Hızlı Teslimat</p>
-                <p className="text-xs text-muted-foreground">3-5 iş günü</p>
+                <p className="text-xs text-muted-foreground">1-2 Hafta</p>
               </div>
             </div>
           </div>
