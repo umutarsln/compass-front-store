@@ -70,7 +70,7 @@ export function AboutProcess() {
           >
             <div className="relative aspect-[4/5] w-full">
               <Image
-                src="/hakkimizda/hakkimizdagorsel2.png"
+                src="/hakkimizda/hakkimizdagorsel2.webp"
                 alt="Üretim süreci"
                 fill
                 className="object-cover"

@@ -5,10 +5,10 @@ import Image from "next/image"
 import { Instagram } from "lucide-react"
 
 const instagramImages = [
-  "/instagram-post/post1-kareend.jpg",
-  "/instagram-post/post1-silindir-end.jpg",
-  "/instagram-post/post2-1.jpg",
-  "/instagram-post/post2-2.png",
+  "/instagram-post/post1-kareend.webp",
+  "/instagram-post/post1-silindir-end.webp",
+  "/instagram-post/post2-1.webp",
+  "/instagram-post/post2-2.webp",
 ]
 
 export function InstagramSection() {
