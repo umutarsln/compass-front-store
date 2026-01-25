@@ -7,17 +7,17 @@ const steps = [
   {
     title: "Fotoğrafını Yükle",
     description: "Lambanızda görmek istediğiniz fotoğrafı seçin ve yükleyin.",
-    image: "/nasil-calisir/nasılcalisir1.png",
+    image: "/nasil-calisir/nasılcalisir1.webp",
   },
   {
     title: "Tasarımı Onayla",
     description: "Fotoğrafın, lambaya en iyi şekilde uyarlanır. Hazırlanan tasarımı incele, onayla ve üretime geçelim.",
-    image: "/nasil-calisir/nasilcalisir2.png",
+    image: "/nasil-calisir/nasilcalisir2.webp",
   },
   {
     title: "Kapına Gelsin",
     description: "Özel üretim lambanız güvenle paketlenir ve adresinize gönderilir. Anılarınızı sıcak bir ışıkla yeniden yaşayın.",
-    image: "/nasil-calisir/nasilcalisir3.png",
+    image: "/nasil-calisir/nasilcalisir3.webp",
   },
 ]
 
