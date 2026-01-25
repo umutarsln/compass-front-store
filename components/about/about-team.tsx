@@ -16,7 +16,7 @@ const teamMembers = [
   },
   {
     name: "Muhammed Fatih Kartcı",
-    image: "/placeholders/placeholder.svg", // Görsel eklenecek
+    image: "/team/mfk.webp",
     description: "Üretim sürecinin her aşamasında yer alarak, her siparişin özenle hazırlanmasını sağlıyorum. Paketlemeden teslimata kadar tüm süreçlerde müşteri memnuniyetini ön planda tutuyoruz. Her ürün, sevdiklerinize verdiğiniz değerin bir yansıması olmalı."
   }
 ]
