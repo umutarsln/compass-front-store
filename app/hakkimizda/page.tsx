@@ -18,9 +18,9 @@ export default function AboutPage() {
       <main className="pt-26 md:pt-[108px]">
         <AboutHero />
         <AboutStory />
+        <AboutTeam />
         <AboutValues />
         <AboutProcess />
-        <AboutTeam />
       </main>
       <Footer />
     </>

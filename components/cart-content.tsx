@@ -1,10 +1,10 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { motion } from "framer-motion"
 import Image from "next/image"
 import Link from "next/link"
-import { Trash2, Plus, Minus, ShoppingBag, Edit } from "lucide-react"
+import { Trash2, Plus, Minus, ShoppingBag, Edit, Tag, X, Check } from "lucide-react"
 import { useCart } from "@/contexts/cart-context"
 import { useAuth } from "@/contexts/auth-context"
 import { Spinner } from "@/components/ui/spinner"
@@ -22,6 +22,88 @@ export function CartContent() {
   const [editingItem, setEditingItem] = useState<{ productId: string; variantId: string | null; product: any } | null>(null)
   const [isLoadingProduct, setIsLoadingProduct] = useState(false)
   const [isSavingPersonalization, setIsSavingPersonalization] = useState(false)
+  const [isCouponInputOpen, setIsCouponInputOpen] = useState(false)
+  const [couponCode, setCouponCode] = useState("")
+  const [appliedCoupon, setAppliedCoupon] = useState<string | null>(null)
+  const [couponError, setCouponError] = useState<string | null>(null)
+
+  // Kupon kodları - Backend'den gelecek (şimdilik test için)
+  const validCoupons: Record<string, { discount: number; type: 'percentage' | 'fixed' }> = {
+    'KUPON10': { discount: 10, type: 'percentage' }
+  }
+
+  const handleApplyCoupon = () => {
+    setCouponError(null)
+    const upperCode = couponCode.toUpperCase().trim()
+    
+    if (!upperCode) {
+      setCouponError("Lütfen bir kupon kodu girin")
+      return
+    }
+
+    if (validCoupons[upperCode]) {
+      setAppliedCoupon(upperCode)
+      setCouponCode("")
+      setIsCouponInputOpen(false)
+      // Kupon bilgisini localStorage'a kaydet
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('shawk_applied_coupon', JSON.stringify({
+          code: upperCode,
+          discount: validCoupons[upperCode].discount,
+          type: validCoupons[upperCode].type
+        }))
+      }
+    } else {
+      setCouponError("Geçersiz kupon kodu")
+    }
+  }
+
+  const handleRemoveCoupon = () => {
+    setAppliedCoupon(null)
+    setCouponCode("")
+    setCouponError(null)
+    // localStorage'dan kupon bilgisini kaldır
+    if (typeof window !== 'undefined') {
+      localStorage.removeItem('shawk_applied_coupon')
+    }
+  }
+
+  // Sayfa yüklendiğinde localStorage'dan kupon bilgisini oku
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const savedCoupon = localStorage.getItem('shawk_applied_coupon')
+      if (savedCoupon) {
+        try {
+          const couponData = JSON.parse(savedCoupon)
+          if (validCoupons[couponData.code]) {
+            setAppliedCoupon(couponData.code)
+          }
+        } catch (e) {
+          // Geçersiz veri, temizle
+          localStorage.removeItem('shawk_applied_coupon')
+        }
+      }
+    }
+  }, [])
+
+  const calculateDiscount = () => {
+    if (!appliedCoupon || !validCoupons[appliedCoupon]) return 0
+    
+    const coupon = validCoupons[appliedCoupon]
+    const subtotal = getTotalPrice()
+    
+    if (coupon.type === 'percentage') {
+      return (subtotal * coupon.discount) / 100
+    } else {
+      return coupon.discount
+    }
+  }
+
+  const getFinalTotal = () => {
+    const subtotal = getTotalPrice()
+    const discount = calculateDiscount()
+    return Math.max(0, subtotal - discount)
+  }
 
   // Loading state - show skeleton
   if (isLoading) {
@@ -275,6 +357,12 @@ export function CartContent() {
                     <span className="text-muted-foreground">Ara Toplam</span>
                     <span className="text-foreground">{getTotalPrice().toLocaleString("tr-TR")} ₺</span>
                   </div>
+                  {appliedCoupon && calculateDiscount() > 0 && (
+                    <div className="flex justify-between text-sm">
+                      <span className="text-muted-foreground">İndirim ({appliedCoupon})</span>
+                      <span className="text-green-600 font-medium">-{calculateDiscount().toLocaleString("tr-TR")} ₺</span>
+                    </div>
+                  )}
                   <div className="flex justify-between text-sm">
                     <span className="text-muted-foreground">Kargo</span>
                     <span className="text-foreground">Ücretsiz</span>
@@ -282,12 +370,100 @@ export function CartContent() {
                   <div className="border-t border-border pt-4">
                     <div className="flex justify-between">
                       <span className="font-medium text-foreground">Toplam</span>
-                      <span className="font-medium text-foreground text-lg">
-                        {getTotalPrice().toLocaleString("tr-TR")} ₺
-                      </span>
+                      <div className="flex flex-col items-end">
+                        {appliedCoupon && calculateDiscount() > 0 && (
+                          <span className="text-xs text-muted-foreground line-through mb-1">
+                            {getTotalPrice().toLocaleString("tr-TR")} ₺
+                          </span>
+                        )}
+                        <span className="font-medium text-foreground text-lg">
+                          {getFinalTotal().toLocaleString("tr-TR")} ₺
+                        </span>
+                      </div>
                     </div>
                   </div>
                 </div>
+
+                {/* Kupon Kodu */}
+                <div className="mb-4">
+                  {!appliedCoupon ? (
+                    <>
+                      {!isCouponInputOpen ? (
+                        <button
+                          onClick={() => setIsCouponInputOpen(true)}
+                          className="w-full flex items-center justify-center gap-2 py-2.5 text-sm text-foreground border border-border hover:bg-secondary transition-colors"
+                        >
+                          <Tag className="w-4 h-4" />
+                          Kupon Kodu Kullan
+                        </button>
+                      ) : (
+                        <motion.div
+                          initial={{ opacity: 0, height: 0 }}
+                          animate={{ opacity: 1, height: "auto" }}
+                          exit={{ opacity: 0, height: 0 }}
+                          transition={{ duration: 0.3 }}
+                          className="space-y-2"
+                        >
+                          <div className="flex gap-2">
+                            <input
+                              type="text"
+                              value={couponCode}
+                              onChange={(e) => {
+                                setCouponCode(e.target.value)
+                                setCouponError(null)
+                              }}
+                              onKeyPress={(e) => {
+                                if (e.key === 'Enter') {
+                                  handleApplyCoupon()
+                                }
+                              }}
+                              placeholder="Kupon kodunu girin"
+                              className="flex-1 px-3 py-2 text-sm border border-border bg-background focus:border-foreground focus:outline-none transition-colors"
+                              autoFocus
+                            />
+                            <button
+                              onClick={handleApplyCoupon}
+                              className="px-4 py-2 bg-primary text-primary-foreground text-sm font-medium hover:bg-primary/90 transition-colors"
+                            >
+                              Uygula
+                            </button>
+                            <button
+                              onClick={() => {
+                                setIsCouponInputOpen(false)
+                                setCouponCode("")
+                                setCouponError(null)
+                              }}
+                              className="px-3 py-2 border border-border hover:bg-secondary transition-colors"
+                            >
+                              <X className="w-4 h-4" />
+                            </button>
+                          </div>
+                          {couponError && (
+                            <p className="text-xs text-red-600">{couponError}</p>
+                          )}
+                        </motion.div>
+                      )}
+                    </>
+                  ) : (
+                    <div className="flex items-center justify-between p-3 bg-green-50 border border-green-200 rounded">
+                      <div className="flex items-center gap-2">
+                        <Check className="w-4 h-4 text-green-600" />
+                        <span className="text-sm font-medium text-green-800">{appliedCoupon}</span>
+                        <span className="text-xs text-green-600">
+                          %{validCoupons[appliedCoupon].discount} indirim uygulandı
+                        </span>
+                      </div>
+                      <button
+                        onClick={handleRemoveCoupon}
+                        className="text-green-600 hover:text-green-800 transition-colors"
+                        aria-label="Kuponu kaldır"
+                      >
+                        <X className="w-4 h-4" />
+                      </button>
+                    </div>
+                  )}
+                </div>
+
                 <Link
                   href={isAuthenticated ? "/odeme" : "/odeme-auth"}
                   className="block w-full py-4 bg-primary text-primary-foreground font-medium text-sm uppercase tracking-wider hover:bg-primary/90 transition-colors text-center"
