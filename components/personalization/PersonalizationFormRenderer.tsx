@@ -3,6 +3,7 @@
 import { useState, useMemo, useEffect } from "react"
 import { FieldRenderer } from "./FieldRenderer"
 import { personalizationService } from "@/services/personalization.service"
+import { uploadService } from "@/services/upload.service"
 import { Button } from "@/components/ui/button"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Loader2, AlertCircle } from "lucide-react"
@@ -53,6 +54,7 @@ export function PersonalizationFormRenderer({
   const [fileIds, setFileIds] = useState<string[]>([])
   const [selectedFiles, setSelectedFiles] = useState<Record<string, File[]>>({}) // Store File objects locally
   const [existingFiles, setExistingFiles] = useState<Record<string, Array<{ id: string; url: string }>>>({}) // Store existing files (ID + URL)
+  const [deletedFileIds, setDeletedFileIds] = useState<Set<string>>(new Set()) // Track files marked for deletion (not deleted yet)
   const [loadingExistingFiles, setLoadingExistingFiles] = useState<Record<string, boolean>>({})
   const [errors, setErrors] = useState<Record<string, string>>({})
   const [isValidating, setIsValidating] = useState(false)
@@ -65,6 +67,8 @@ export function PersonalizationFormRenderer({
   useEffect(() => {
     if (initialValues) {
       setFormValues(initialValues)
+      // Reset deleted files when initial values change (e.g., dialog reopened)
+      setDeletedFileIds(new Set())
     }
   }, [initialValues])
 
@@ -408,12 +412,13 @@ export function PersonalizationFormRenderer({
       formValues,
       fileIds,
       selectedFiles, // Expose selected files for upload
+      deletedFileIds: Array.from(deletedFileIds), // Expose deleted file IDs for deletion on save
       pricingBreakdown,
       totalPersonalizationAmount,
       validate: validateForm,
       uploadFiles, // Expose upload function
     }
-  }, [formValues, fileIds, selectedFiles, pricingBreakdown, totalPersonalizationAmount])
+  }, [formValues, fileIds, selectedFiles, deletedFileIds, pricingBreakdown, totalPersonalizationAmount])
 
   return (
     <div className="mt-8 space-y-6 border-t pt-8 overflow-x-hidden">
@@ -446,7 +451,16 @@ export function PersonalizationFormRenderer({
             }}
             existingFiles={existingFiles[field.key] || []}
             onRemoveExistingFile={(fileId) => {
-              // Remove from existing files
+              // Mark file for deletion (don't delete from backend yet)
+              console.log('[PersonalizationFormRenderer] Marking file for deletion', {
+                fileId,
+                fieldKey: field.key,
+              })
+              
+              // Add to deleted files set
+              setDeletedFileIds((prev) => new Set(prev).add(fileId))
+              
+              // Remove from existing files display (local state only)
               setExistingFiles((prev) => {
                 const newFiles = [...(prev[field.key] || [])]
                 const index = newFiles.findIndex((f) => f.id === fileId)
@@ -458,7 +472,8 @@ export function PersonalizationFormRenderer({
                   [field.key]: newFiles,
                 }
               })
-              // Update form values to remove the file ID
+              
+              // Update form values to remove the file ID (local state only)
               const currentValue = formValues[field.key]
               if (Array.isArray(currentValue)) {
                 const newValue = currentValue.filter((id) => id !== fileId)

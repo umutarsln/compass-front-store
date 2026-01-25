@@ -16,7 +16,8 @@ export interface PersonalizationFormData {
  * Dosyaları yükle ve file ID'lerini döndür
  */
 export async function uploadPersonalizationFiles(
-  selectedFiles: Record<string, File[]>
+  selectedFiles: Record<string, File[]>,
+  cartId?: string | null
 ): Promise<string[]> {
   // Tüm dosyaları topla
   const allFiles: File[] = []
@@ -52,21 +53,53 @@ export async function uploadPersonalizationFiles(
   const uploadedFileIds: string[] = []
   const guestId = getGuestId()
   
+  console.log('[PersonalizationHelper] Starting file upload', {
+    totalFiles: allFiles.length,
+    guestId,
+    cartId: cartId || 'not provided',
+    fileNames: allFiles.map(f => f.name),
+  })
+  
   for (let i = 0; i < allFiles.length; i++) {
     const file = allFiles[i]
     
+    console.log(`[PersonalizationHelper] Uploading file ${i + 1}/${allFiles.length}`, {
+      fileName: file.name,
+      fileSize: file.size,
+      fileType: file.type,
+      guestId,
+      cartId: cartId || undefined,
+    })
+    
     try {
       // Kişiselleştirme dosyaları için her zaman guest endpoint kullan
-      const uploadResponse = await uploadService.uploadGuest(file, guestId, file.name)
+      // Cart ID varsa gönder (dosyalar Sepetler/{cartId} klasörüne yüklenecek)
+      const uploadResponse = await uploadService.uploadGuest(file, guestId, file.name, cartId || undefined)
+      console.log(`[PersonalizationHelper] File ${i + 1} uploaded successfully`, {
+        fileName: file.name,
+        uploadId: uploadResponse.id,
+      })
       uploadedFileIds.push(uploadResponse.id)
     } catch (error: any) {
-      console.error(`[PersonalizationHelper] Failed to upload file ${i + 1}/${allFiles.length}:`, {
+      console.error(`[PersonalizationHelper] Failed to upload file ${i + 1}/${allFiles.length}`, {
         fileName: file.name,
-        error: error.message
+        fileSize: file.size,
+        fileType: file.type,
+        error: error,
+        errorMessage: error?.message,
+        errorStack: error?.stack,
+        errorName: error?.name,
+        errorString: String(error),
+        errorJSON: JSON.stringify(error, Object.getOwnPropertyNames(error)),
       })
-      throw new Error(`Dosya yüklenemedi: ${file.name} - ${error.message || 'Bilinmeyen hata'}`)
+      throw new Error(`Dosya yüklenemedi: ${file.name} - ${error?.message || error?.toString() || 'Bilinmeyen hata'}`)
     }
   }
+  
+  console.log('[PersonalizationHelper] All files uploaded successfully', {
+    totalUploaded: uploadedFileIds.length,
+    uploadedIds: uploadedFileIds,
+  })
 
   return uploadedFileIds
 }

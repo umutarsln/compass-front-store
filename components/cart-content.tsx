@@ -397,7 +397,43 @@ export function CartContent() {
                     }
                   }
 
-                  // 2. Upload new files if they exist
+                  // 2. Delete files marked for deletion (before uploading new ones)
+                  const deletedFileIds = formData.deletedFileIds as string[] | undefined
+                  if (deletedFileIds && deletedFileIds.length > 0) {
+                    console.log('[CartContent] Deleting files marked for deletion', {
+                      deletedFileIds,
+                      count: deletedFileIds.length,
+                    })
+                    try {
+                      const { uploadService } = await import('@/services/upload.service')
+                      // Delete files in parallel
+                      await Promise.all(
+                        deletedFileIds.map(async (fileId) => {
+                          try {
+                            await uploadService.deleteUpload(fileId)
+                            console.log('[CartContent] File deleted successfully', { fileId })
+                          } catch (error: any) {
+                            // If file is already deleted (404), that's fine - just log and continue
+                            if (error.message?.includes('404') || error.message?.includes('bulunamadı') || error.message?.includes('not found')) {
+                              console.log('[CartContent] File already deleted, continuing', { fileId })
+                            } else {
+                              console.error('[CartContent] Failed to delete file', {
+                                fileId,
+                                error: error.message,
+                              })
+                            }
+                            // Continue with other files even if one fails
+                          }
+                        })
+                      )
+                      console.log('[CartContent] File deletion process completed')
+                    } catch (error) {
+                      console.error('[CartContent] Error during file deletion', error)
+                      // Continue with the rest of the process even if deletion fails
+                    }
+                  }
+
+                  // 3. Upload new files if they exist
                   let finalFormValues = { ...formData.formValues }
                   let allFileIds: string[] = []
 
@@ -462,8 +498,20 @@ export function CartContent() {
 
                   if (selectedFiles && Object.keys(selectedFiles).length > 0) {
                     try {
-                      // Upload new files
-                      const uploadedFileIds = await uploadPersonalizationFiles(selectedFiles)
+                      // Get cart ID for organizing files
+                      const { getCartId } = await import('@/lib/cart-storage')
+                      const cartId = getCartId()
+                      
+                      console.log('[CartContent] Uploading files with cart ID', {
+                        cartId,
+                        hasCartId: !!cartId,
+                        cartIdType: typeof cartId,
+                        selectedFilesCount: Object.keys(selectedFiles).length,
+                        selectedFilesKeys: Object.keys(selectedFiles),
+                      })
+
+                      // Upload new files (with cart ID for folder organization)
+                      const uploadedFileIds = await uploadPersonalizationFiles(selectedFiles, cartId || undefined)
 
                       // Prepare personalization data (combines existing + new files)
                       const prepared = preparePersonalizationData(
@@ -516,7 +564,7 @@ export function CartContent() {
                     }
                   })
 
-                  // 3. Update personalization with final values
+                  // 4. Update personalization with final values
                   await updatePersonalization(
                     editingItem.productId,
                     editingItem.variantId,

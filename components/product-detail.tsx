@@ -158,15 +158,56 @@ export function ProductDetail({ product }: ProductDetailProps) {
           }
         }
 
-        // 2. Dosyaları yükle (eğer varsa)
+        // 2. ÖNCE Cart ID'yi kontrol et ve yoksa oluştur (dosyalar doğru klasöre kaydedilsin)
+        const { getCartId, setCartId } = await import('@/lib/cart-storage')
+        const { cartService } = await import('@/services/cart.service')
+        
+        let cartId = getCartId()
+        console.log('[ProductDetail] Initial cart ID check', { cartId: cartId || 'not found' })
+        
+        // Cart ID yoksa, önce cart oluştur (dosyalar doğru klasöre kaydedilsin)
+        if (!cartId) {
+          console.log('[ProductDetail] Cart ID not found, creating new cart before file upload...')
+          try {
+            const newCart = await cartService.createGuestCart()
+            cartId = newCart.id
+            setCartId(cartId)
+            console.log('[ProductDetail] New cart created', { cartId })
+          } catch (error: any) {
+            console.error('[ProductDetail] Failed to create cart before file upload', error)
+            // Cart oluşturulamazsa devam et, dosyalar ana dizine kaydedilecek
+          }
+        }
+
+        // 3. Dosyaları yükle (eğer varsa) - Cart ID artık mevcut
         let uploadedFileIds: string[] = []
 
         if (formData.selectedFiles && Object.keys(formData.selectedFiles).length > 0) {
           try {
+            const selectedFilesObj = formData.selectedFiles as Record<string, File[]>
+            console.log('[ProductDetail] Starting file upload process', {
+              selectedFiles: Object.keys(selectedFilesObj),
+              fileCounts: Object.entries(selectedFilesObj).map(([key, files]) => ({
+                fieldKey: key,
+                count: files.length,
+                fileNames: files.map(f => f.name),
+              })),
+              cartId: cartId || 'not available',
+            })
+            
             const { uploadPersonalizationFiles, preparePersonalizationData } = await import('@/utils/personalization.helper')
 
-            // Dosyaları yükle
-            uploadedFileIds = await uploadPersonalizationFiles(formData.selectedFiles)
+            // Dosyaları yükle (cart ID ile) - ASYNC olarak sırayla bekle
+            console.log('[ProductDetail] Calling uploadPersonalizationFiles', {
+              selectedFiles: formData.selectedFiles,
+              cartId: cartId || undefined,
+            })
+            uploadedFileIds = await uploadPersonalizationFiles(formData.selectedFiles, cartId || undefined)
+            console.log('[ProductDetail] Files uploaded successfully', {
+              uploadedFileIds,
+              count: uploadedFileIds.length,
+              cartId: cartId || 'not available',
+            })
 
             // Form değerlerini hazırla (File objelerini file ID'lere çevir)
             const prepared = preparePersonalizationData(
@@ -193,7 +234,7 @@ export function ProductDetail({ product }: ProductDetailProps) {
         }
       }
 
-      // 3. Sepete ekle
+      // 4. Sepete ekle (cart ID zaten mevcut veya oluşturuldu)
       let color = ''
       let size = ''
 
