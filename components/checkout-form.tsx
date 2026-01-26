@@ -858,7 +858,7 @@ IBAN ile ödeme yapmak istiyorum. Lütfen IBAN bilgilerinizi paylaşabilir misin
                   <h2 className="font-serif text-xl text-foreground mb-6">Ödeme Yöntemi</h2>
 
                   <div className="grid sm:grid-cols-2 gap-4 mb-6">
-                    {/* Kredi Kartı Seçeneği */}
+                    {/* Kredi Kartı Seçeneği - iyzico */}
                     <div
                       className={`relative p-6 border-2 rounded-lg cursor-not-allowed ${
                         paymentMethod === 'credit-card'
@@ -866,13 +866,18 @@ IBAN ile ödeme yapmak istiyorum. Lütfen IBAN bilgilerinizi paylaşabilir misin
                           : 'border-border bg-secondary opacity-60'
                       }`}
                     >
-                      <div className="flex items-start gap-4">
-                        <div className="w-12 h-12 rounded-full bg-muted flex items-center justify-center shrink-0">
-                          <CreditCard className="w-6 h-6 text-muted-foreground" />
+                      <div className="flex items-center justify-center gap-4">
+                        <div className="flex items-center justify-center">
+                          <Image
+                            src="/iyzico/iyzico_ile_ode_colored.svg"
+                            alt="iyzico ile öde"
+                            width={210}
+                            height={72}
+                            className="h-12 w-auto"
+                          />
                         </div>
-                        <div className="flex-1">
-                          <h3 className="font-medium text-foreground mb-1">Kredi Kartı</h3>
-                          <p className="text-sm text-destructive font-medium mb-2">Şu an seçilemez</p>
+                        <div className="flex-1 text-center">
+                          <p className="text-sm text-destructive font-medium mb-1">Şu an seçilemez</p>
                           <p className="text-xs text-muted-foreground">iyzico onayı bekleniyor</p>
                         </div>
                       </div>
