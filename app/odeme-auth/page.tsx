@@ -44,7 +44,7 @@ export default function CheckoutAuthPage() {
                 Hesabınıza giriş yaparak siparişinizi tamamlayabilir veya üye olmadan devam edebilirsiniz.
               </p>
 
-              <div className="grid grid-cols-2 sm:grid-cols-1 gap-3 sm:gap-6">
+              <div className="grid sm:grid-cols-2 gap-6">
                 {/* Giriş Yap Butonu */}
                 <motion.div
                   initial={{ opacity: 0, x: -20 }}
@@ -53,19 +53,19 @@ export default function CheckoutAuthPage() {
                 >
                   <Link
                     href="/giris?redirect=/odeme"
-                    className="block p-4 sm:p-8 border-2 border-border bg-background hover:border-foreground transition-all group h-full"
+                    className="block p-8 border-2 border-border bg-background hover:border-foreground transition-all group"
                   >
-                    <div className="flex flex-col items-center space-y-2 sm:space-y-4">
-                      <div className="w-12 h-12 sm:w-16 sm:h-16 rounded-full bg-primary/10 flex items-center justify-center group-hover:bg-primary/20 transition-colors">
-                        <LogIn className="w-6 h-6 sm:w-8 sm:h-8 text-primary" />
+                    <div className="flex flex-col items-center space-y-4">
+                      <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center group-hover:bg-primary/20 transition-colors">
+                        <LogIn className="w-8 h-8 text-primary" />
                       </div>
-                      <h2 className="font-serif text-base sm:text-xl text-foreground">Giriş Yap</h2>
-                      <p className="text-xs sm:text-sm text-muted-foreground text-center hidden sm:block">
+                      <h2 className="font-serif text-xl text-foreground">Giriş Yap</h2>
+                      <p className="text-sm text-muted-foreground text-center">
                         Hesabınıza giriş yaparak siparişinizi tamamlayın
                       </p>
-                      <div className="flex items-center gap-2 text-primary font-medium text-xs sm:text-sm group-hover:gap-3 transition-all">
+                      <div className="flex items-center gap-2 text-primary font-medium text-sm group-hover:gap-3 transition-all">
                         <span>Giriş Yap</span>
-                        <ArrowRight className="w-3 h-3 sm:w-4 sm:h-4" />
+                        <ArrowRight className="w-4 h-4" />
                       </div>
                     </div>
                   </Link>
@@ -79,19 +79,19 @@ export default function CheckoutAuthPage() {
                 >
                   <Link
                     href="/odeme"
-                    className="block p-4 sm:p-8 border-2 border-primary bg-primary text-primary-foreground hover:bg-primary/90 transition-all group h-full"
+                    className="block p-8 border-2 border-primary bg-primary text-primary-foreground hover:bg-primary/90 transition-all group"
                   >
-                    <div className="flex flex-col items-center space-y-2 sm:space-y-4">
-                      <div className="w-12 h-12 sm:w-16 sm:h-16 rounded-full bg-primary-foreground/20 flex items-center justify-center group-hover:bg-primary-foreground/30 transition-colors">
-                        <ShoppingBag className="w-6 h-6 sm:w-8 sm:h-8 text-primary-foreground" />
+                    <div className="flex flex-col items-center space-y-4">
+                      <div className="w-16 h-16 rounded-full bg-primary-foreground/20 flex items-center justify-center group-hover:bg-primary-foreground/30 transition-colors">
+                        <ShoppingBag className="w-8 h-8 text-primary-foreground" />
                       </div>
-                      <h2 className="font-serif text-base sm:text-xl">Üye Olmadan Devam Et</h2>
-                      <p className="text-xs sm:text-sm text-primary-foreground/80 text-center hidden sm:block">
+                      <h2 className="font-serif text-xl">Üye Olmadan Devam Et</h2>
+                      <p className="text-sm text-primary-foreground/80 text-center">
                         Hesap oluşturmadan siparişinizi tamamlayın
                       </p>
-                      <div className="flex items-center gap-2 font-medium text-xs sm:text-sm group-hover:gap-3 transition-all">
+                      <div className="flex items-center gap-2 font-medium text-sm group-hover:gap-3 transition-all">
                         <span>Devam Et</span>
-                        <ArrowRight className="w-3 h-3 sm:w-4 sm:h-4" />
+                        <ArrowRight className="w-4 h-4" />
                       </div>
                     </div>
                   </Link>
