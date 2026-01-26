@@ -12,6 +12,7 @@ const footerLinks = {
     { href: "/kargo-iade", label: "Kargo & İade" },
     { href: "/gizlilik", label: "Gizlilik Politikası" },
     { href: "/kullanim-kosullari", label: "Kullanım Koşulları" },
+    { href: "/mesafeli-satis-sozlesmesi", label: "Mesafeli Satış Sözleşmesi" },
   ],
 }
 
@@ -99,6 +100,21 @@ export function Footer() {
           <p className="text-sm text-muted-foreground text-center">
             © {new Date().getFullYear()} Shawk. Tüm hakları saklıdır.
           </p>
+        </div>
+      </div>
+      
+      {/* iyzico Logo Band */}
+      <div className="bg-background border-t border-border py-6 mt-8">
+        <div className="mx-auto max-w-7xl px-6 lg:px-8">
+          <div className="flex justify-center items-center">
+            <Image
+              src="/iyzico/logo_band_colored.svg"
+              alt="iyzico ile öde"
+              width={429}
+              height={32}
+              className="h-8 w-auto"
+            />
+          </div>
         </div>
       </div>
     </footer>
