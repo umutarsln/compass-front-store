@@ -363,14 +363,14 @@ IBAN Bilgileri:
     }
 
     // Kredi kartı şu an devre dışı
-    if (paymentMethod === 'credit-card') {
-      toast({
-        title: "Kredi Kartı Şu An Kullanılamıyor",
-        description: "Kredi kartı ödemesi şu an için kullanılamamaktadır. Lütfen IBAN EFT-Havale seçeneğini kullanın.",
-        variant: "destructive",
-      })
-      return
-    }
+    // if (paymentMethod === 'credit-card') {
+    //   toast({
+    //     title: "Kredi Kartı Şu An Kullanılamıyor",
+    //     description: "Kredi kartı ödemesi şu an için kullanılamamaktadır. Lütfen IBAN EFT-Havale seçeneğini kullanın.",
+    //     variant: "destructive",
+    //   })
+    //   return
+    // }
 
     const step1Valid = validateStep1()
     const step2Valid = validateStep2()
