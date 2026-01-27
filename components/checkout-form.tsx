@@ -1011,7 +1011,7 @@ IBAN Bilgileri:
                         : 'border-border bg-secondary opacity-60 cursor-not-allowed'
                         }`}
                     >
-                      <div className="flex items-center justify-center gap-4">
+                      <div className="flex items-center gap-4">
                         <div className="flex items-center justify-center">
                           <Image
                             src="/iyzico/iyzico_ile_ode_colored.svg"
@@ -1021,9 +1021,18 @@ IBAN Bilgileri:
                             className="h-12 w-auto"
                           />
                         </div>
-                        <div className="flex-1 text-center">
-                          <p className="text-sm text-destructive font-medium mb-1">Şu an seçilemez</p>
-                          <p className="text-xs text-muted-foreground">iyzico onayı bekleniyor</p>
+                        <div className="flex-1">
+                          {paymentSettings?.iyzicoEnabled ? (
+                            <>
+                              <h3 className="font-medium text-foreground mb-1">Kredi Kartı</h3>
+                              <p className="text-xs text-muted-foreground">Kredi kartı ile ödeme yapın</p>
+                            </>
+                          ) : (
+                            <>
+                              <p className="text-sm text-destructive font-medium mb-1">Şu an seçilemez</p>
+                              <p className="text-xs text-muted-foreground">Iyzico aktif değil</p>
+                            </>
+                          )}
                         </div>
                         {paymentSettings?.iyzicoEnabled && paymentMethod === 'credit-card' && (
                           <div className="w-5 h-5 rounded-full bg-primary flex items-center justify-center shrink-0">
