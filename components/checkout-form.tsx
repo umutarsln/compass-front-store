@@ -24,11 +24,41 @@ export function CheckoutForm() {
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [paymentMethod, setPaymentMethod] = useState<'credit-card' | 'iban-eft' | null>(null)
   const [copiedField, setCopiedField] = useState<string | null>(null)
+  const [ibanInfo, setIbanInfo] = useState<{
+    iban: string;
+    accountName: string;
+    bankName: string;
+    whatsappNumber: string | null;
+  } | null>(null)
+  const [loadingIbanInfo, setLoadingIbanInfo] = useState(false)
+  const [paymentSettings, setPaymentSettings] = useState<{
+    iyzicoEnabled: boolean;
+    ibanEftEnabled: boolean;
+  } | null>(null)
+  const [loadingPaymentSettings, setLoadingPaymentSettings] = useState(false)
+  const [createdOrder, setCreatedOrder] = useState<{ id: string; orderNo: string } | null>(null)
 
   // Adım değiştiğinde ziyaret edilen adımları güncelle
   const handleStepChange = (newStep: number) => {
     setStep(newStep)
     setVisitedSteps(prev => new Set([...prev, newStep]))
+
+    // Step 3'e geçildiğinde ve IBAN EFT aktifse, IBAN bilgilerini çek
+    if (newStep === 3 && paymentSettings?.ibanEftEnabled && !ibanInfo && !loadingIbanInfo) {
+      setLoadingIbanInfo(true)
+      paymentService.getIbanInfo()
+        .then((info) => {
+          if (info) {
+            setIbanInfo(info)
+          }
+        })
+        .catch((error: any) => {
+          console.error('[CHECKOUT] IBAN bilgileri yüklenirken hata:', error)
+        })
+        .finally(() => {
+          setLoadingIbanInfo(false)
+        })
+    }
   }
   const [appliedCoupon, setAppliedCoupon] = useState<{ code: string; discount: number; type: 'percentage' | 'fixed' } | null>(null)
 
@@ -90,6 +120,39 @@ export function CheckoutForm() {
     }
   }, [cartLoading, items.length, router])
 
+  // Ödeme ayarlarını backend'ten çek
+  useEffect(() => {
+    const loadPaymentSettings = async () => {
+      try {
+        setLoadingPaymentSettings(true)
+        const settings = await paymentService.getPaymentSettings()
+        setPaymentSettings(settings)
+
+        // Varsayılan ödeme yöntemini ayarla
+        if (settings.ibanEftEnabled && !settings.iyzicoEnabled) {
+          setPaymentMethod('iban-eft')
+        } else if (settings.iyzicoEnabled && !settings.ibanEftEnabled) {
+          setPaymentMethod('credit-card')
+        } else if (settings.ibanEftEnabled) {
+          // Her ikisi de aktifse IBAN EFT'yi varsayılan yap
+          setPaymentMethod('iban-eft')
+        }
+      } catch (error: any) {
+        console.error('[CHECKOUT] Payment settings yüklenirken hata:', error)
+        // Hata durumunda varsayılan değerler
+        setPaymentSettings({
+          iyzicoEnabled: false,
+          ibanEftEnabled: true, // Varsayılan olarak IBAN EFT aktif
+        })
+        setPaymentMethod('iban-eft')
+      } finally {
+        setLoadingPaymentSettings(false)
+      }
+    }
+
+    loadPaymentSettings()
+  }, [])
+
   // Giriş yapılmışsa user bilgilerini doldur
   useEffect(() => {
     if (isAuthenticated && user) {
@@ -136,6 +199,97 @@ export function CheckoutForm() {
     }
   }
 
+  // WhatsApp ile dekont gönder
+  const handleWhatsApp = () => {
+    if (!ibanInfo || !createdOrder) return
+
+    const subtotal = getTotalPrice()
+    const shipping = 0
+    const ibanDiscount = appliedCoupon ? (appliedCoupon.type === 'percentage' ? (subtotal * appliedCoupon.discount) / 100 : appliedCoupon.discount) : 0
+    const total = Math.max(0, subtotal - ibanDiscount + shipping)
+
+    // WhatsApp mesajı oluştur (dekont göndermek için)
+    let whatsappMessage = `Merhaba, IBAN ile ödeme yaptım. Dekontumu gönderiyorum.
+
+Sipariş Bilgileri:
+• Ara Toplam: ${subtotal.toLocaleString("tr-TR")} ₺`
+
+    if (ibanDiscount > 0 && appliedCoupon) {
+      whatsappMessage += `\n• İndirim (${appliedCoupon.code}): -${ibanDiscount.toLocaleString("tr-TR")} ₺`
+    }
+
+    whatsappMessage += `\n• Kargo: Ücretsiz
+• Toplam Tutar: ${total.toLocaleString("tr-TR")} ₺
+
+İletişim Bilgileri:`
+
+    if (formData.firstName || formData.lastName) {
+      whatsappMessage += `\n• Ad Soyad: ${formData.firstName} ${formData.lastName}`
+    }
+    if (formData.phone) {
+      whatsappMessage += `\n• Telefon: ${formData.phone}`
+    }
+    if (formData.email) {
+      whatsappMessage += `\n• E-posta: ${formData.email}`
+    }
+
+    whatsappMessage += `
+
+Teslimat Adresi:`
+    if (formData.address) {
+      whatsappMessage += `\n${formData.address}`
+    }
+    if (formData.district || formData.city) {
+      whatsappMessage += `\n${formData.district || ''}${formData.district && formData.city ? ' / ' : ''}${formData.city || ''}`
+    }
+    if (formData.postalCode) {
+      whatsappMessage += `\n${formData.postalCode}`
+    }
+
+    whatsappMessage += `
+
+IBAN Bilgileri:
+• IBAN: ${ibanInfo.iban}
+• Hesap İsmi: ${ibanInfo.accountName}
+• Banka: ${ibanInfo.bankName}
+
+Ödeme dekontumu ekte gönderiyorum.`
+
+    // WhatsApp URL'i oluştur
+    const phoneNumber = ibanInfo.whatsappNumber || "905519770858"
+    const cleanPhoneNumber = phoneNumber.replace(/\D/g, '')
+    const whatsappUrl = `https://wa.me/${cleanPhoneNumber}?text=${encodeURIComponent(whatsappMessage)}`
+
+    window.open(whatsappUrl, '_blank')
+  }
+
+  // Siparişi tamamla (IBAN EFT için)
+  const handleCompleteIbanOrder = async () => {
+    if (!createdOrder) return
+
+    setIsSubmitting(true)
+    try {
+      // Backend'e checkout request gönder
+      const checkoutResponse = await paymentService.createCheckout({
+        orderId: createdOrder.id,
+        provider: PaymentProvider.IBAN_EFT,
+      })
+
+      console.log('[CHECKOUT] IBAN EFT checkout response:', checkoutResponse)
+
+      // Başarılı sayfaya yönlendir (onay bekleniyor durumu ile)
+      router.push(`/odeme/basarili?orderId=${createdOrder.id}&awaitingConfirmation=true`)
+    } catch (error: any) {
+      console.error('[CHECKOUT] IBAN EFT checkout hatası:', error)
+      toast({
+        title: "Hata",
+        description: error?.response?.data?.message || "Sipariş tamamlanırken bir hata oluştu.",
+        variant: "destructive",
+      })
+      setIsSubmitting(false)
+    }
+  }
+
   const validateStep1 = (): boolean => {
     if (!formData.email || !formData.firstName || !formData.lastName || !formData.phone) {
       toast({
@@ -178,7 +332,16 @@ export function CheckoutForm() {
 
   const handleStep2Next = () => {
     if (validateStep2()) {
-      setPaymentMethod('iban-eft') // IBAN seçeneğini varsayılan olarak seç
+      // Payment settings yüklendiyse varsayılan ödeme yöntemini ayarla
+      if (paymentSettings) {
+        if (paymentSettings.ibanEftEnabled && !paymentSettings.iyzicoEnabled) {
+          setPaymentMethod('iban-eft')
+        } else if (paymentSettings.iyzicoEnabled && !paymentSettings.ibanEftEnabled) {
+          setPaymentMethod('credit-card')
+        } else if (paymentSettings.ibanEftEnabled) {
+          setPaymentMethod('iban-eft')
+        }
+      }
       handleStepChange(3)
     }
   }
@@ -310,7 +473,7 @@ export function CheckoutForm() {
 
       // Order oluştur
       console.log('[CHECKOUT] Order DTO oluşturuluyor...')
-      
+
       // Kupon indirimi hesapla
       const orderSubtotal = items.reduce((total, item) => total + item.price * item.quantity, 0)
       let orderDiscount = 0
@@ -321,7 +484,7 @@ export function CheckoutForm() {
           orderDiscount = appliedCoupon.discount
         }
       }
-      
+
       const createOrderDto: CreateOrderDto = {
         cartId,
         shippingAddress,
@@ -356,79 +519,57 @@ export function CheckoutForm() {
 
       // IBAN EFT-Havale akışı
       if (paymentMethod === 'iban-eft') {
-        console.log('[CHECKOUT] IBAN EFT-Havale akışı başlatılıyor...')
-        
-        // Toplam tutarı hesapla (indirimli)
-        const subtotal = getTotalPrice()
-        const shipping = 0
-        const ibanDiscount = appliedCoupon ? (appliedCoupon.type === 'percentage' ? (subtotal * appliedCoupon.discount) / 100 : appliedCoupon.discount) : 0
-        const total = Math.max(0, subtotal - ibanDiscount + shipping)
+        console.log('[CHECKOUT] IBAN EFT-Havale akışı - Order oluşturuldu, IBAN bilgileri gösterilecek')
 
-        // WhatsApp mesajı oluştur
-        let whatsappMessage = `Merhaba, IBAN ile ödeme yapmak istiyorum.
+        // Order'ı state'te sakla - IBAN bilgileri zaten gösteriliyor
+        setCreatedOrder({ id: order.id, orderNo: order.orderNo })
 
-Sipariş Bilgileri:
-• Sipariş No: ${order.orderNo}
-• Ara Toplam: ${subtotal.toLocaleString("tr-TR")} ₺`
-        
-        if (ibanDiscount > 0 && appliedCoupon) {
-          whatsappMessage += `\n• İndirim (${appliedCoupon.code}): -${ibanDiscount.toLocaleString("tr-TR")} ₺`
+        // IBAN bilgilerini yükle (eğer yüklenmemişse)
+        if (!ibanInfo && !loadingIbanInfo) {
+          setLoadingIbanInfo(true)
+          try {
+            const info = await paymentService.getIbanInfo()
+            if (info) {
+              setIbanInfo(info)
+            }
+          } catch (error: any) {
+            console.error('[CHECKOUT] IBAN bilgileri yüklenirken hata:', error)
+          } finally {
+            setLoadingIbanInfo(false)
+          }
         }
-        
-        whatsappMessage += `\n• Kargo: Ücretsiz
-• Toplam Tutar: ${total.toLocaleString("tr-TR")} ₺
 
-İletişim Bilgileri:
-• Ad Soyad: ${formData.firstName} ${formData.lastName}
-• Telefon: ${formData.phone}
-• E-posta: ${formData.email}
-
-Teslimat Adresi:
-${formData.address}
-${formData.district}, ${formData.city}
-${formData.postalCode}
-
-IBAN ile ödeme yapmak istiyorum. Lütfen IBAN bilgilerinizi paylaşabilir misiniz?`
-
-        // WhatsApp URL'i oluştur
-        const phoneNumber = "905519770858"
-        const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(whatsappMessage)}`
-
-        console.log('[CHECKOUT] WhatsApp URL oluşturuldu:', whatsappUrl)
-        console.log('[CHECKOUT] WhatsApp\'a yönlendiriliyor...')
-
-        // WhatsApp'a yönlendir
-        window.location.href = whatsappUrl
+        setIsSubmitting(false)
         return
       }
 
       // Kredi kartı akışı (Iyzico) - şu an devre dışı ama gelecekte kullanılabilir
       if (paymentMethod === 'credit-card') {
-      console.log('[CHECKOUT] Payment checkout başlatılıyor...')
-      console.log('[CHECKOUT] Checkout request:', {
-        orderId: order.id,
-        provider: PaymentProvider.IYZICO,
-      })
+        console.log('[CHECKOUT] Payment checkout başlatılıyor...')
+        console.log('[CHECKOUT] Checkout request:', {
+          orderId: order.id,
+          provider: PaymentProvider.IYZICO,
+        })
 
-      const checkoutResponse = await paymentService.createCheckout({
-        orderId: order.id,
-        provider: PaymentProvider.IYZICO,
-      })
+        const checkoutResponse = await paymentService.createCheckout({
+          orderId: order.id,
+          provider: PaymentProvider.IYZICO,
+        })
 
-      console.log('[CHECKOUT] Checkout response alındı:', checkoutResponse)
-      console.log('[CHECKOUT] Redirect URL:', checkoutResponse.redirectUrl)
+        console.log('[CHECKOUT] Checkout response alındı:', checkoutResponse)
+        console.log('[CHECKOUT] Redirect URL:', checkoutResponse.redirectUrl)
 
-      // Iyzico payment sayfasına yönlendir
-      if (!checkoutResponse.redirectUrl) {
-        console.error('[CHECKOUT] Redirect URL bulunamadı!')
-        throw new Error("Ödeme sayfası URL'i alınamadı. Lütfen tekrar deneyin.")
-      }
+        // Iyzico payment sayfasına yönlendir
+        if (!checkoutResponse.redirectUrl) {
+          console.error('[CHECKOUT] Redirect URL bulunamadı!')
+          throw new Error("Ödeme sayfası URL'i alınamadı. Lütfen tekrar deneyin.")
+        }
 
-      console.log('[CHECKOUT] Iyzico payment sayfasına yönlendiriliyor:', checkoutResponse.redirectUrl)
-      console.log('[CHECKOUT] İşlem başarıyla tamamlandı!')
+        console.log('[CHECKOUT] Iyzico payment sayfasına yönlendiriliyor:', checkoutResponse.redirectUrl)
+        console.log('[CHECKOUT] İşlem başarıyla tamamlandı!')
 
-      // Iyzico ödeme sayfasına yönlendir
-      window.location.href = checkoutResponse.redirectUrl
+        // Iyzico ödeme sayfasına yönlendir
+        window.location.href = checkoutResponse.redirectUrl
         return
       }
     } catch (error: any) {
@@ -463,18 +604,18 @@ IBAN ile ödeme yapmak istiyorum. Lütfen IBAN bilgilerinizi paylaşabilir misin
 
   const subtotal = getTotalPrice()
   const shipping = 0
-  
+
   // Kupon indirimi hesapla
   const calculateDiscount = () => {
     if (!appliedCoupon) return 0
-    
+
     if (appliedCoupon.type === 'percentage') {
       return (subtotal * appliedCoupon.discount) / 100
     } else {
       return appliedCoupon.discount
     }
   }
-  
+
   const discount = calculateDiscount()
   const total = Math.max(0, subtotal - discount + shipping)
 
@@ -501,9 +642,9 @@ IBAN ile ödeme yapmak istiyorum. Lütfen IBAN bilgilerinizi paylaşabilir misin
             {[1, 2, 3].map((s) => {
               const isVisited = visitedSteps.has(s)
               const isClickable = isVisited
-              
+
               return (
-              <div key={s} className="flex items-center gap-2">
+                <div key={s} className="flex items-center gap-2">
                   <button
                     onClick={() => {
                       if (isClickable) {
@@ -511,15 +652,14 @@ IBAN ile ödeme yapmak istiyorum. Lütfen IBAN bilgilerinizi paylaşabilir misin
                       }
                     }}
                     disabled={!isClickable}
-                    className={`w-8 h-8 flex items-center justify-center text-sm font-medium transition-colors ${
-                      step >= s 
-                        ? "bg-foreground text-background cursor-pointer hover:bg-foreground/90" 
-                        : isClickable
+                    className={`w-8 h-8 flex items-center justify-center text-sm font-medium transition-colors ${step >= s
+                      ? "bg-foreground text-background cursor-pointer hover:bg-foreground/90"
+                      : isClickable
                         ? "bg-secondary text-muted-foreground cursor-pointer hover:bg-secondary/80"
                         : "bg-secondary text-muted-foreground cursor-not-allowed opacity-50"
-                    }`}
-                >
-                  {s}
+                      }`}
+                  >
+                    {s}
                   </button>
                   <button
                     onClick={() => {
@@ -528,18 +668,17 @@ IBAN ile ödeme yapmak istiyorum. Lütfen IBAN bilgilerinizi paylaşabilir misin
                       }
                     }}
                     disabled={!isClickable}
-                    className={`text-sm hidden sm:inline transition-colors ${
-                      step >= s 
-                        ? "text-foreground cursor-pointer hover:underline" 
-                        : isClickable
+                    className={`text-sm hidden sm:inline transition-colors ${step >= s
+                      ? "text-foreground cursor-pointer hover:underline"
+                      : isClickable
                         ? "text-muted-foreground cursor-pointer hover:text-foreground"
                         : "text-muted-foreground cursor-not-allowed"
-                    }`}
+                      }`}
                   >
-                  {s === 1 ? "İletişim" : s === 2 ? "Adres" : "Ödeme"}
+                    {s === 1 ? "İletişim" : s === 2 ? "Adres" : "Ödeme"}
                   </button>
-                {s < 3 && <div className="w-8 sm:w-16 h-px bg-border" />}
-              </div>
+                  {s < 3 && <div className="w-8 sm:w-16 h-px bg-border" />}
+                </div>
               )
             })}
           </div>
@@ -860,44 +999,101 @@ IBAN ile ödeme yapmak istiyorum. Lütfen IBAN bilgilerinizi paylaşabilir misin
                   <div className="grid sm:grid-cols-2 gap-4 mb-6">
                     {/* Kredi Kartı Seçeneği */}
                     <div
-                      className={`relative p-6 border-2 rounded-lg cursor-not-allowed ${
-                        paymentMethod === 'credit-card'
-                          ? 'border-primary bg-primary/5'
-                          : 'border-border bg-secondary opacity-60'
-                      }`}
+                      onClick={() => {
+                        if (paymentSettings?.iyzicoEnabled) {
+                          setPaymentMethod('credit-card')
+                        }
+                      }}
+                      className={`relative p-6 border-2 rounded-lg transition-all ${paymentSettings?.iyzicoEnabled
+                          ? paymentMethod === 'credit-card'
+                            ? 'border-primary bg-primary/5 cursor-pointer'
+                            : 'border-border bg-secondary hover:border-foreground/50 cursor-pointer'
+                          : 'border-border bg-secondary opacity-60 cursor-not-allowed'
+                        }`}
                     >
                       <div className="flex items-start gap-4">
-                        <div className="w-12 h-12 rounded-full bg-muted flex items-center justify-center shrink-0">
-                          <CreditCard className="w-6 h-6 text-muted-foreground" />
+                        <div className={`w-12 h-12 rounded-full flex items-center justify-center shrink-0 ${paymentSettings?.iyzicoEnabled && paymentMethod === 'credit-card'
+                            ? 'bg-primary/20'
+                            : 'bg-muted'
+                          }`}>
+                          <CreditCard className={`w-6 h-6 ${paymentSettings?.iyzicoEnabled && paymentMethod === 'credit-card'
+                              ? 'text-primary'
+                              : 'text-muted-foreground'
+                            }`} />
                         </div>
                         <div className="flex-1">
                           <h3 className="font-medium text-foreground mb-1">Kredi Kartı</h3>
-                          <p className="text-sm text-destructive font-medium mb-2">Şu an seçilemez</p>
-                          <p className="text-xs text-muted-foreground">iyzico onayı bekleniyor</p>
+                          {paymentSettings?.iyzicoEnabled ? (
+                            <p className="text-xs text-muted-foreground">Kredi kartı ile ödeme yapın</p>
+                          ) : (
+                            <>
+                              <p className="text-sm text-destructive font-medium mb-2">Şu an seçilemez</p>
+                              <p className="text-xs text-muted-foreground">Iyzico aktif değil</p>
+                            </>
+                          )}
                         </div>
+                        {paymentSettings?.iyzicoEnabled && paymentMethod === 'credit-card' && (
+                          <div className="w-5 h-5 rounded-full bg-primary flex items-center justify-center shrink-0">
+                            <div className="w-2 h-2 rounded-full bg-primary-foreground" />
+                          </div>
+                        )}
                       </div>
                     </div>
 
                     {/* IBAN EFT-Havale Seçeneği */}
                     <div
-                      onClick={() => setPaymentMethod('iban-eft')}
-                      className={`relative p-6 border-2 rounded-lg cursor-pointer transition-all ${
-                        paymentMethod === 'iban-eft'
-                          ? 'border-primary bg-primary/5'
-                          : 'border-border bg-secondary hover:border-foreground/50'
-                      }`}
+                      onClick={async () => {
+                        if (paymentSettings?.ibanEftEnabled) {
+                          setPaymentMethod('iban-eft')
+                          // IBAN bilgilerini backend'den al
+                          if (!ibanInfo && !loadingIbanInfo) {
+                            setLoadingIbanInfo(true)
+                            try {
+                              const info = await paymentService.getIbanInfo()
+                              if (info) {
+                                setIbanInfo(info)
+                              } else {
+                                toast({
+                                  variant: "destructive",
+                                  title: "Hata",
+                                  description: "IBAN bilgileri alınamadı. Lütfen daha sonra tekrar deneyin.",
+                                })
+                              }
+                            } catch (error: any) {
+                              toast({
+                                variant: "destructive",
+                                title: "Hata",
+                                description: error?.response?.data?.message || "IBAN bilgileri yüklenirken bir hata oluştu.",
+                              })
+                            } finally {
+                              setLoadingIbanInfo(false)
+                            }
+                          }
+                        }
+                      }}
+                      className={`relative p-6 border-2 rounded-lg transition-all ${paymentSettings?.ibanEftEnabled
+                          ? paymentMethod === 'iban-eft'
+                            ? 'border-primary bg-primary/5 cursor-pointer'
+                            : 'border-border bg-secondary hover:border-foreground/50 cursor-pointer'
+                          : 'border-border bg-secondary opacity-60 cursor-not-allowed'
+                        }`}
                     >
                       <div className="flex items-start gap-4">
-                        <div className={`w-12 h-12 rounded-full flex items-center justify-center shrink-0 ${
-                          paymentMethod === 'iban-eft' ? 'bg-primary/20' : 'bg-muted'
-                        }`}>
-                          <Building2 className={`w-6 h-6 ${
-                            paymentMethod === 'iban-eft' ? 'text-primary' : 'text-muted-foreground'
-                          }`} />
+                        <div className={`w-12 h-12 rounded-full flex items-center justify-center shrink-0 ${paymentMethod === 'iban-eft' ? 'bg-primary/20' : 'bg-muted'
+                          }`}>
+                          <Building2 className={`w-6 h-6 ${paymentMethod === 'iban-eft' ? 'text-primary' : 'text-muted-foreground'
+                            }`} />
                         </div>
                         <div className="flex-1">
                           <h3 className="font-medium text-foreground mb-1">IBAN EFT-Havale</h3>
-                          <p className="text-xs text-muted-foreground">Banka havalesi ile ödeme yapın</p>
+                          {paymentSettings?.ibanEftEnabled ? (
+                            <p className="text-xs text-muted-foreground">Banka havalesi ile ödeme yapın</p>
+                          ) : (
+                            <>
+                              <p className="text-sm text-destructive font-medium mb-2">Şu an seçilemez</p>
+                              <p className="text-xs text-muted-foreground">IBAN EFT aktif değil</p>
+                            </>
+                          )}
                         </div>
                         {paymentMethod === 'iban-eft' && (
                           <div className="w-5 h-5 rounded-full bg-primary flex items-center justify-center shrink-0">
@@ -917,7 +1113,7 @@ IBAN ile ödeme yapmak istiyorum. Lütfen IBAN bilgilerinizi paylaşabilir misin
                       className="space-y-4"
                     >
                       {/* Dekont Gönderme Adımları */}
-                  <div className="p-6 border border-border bg-secondary">
+                      <div className="p-6 border border-border bg-secondary">
                         <div className="flex items-center gap-2 mb-4">
                           <FileText className="w-5 h-5 text-muted-foreground" />
                           <h3 className="font-medium text-foreground">Dekont Gönderme Adımları</h3>
@@ -972,118 +1168,141 @@ IBAN ile ödeme yapmak istiyorum. Lütfen IBAN bilgilerinizi paylaşabilir misin
 
                       {/* IBAN Bilgileri */}
                       <div className="p-6 border border-border bg-secondary space-y-4">
-                    <p className="text-sm text-foreground mb-4">
+                        <p className="text-sm text-foreground mb-4">
                           IBAN ile ödeme yaptıktan sonra Whatsapp'dan bize alttaki butondan ulaşıp dekontunuzu paylaşınız.
                         </p>
-                        
-                        {/* IBAN Bilgileri - Placeholder (Backend'den gelecek) */}
-                        <div className="p-4 bg-background border border-border rounded-lg space-y-4">
-                          {/* IBAN Numarası */}
-                          <div>
-                            <p className="text-xs text-muted-foreground mb-2">IBAN Numarası</p>
-                            <div className="flex items-center gap-2">
-                              <p className="text-sm text-foreground font-mono flex-1">TR00 0000 0000 0000 0000 0000 00</p>
-                              <button
-                                onClick={() => handleCopy("TR00 0000 0000 0000 0000 0000 00", "iban")}
-                                className="flex items-center gap-1 px-3 py-1.5 text-xs border border-border hover:bg-secondary transition-colors rounded"
-                              >
-                                {copiedField === "iban" ? (
-                                  <>
-                                    <Check className="w-3 h-3 text-green-600" />
-                                    <span className="text-green-600">Kopyalandı</span>
-                                  </>
-                                ) : (
-                                  <>
-                                    <Copy className="w-3 h-3" />
-                                    <span>Kopyala</span>
-                                  </>
-                                )}
-                              </button>
-                            </div>
-                          </div>
 
-                          {/* Hesap İsmi */}
-                          <div>
-                            <p className="text-xs text-muted-foreground mb-2">Hesap İsmi</p>
-                            <div className="flex items-center gap-2">
-                              <p className="text-sm text-foreground flex-1">Örnek Şirket Adı</p>
-                              <button
-                                onClick={() => handleCopy("Örnek Şirket Adı", "accountName")}
-                                className="flex items-center gap-1 px-3 py-1.5 text-xs border border-border hover:bg-secondary transition-colors rounded"
-                              >
-                                {copiedField === "accountName" ? (
-                                  <>
-                                    <Check className="w-3 h-3 text-green-600" />
-                                    <span className="text-green-600">Kopyalandı</span>
-                                  </>
-                                ) : (
-                                  <>
-                                    <Copy className="w-3 h-3" />
-                                    <span>Kopyala</span>
-                                  </>
-                                )}
-                              </button>
-                            </div>
+                        {/* IBAN Bilgileri - Backend'den alınıyor */}
+                        {loadingIbanInfo ? (
+                          <div className="p-4 bg-background border border-border rounded-lg flex items-center justify-center py-8">
+                            <Loader2 className="w-5 h-5 animate-spin text-muted-foreground" />
+                            <span className="ml-2 text-sm text-muted-foreground">IBAN bilgileri yükleniyor...</span>
                           </div>
-
-                          {/* Banka İsmi */}
-                          <div>
-                            <p className="text-xs text-muted-foreground mb-2">Banka İsmi</p>
-                            <div className="flex items-center gap-2">
-                              <p className="text-sm text-foreground flex-1">Örnek Banka A.Ş.</p>
-                              <button
-                                onClick={() => handleCopy("Örnek Banka A.Ş.", "bankName")}
-                                className="flex items-center gap-1 px-3 py-1.5 text-xs border border-border hover:bg-secondary transition-colors rounded"
-                              >
-                                {copiedField === "bankName" ? (
-                                  <>
-                                    <Check className="w-3 h-3 text-green-600" />
-                                    <span className="text-green-600">Kopyalandı</span>
-                                  </>
-                                ) : (
-                                  <>
-                                    <Copy className="w-3 h-3" />
-                                    <span>Kopyala</span>
-                                  </>
-                                )}
-                              </button>
+                        ) : ibanInfo ? (
+                          <div className="p-4 bg-background border border-border rounded-lg space-y-4">
+                            {/* IBAN Numarası */}
+                            <div>
+                              <p className="text-xs text-muted-foreground mb-2">IBAN Numarası</p>
+                              <div className="flex items-center gap-2">
+                                <p className="text-sm text-foreground font-mono flex-1">{ibanInfo.iban}</p>
+                                <button
+                                  onClick={() => handleCopy(ibanInfo.iban, "iban")}
+                                  className="flex items-center gap-1 px-3 py-1.5 text-xs border border-border hover:bg-secondary transition-colors rounded"
+                                >
+                                  {copiedField === "iban" ? (
+                                    <>
+                                      <Check className="w-3 h-3 text-green-600" />
+                                      <span className="text-green-600">Kopyalandı</span>
+                                    </>
+                                  ) : (
+                                    <>
+                                      <Copy className="w-3 h-3" />
+                                      <span>Kopyala</span>
+                                    </>
+                                  )}
+                                </button>
+                              </div>
                             </div>
-                          </div>
 
-                          {/* Fiyat */}
-                          <div className="pt-3 border-t border-border">
-                            <div className="flex justify-between items-center">
-                              <p className="text-sm text-muted-foreground">Ödenecek Tutar</p>
-                              <div className="flex flex-col items-end">
-                                {appliedCoupon && discount > 0 && (
-                                  <p className="text-xs text-muted-foreground line-through mb-1">
-                                    {subtotal.toLocaleString("tr-TR")} ₺
-                                  </p>
-                                )}
-                                <p className="text-lg font-semibold text-green-600">{total.toLocaleString("tr-TR")} ₺</p>
+                            {/* Hesap İsmi */}
+                            <div>
+                              <p className="text-xs text-muted-foreground mb-2">Hesap İsmi</p>
+                              <div className="flex items-center gap-2">
+                                <p className="text-sm text-foreground flex-1">{ibanInfo.accountName}</p>
+                                <button
+                                  onClick={() => handleCopy(ibanInfo.accountName, "accountName")}
+                                  className="flex items-center gap-1 px-3 py-1.5 text-xs border border-border hover:bg-secondary transition-colors rounded"
+                                >
+                                  {copiedField === "accountName" ? (
+                                    <>
+                                      <Check className="w-3 h-3 text-green-600" />
+                                      <span className="text-green-600">Kopyalandı</span>
+                                    </>
+                                  ) : (
+                                    <>
+                                      <Copy className="w-3 h-3" />
+                                      <span>Kopyala</span>
+                                    </>
+                                  )}
+                                </button>
+                              </div>
+                            </div>
+
+                            {/* Banka İsmi */}
+                            <div>
+                              <p className="text-xs text-muted-foreground mb-2">Banka İsmi</p>
+                              <div className="flex items-center gap-2">
+                                <p className="text-sm text-foreground flex-1">{ibanInfo.bankName}</p>
+                                <button
+                                  onClick={() => handleCopy(ibanInfo.bankName, "bankName")}
+                                  className="flex items-center gap-1 px-3 py-1.5 text-xs border border-border hover:bg-secondary transition-colors rounded"
+                                >
+                                  {copiedField === "bankName" ? (
+                                    <>
+                                      <Check className="w-3 h-3 text-green-600" />
+                                      <span className="text-green-600">Kopyalandı</span>
+                                    </>
+                                  ) : (
+                                    <>
+                                      <Copy className="w-3 h-3" />
+                                      <span>Kopyala</span>
+                                    </>
+                                  )}
+                                </button>
                               </div>
                             </div>
                           </div>
-                  </div>
+                        ) : (
+                          <div className="p-4 bg-background border border-border rounded-lg text-center py-8">
+                            <p className="text-sm text-muted-foreground">IBAN bilgileri yüklenemedi</p>
+                          </div>
+                        )}
 
-                        <button
-                          onClick={handleSubmit}
-                          disabled={isSubmitting}
-                          className="inline-flex items-center justify-center gap-2 w-full py-4 bg-[#25D366] text-white font-medium text-sm uppercase tracking-wider hover:bg-[#20BA5A] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                        >
-                          {isSubmitting ? (
-                            <>
-                              <Loader2 className="w-5 h-5 animate-spin" />
-                              İşleniyor...
-                            </>
-                          ) : (
-                            <>
-                              <MessageCircle className="w-5 h-5" />
-                              WhatsApp ile Devam Et
-                            </>
-                          )}
-                        </button>
+                        {/* Fiyat */}
+                        <div className="pt-3 border-t border-border">
+                          <div className="flex justify-between items-center">
+                            <p className="text-sm text-muted-foreground">Ödenecek Tutar</p>
+                            <div className="flex flex-col items-end">
+                              {appliedCoupon && discount > 0 && (
+                                <p className="text-xs text-muted-foreground line-through mb-1">
+                                  {subtotal.toLocaleString("tr-TR")} ₺
+                                </p>
+                              )}
+                              <p className="text-lg font-semibold text-green-600">{total.toLocaleString("tr-TR")} ₺</p>
+                            </div>
+                          </div>
+                        </div>
                       </div>
+
+                      {/* WhatsApp ile Dekont Gönder ve Siparişi Tamamla butonları - sadece order oluşturulduktan sonra göster */}
+                      {createdOrder && ibanInfo && (
+                        <div className="space-y-3">
+                          <button
+                            onClick={handleWhatsApp}
+                            className="inline-flex items-center justify-center gap-2 w-full py-4 bg-[#25D366] text-white font-medium text-sm uppercase tracking-wider hover:bg-[#20BA5A] transition-colors"
+                          >
+                            <MessageCircle className="w-5 h-5" />
+                            WhatsApp ile Dekont Gönder
+                          </button>
+                          <button
+                            onClick={handleCompleteIbanOrder}
+                            disabled={isSubmitting}
+                            className="inline-flex items-center justify-center gap-2 w-full py-4 bg-primary text-primary-foreground font-medium text-sm uppercase tracking-wider hover:bg-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                          >
+                            {isSubmitting ? (
+                              <>
+                                <Loader2 className="w-5 h-5 animate-spin" />
+                                İşleniyor...
+                              </>
+                            ) : (
+                              <>
+                                <CheckCircle className="w-5 h-5" />
+                                Siparişi Tamamla
+                              </>
+                            )}
+                          </button>
+                        </div>
+                      )}
                     </motion.div>
                   )}
 
@@ -1103,20 +1322,36 @@ IBAN ile ödeme yapmak istiyorum. Lütfen IBAN bilgilerinizi paylaşabilir misin
                       Geri
                     </button>
                     {paymentMethod !== 'iban-eft' && (
-                    <button
-                      onClick={handleSubmit}
+                      <button
+                        onClick={handleSubmit}
                         disabled={isSubmitting || !paymentMethod}
-                      className="flex-1 py-4 bg-primary text-primary-foreground font-medium text-sm uppercase tracking-wider hover:bg-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
-                    >
-                      {isSubmitting ? (
-                        <>
-                          <Loader2 className="w-4 h-4 animate-spin" />
-                          İşleniyor...
-                        </>
-                      ) : (
-                        "Ödeme Yap"
-                      )}
-                    </button>
+                        className="flex-1 py-4 bg-primary text-primary-foreground font-medium text-sm uppercase tracking-wider hover:bg-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                      >
+                        {isSubmitting ? (
+                          <>
+                            <Loader2 className="w-4 h-4 animate-spin" />
+                            İşleniyor...
+                          </>
+                        ) : (
+                          "Ödeme Yap"
+                        )}
+                      </button>
+                    )}
+                    {paymentMethod === 'iban-eft' && !createdOrder && (
+                      <button
+                        onClick={handleSubmit}
+                        disabled={isSubmitting || !paymentMethod}
+                        className="flex-1 py-4 bg-primary text-primary-foreground font-medium text-sm uppercase tracking-wider hover:bg-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                      >
+                        {isSubmitting ? (
+                          <>
+                            <Loader2 className="w-4 h-4 animate-spin" />
+                            İşleniyor...
+                          </>
+                        ) : (
+                          "Ödeme Yap"
+                        )}
+                      </button>
                     )}
                   </div>
                 </motion.div>

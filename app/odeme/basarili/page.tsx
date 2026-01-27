@@ -6,7 +6,7 @@ import { motion } from "framer-motion"
 import Link from "next/link"
 import { Header } from "@/components/header"
 import { Footer } from "@/components/footer"
-import { CheckCircle2, Package, Home, ShoppingBag, Loader2 } from "lucide-react"
+import { CheckCircle2, Package, Home, ShoppingBag, Loader2, Clock } from "lucide-react"
 import { orderService, Order } from "@/services/order.service"
 import { useCart } from "@/contexts/cart-context"
 
@@ -14,6 +14,7 @@ function PaymentSuccessContent() {
   const searchParams = useSearchParams()
   const router = useRouter()
   const orderId = searchParams.get("orderId")
+  const awaitingConfirmation = searchParams.get("awaitingConfirmation") === "true"
   const { clearCart } = useCart()
   const [order, setOrder] = useState<Order | null>(null)
   const [isLoading, setIsLoading] = useState(true)
@@ -105,15 +106,36 @@ function PaymentSuccessContent() {
               className="max-w-3xl mx-auto text-center"
             >
               <div className="mb-8">
-                <div className="w-20 h-20 bg-green-500/10 rounded-full flex items-center justify-center mx-auto mb-6">
-                  <CheckCircle2 className="w-12 h-12 text-green-500" />
-                </div>
-                <h1 className="font-serif text-3xl sm:text-4xl text-foreground mb-4">
-                  Ödemeniz Başarıyla Tamamlandı!
-                </h1>
-                <p className="text-muted-foreground text-lg">
-                  Siparişiniz alındı ve ödeme işleminiz başarıyla tamamlandı.
-                </p>
+                {awaitingConfirmation ? (
+                  <>
+                    <div className="w-20 h-20 bg-yellow-500/10 rounded-full flex items-center justify-center mx-auto mb-6">
+                      <Clock className="w-12 h-12 text-yellow-500" />
+                    </div>
+                    <h1 className="font-serif text-3xl sm:text-4xl text-foreground mb-4">
+                      Siparişiniz Onay Bekliyor
+                    </h1>
+                    <p className="text-muted-foreground text-lg mb-4">
+                      Siparişiniz alındı ve ödeme dekontunuzun kontrol edilmesi bekleniyor.
+                    </p>
+                    <div className="bg-yellow-500/10 border border-yellow-500/20 rounded-lg p-4 mb-4">
+                      <p className="text-sm text-foreground">
+                        <strong>Önemli:</strong> WhatsApp üzerinden gönderdiğiniz ödeme dekontu kontrol edildikten sonra siparişiniz onaylanacaktır. Onaylandığında size bilgi verilecektir.
+                      </p>
+                    </div>
+                  </>
+                ) : (
+                  <>
+                    <div className="w-20 h-20 bg-green-500/10 rounded-full flex items-center justify-center mx-auto mb-6">
+                      <CheckCircle2 className="w-12 h-12 text-green-500" />
+                    </div>
+                    <h1 className="font-serif text-3xl sm:text-4xl text-foreground mb-4">
+                      Ödemeniz Başarıyla Tamamlandı!
+                    </h1>
+                    <p className="text-muted-foreground text-lg">
+                      Siparişiniz alındı ve ödeme işleminiz başarıyla tamamlandı.
+                    </p>
+                  </>
+                )}
               </div>
 
               <div className="bg-secondary p-8 mb-8 text-left">
@@ -150,9 +172,15 @@ function PaymentSuccessContent() {
               </div>
 
               <div className="space-y-4">
-                <p className="text-sm text-muted-foreground">
-                  Sipariş onayı ve detayları e-posta adresinize gönderilecektir.
-                </p>
+                {awaitingConfirmation ? (
+                  <p className="text-sm text-muted-foreground">
+                    Sipariş onaylandığında size e-posta ve WhatsApp üzerinden bilgi verilecektir.
+                  </p>
+                ) : (
+                  <p className="text-sm text-muted-foreground">
+                    Sipariş onayı ve detayları e-posta adresinize gönderilecektir.
+                  </p>
+                )}
                 <div className="flex flex-col sm:flex-row gap-4 justify-center">
                   <Link
                     href="/"
