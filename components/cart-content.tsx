@@ -38,7 +38,7 @@ export function CartContent() {
   const handleApplyCoupon = () => {
     setCouponError(null)
     const upperCode = couponCode.toUpperCase().trim()
-    
+
     if (!upperCode) {
       setCouponError("Lütfen bir kupon kodu girin")
       return
@@ -86,13 +86,13 @@ export function CartContent() {
           localStorage.removeItem('shawk_applied_coupon')
         }
       }
-      
+
       // KVKK onayını kontrol et
       const savedKvkk = localStorage.getItem('shawk_kvkk_accepted')
       if (savedKvkk === 'true') {
         setKvkkAccepted(true)
       }
-      
+
       // Mesafeli satış sözleşmesi onayını kontrol et
       const savedMesafeliSatis = localStorage.getItem('shawk_mesafeli_satis_accepted')
       if (savedMesafeliSatis === 'true') {
@@ -133,10 +133,10 @@ export function CartContent() {
 
   const calculateDiscount = () => {
     if (!appliedCoupon || !validCoupons[appliedCoupon]) return 0
-    
+
     const coupon = validCoupons[appliedCoupon]
     const subtotal = getTotalPrice()
-    
+
     if (coupon.type === 'percentage') {
       return (subtotal * coupon.discount) / 100
     } else {
@@ -430,7 +430,7 @@ export function CartContent() {
                 </div>
 
                 {/* Kupon Kodu */}
-                <div className="mb-4">
+                {/* <div className="mb-4">
                   {!appliedCoupon ? (
                     <>
                       {!isCouponInputOpen ? (
@@ -507,28 +507,25 @@ export function CartContent() {
                       </button>
                     </div>
                   )}
-                </div>
+                </div> */}
 
                 {/* KVKK Onayı */}
                 <div className="mb-3">
-                  <label className={`flex items-start gap-2 cursor-pointer group ${
-                    showValidationErrors && !kvkkAccepted ? 'bg-red-50 dark:bg-red-950/20 p-2 rounded border border-red-200 dark:border-red-900' : ''
-                  }`}>
+                  <label className={`flex items-start gap-2 cursor-pointer group ${showValidationErrors && !kvkkAccepted ? 'bg-red-50 dark:bg-red-950/20 p-2 rounded border border-red-200 dark:border-red-900' : ''
+                    }`}>
                     <input
                       type="checkbox"
                       checked={kvkkAccepted}
                       onChange={(e) => handleKvkkChange(e.target.checked)}
-                      className={`mt-1 w-4 h-4 rounded focus:ring-2 focus:ring-primary cursor-pointer ${
-                        showValidationErrors && !kvkkAccepted
+                      className={`mt-1 w-4 h-4 rounded focus:ring-2 focus:ring-primary cursor-pointer ${showValidationErrors && !kvkkAccepted
                           ? 'border-red-500 border-2'
                           : 'border-border'
-                      }`}
+                        }`}
                     />
-                    <span className={`text-xs transition-colors ${
-                      showValidationErrors && !kvkkAccepted
+                    <span className={`text-xs transition-colors ${showValidationErrors && !kvkkAccepted
                         ? 'text-red-700 dark:text-red-400'
                         : 'text-muted-foreground group-hover:text-foreground'
-                    }`}>
+                      }`}>
                       <Link href="/gizlilik" target="_blank" className="text-primary hover:underline">
                         KVKK sözleşmelerini
                       </Link>{" "}
@@ -544,24 +541,21 @@ export function CartContent() {
 
                 {/* Mesafeli Satış Sözleşmesi Onayı */}
                 <div className="mb-4">
-                  <label className={`flex items-start gap-2 cursor-pointer group ${
-                    showValidationErrors && !mesafeliSatisAccepted ? 'bg-red-50 dark:bg-red-950/20 p-2 rounded border border-red-200 dark:border-red-900' : ''
-                  }`}>
+                  <label className={`flex items-start gap-2 cursor-pointer group ${showValidationErrors && !mesafeliSatisAccepted ? 'bg-red-50 dark:bg-red-950/20 p-2 rounded border border-red-200 dark:border-red-900' : ''
+                    }`}>
                     <input
                       type="checkbox"
                       checked={mesafeliSatisAccepted}
                       onChange={(e) => handleMesafeliSatisChange(e.target.checked)}
-                      className={`mt-1 w-4 h-4 rounded focus:ring-2 focus:ring-primary cursor-pointer ${
-                        showValidationErrors && !mesafeliSatisAccepted
+                      className={`mt-1 w-4 h-4 rounded focus:ring-2 focus:ring-primary cursor-pointer ${showValidationErrors && !mesafeliSatisAccepted
                           ? 'border-red-500 border-2'
                           : 'border-border'
-                      }`}
+                        }`}
                     />
-                    <span className={`text-xs transition-colors ${
-                      showValidationErrors && !mesafeliSatisAccepted
+                    <span className={`text-xs transition-colors ${showValidationErrors && !mesafeliSatisAccepted
                         ? 'text-red-700 dark:text-red-400'
                         : 'text-muted-foreground group-hover:text-foreground'
-                    }`}>
+                      }`}>
                       <Link href="/mesafeli-satis-sozlesmesi" target="_blank" className="text-primary hover:underline">
                         Mesafeli satış sözleşmesini
                       </Link>{" "}
@@ -592,11 +586,10 @@ export function CartContent() {
                       window.location.href = isAuthenticated ? "/odeme" : "/odeme-auth"
                     }
                   }}
-                  className={`block w-full py-4 font-medium text-sm uppercase tracking-wider text-center transition-colors ${
-                    kvkkAccepted && mesafeliSatisAccepted
+                  className={`block w-full py-4 font-medium text-sm uppercase tracking-wider text-center transition-colors ${kvkkAccepted && mesafeliSatisAccepted
                       ? "bg-primary text-primary-foreground hover:bg-primary/90 cursor-pointer"
                       : "bg-muted text-muted-foreground cursor-pointer hover:bg-muted/80"
-                  }`}
+                    }`}
                 >
                   Ödemeye Geç
                 </button>
@@ -750,7 +743,7 @@ export function CartContent() {
                   const cartItem = items.find(
                     (i) => i.productId === editingItem.productId && i.variantId === editingItem.variantId
                   )
-                  
+
                   const existingFileIds: Record<string, string[]> = {}
                   if (cartItem?.personalization?.userValues) {
                     const schema = editingItem.product.personalizationForm.schemaSnapshot
@@ -775,7 +768,7 @@ export function CartContent() {
                       }
                     })
                   }
-                  
+
                   // Also check formValues for any file IDs that might be there
                   Object.entries(finalFormValues).forEach(([key, value]) => {
                     if (value && !existingFileIds[key]) {
@@ -807,7 +800,7 @@ export function CartContent() {
                       // Get cart ID for organizing files
                       const { getCartId } = await import('@/lib/cart-storage')
                       const cartId = getCartId()
-                      
+
                       console.log('[CartContent] Uploading files with cart ID', {
                         cartId,
                         hasCartId: !!cartId,
@@ -829,7 +822,7 @@ export function CartContent() {
 
                       finalFormValues = prepared.formValues
                       allFileIds = prepared.fileIds
-                      
+
                       // Debug: Log final form values to verify file counts
                       console.log('[CartContent] Final form values after prepare:', finalFormValues)
                       console.log('[CartContent] Existing file IDs:', existingFileIds)
@@ -860,7 +853,7 @@ export function CartContent() {
                     fileIds: allFileIds,
                     existingFileIds,
                   })
-                  
+
                   // Verify file counts for each field
                   editingItem.product.personalizationForm.schemaSnapshot.fields.forEach((field: any) => {
                     if (field.type.includes('MULTI') && (field.config?.minFileCount || field.config?.maxFileCount)) {
