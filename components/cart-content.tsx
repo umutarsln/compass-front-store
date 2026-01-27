@@ -26,6 +26,9 @@ export function CartContent() {
   const [couponCode, setCouponCode] = useState("")
   const [appliedCoupon, setAppliedCoupon] = useState<string | null>(null)
   const [couponError, setCouponError] = useState<string | null>(null)
+  const [kvkkAccepted, setKvkkAccepted] = useState(false)
+  const [mesafeliSatisAccepted, setMesafeliSatisAccepted] = useState(false)
+  const [showValidationErrors, setShowValidationErrors] = useState(false)
 
   // Kupon kodları - Backend'den gelecek (şimdilik test için)
   const validCoupons: Record<string, { discount: number; type: 'percentage' | 'fixed' }> = {
@@ -68,7 +71,7 @@ export function CartContent() {
     }
   }
 
-  // Sayfa yüklendiğinde localStorage'dan kupon bilgisini oku
+  // Sayfa yüklendiğinde localStorage'dan kupon bilgisini ve KVKK onayını oku
   useEffect(() => {
     if (typeof window !== 'undefined') {
       const savedCoupon = localStorage.getItem('shawk_applied_coupon')
@@ -83,8 +86,50 @@ export function CartContent() {
           localStorage.removeItem('shawk_applied_coupon')
         }
       }
+      
+      // KVKK onayını kontrol et
+      const savedKvkk = localStorage.getItem('shawk_kvkk_accepted')
+      if (savedKvkk === 'true') {
+        setKvkkAccepted(true)
+      }
+      
+      // Mesafeli satış sözleşmesi onayını kontrol et
+      const savedMesafeliSatis = localStorage.getItem('shawk_mesafeli_satis_accepted')
+      if (savedMesafeliSatis === 'true') {
+        setMesafeliSatisAccepted(true)
+      }
     }
   }, [])
+
+  const handleKvkkChange = (accepted: boolean) => {
+    setKvkkAccepted(accepted)
+    if (typeof window !== 'undefined') {
+      if (accepted) {
+        localStorage.setItem('shawk_kvkk_accepted', 'true')
+      } else {
+        localStorage.removeItem('shawk_kvkk_accepted')
+      }
+    }
+    // Onaylandığında validation hatalarını gizle
+    if (accepted && mesafeliSatisAccepted) {
+      setShowValidationErrors(false)
+    }
+  }
+
+  const handleMesafeliSatisChange = (accepted: boolean) => {
+    setMesafeliSatisAccepted(accepted)
+    if (typeof window !== 'undefined') {
+      if (accepted) {
+        localStorage.setItem('shawk_mesafeli_satis_accepted', 'true')
+      } else {
+        localStorage.removeItem('shawk_mesafeli_satis_accepted')
+      }
+    }
+    // Onaylandığında validation hatalarını gizle
+    if (accepted && kvkkAccepted) {
+      setShowValidationErrors(false)
+    }
+  }
 
   const calculateDiscount = () => {
     if (!appliedCoupon || !validCoupons[appliedCoupon]) return 0
@@ -464,12 +509,97 @@ export function CartContent() {
                   )}
                 </div>
 
-                <Link
-                  href={isAuthenticated ? "/odeme" : "/odeme-auth"}
-                  className="block w-full py-4 bg-primary text-primary-foreground font-medium text-sm uppercase tracking-wider hover:bg-primary/90 transition-colors text-center"
+                {/* KVKK Onayı */}
+                <div className="mb-3">
+                  <label className={`flex items-start gap-2 cursor-pointer group ${
+                    showValidationErrors && !kvkkAccepted ? 'bg-red-50 dark:bg-red-950/20 p-2 rounded border border-red-200 dark:border-red-900' : ''
+                  }`}>
+                    <input
+                      type="checkbox"
+                      checked={kvkkAccepted}
+                      onChange={(e) => handleKvkkChange(e.target.checked)}
+                      className={`mt-1 w-4 h-4 rounded focus:ring-2 focus:ring-primary cursor-pointer ${
+                        showValidationErrors && !kvkkAccepted
+                          ? 'border-red-500 border-2'
+                          : 'border-border'
+                      }`}
+                    />
+                    <span className={`text-xs transition-colors ${
+                      showValidationErrors && !kvkkAccepted
+                        ? 'text-red-700 dark:text-red-400'
+                        : 'text-muted-foreground group-hover:text-foreground'
+                    }`}>
+                      <Link href="/gizlilik" target="_blank" className="text-primary hover:underline">
+                        KVKK sözleşmelerini
+                      </Link>{" "}
+                      okudum ve onaylıyorum.
+                    </span>
+                  </label>
+                  {showValidationErrors && !kvkkAccepted && (
+                    <p className="text-xs text-red-600 dark:text-red-400 mt-1 ml-6">
+                      KVKK sözleşmesini onaylamanız gerekmektedir.
+                    </p>
+                  )}
+                </div>
+
+                {/* Mesafeli Satış Sözleşmesi Onayı */}
+                <div className="mb-4">
+                  <label className={`flex items-start gap-2 cursor-pointer group ${
+                    showValidationErrors && !mesafeliSatisAccepted ? 'bg-red-50 dark:bg-red-950/20 p-2 rounded border border-red-200 dark:border-red-900' : ''
+                  }`}>
+                    <input
+                      type="checkbox"
+                      checked={mesafeliSatisAccepted}
+                      onChange={(e) => handleMesafeliSatisChange(e.target.checked)}
+                      className={`mt-1 w-4 h-4 rounded focus:ring-2 focus:ring-primary cursor-pointer ${
+                        showValidationErrors && !mesafeliSatisAccepted
+                          ? 'border-red-500 border-2'
+                          : 'border-border'
+                      }`}
+                    />
+                    <span className={`text-xs transition-colors ${
+                      showValidationErrors && !mesafeliSatisAccepted
+                        ? 'text-red-700 dark:text-red-400'
+                        : 'text-muted-foreground group-hover:text-foreground'
+                    }`}>
+                      <Link href="/mesafeli-satis-sozlesmesi" target="_blank" className="text-primary hover:underline">
+                        Mesafeli satış sözleşmesini
+                      </Link>{" "}
+                      okudum ve onaylıyorum.
+                    </span>
+                  </label>
+                  {showValidationErrors && !mesafeliSatisAccepted && (
+                    <p className="text-xs text-red-600 dark:text-red-400 mt-1 ml-6">
+                      Mesafeli satış sözleşmesini onaylamanız gerekmektedir.
+                    </p>
+                  )}
+                </div>
+
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    if (!kvkkAccepted || !mesafeliSatisAccepted) {
+                      e.preventDefault()
+                      setShowValidationErrors(true)
+                      // Scroll to first error
+                      setTimeout(() => {
+                        const firstError = document.querySelector('.bg-red-50, .dark\\:bg-red-950\\/20')
+                        if (firstError) {
+                          firstError.scrollIntoView({ behavior: 'smooth', block: 'center' })
+                        }
+                      }, 100)
+                    } else {
+                      window.location.href = isAuthenticated ? "/odeme" : "/odeme-auth"
+                    }
+                  }}
+                  className={`block w-full py-4 font-medium text-sm uppercase tracking-wider text-center transition-colors ${
+                    kvkkAccepted && mesafeliSatisAccepted
+                      ? "bg-primary text-primary-foreground hover:bg-primary/90 cursor-pointer"
+                      : "bg-muted text-muted-foreground cursor-pointer hover:bg-muted/80"
+                  }`}
                 >
                   Ödemeye Geç
-                </Link>
+                </button>
                 <Link
                   href="/urunler"
                   className="block w-full mt-3 py-4 border border-foreground text-foreground font-medium text-sm uppercase tracking-wider hover:bg-foreground hover:text-background transition-colors text-center"

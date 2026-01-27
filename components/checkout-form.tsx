@@ -997,7 +997,7 @@ IBAN Bilgileri:
                   <h2 className="font-serif text-xl text-foreground mb-6">Ödeme Yöntemi</h2>
 
                   <div className="grid sm:grid-cols-2 gap-4 mb-6">
-                    {/* Kredi Kartı Seçeneği */}
+                    {/* Kredi Kartı Seçeneği - iyzico */}
                     <div
                       onClick={() => {
                         if (paymentSettings?.iyzicoEnabled) {
@@ -1005,32 +1005,25 @@ IBAN Bilgileri:
                         }
                       }}
                       className={`relative p-6 border-2 rounded-lg transition-all ${paymentSettings?.iyzicoEnabled
-                          ? paymentMethod === 'credit-card'
-                            ? 'border-primary bg-primary/5 cursor-pointer'
-                            : 'border-border bg-secondary hover:border-foreground/50 cursor-pointer'
-                          : 'border-border bg-secondary opacity-60 cursor-not-allowed'
+                        ? paymentMethod === 'credit-card'
+                          ? 'border-primary bg-primary/5 cursor-pointer'
+                          : 'border-border bg-secondary hover:border-foreground/50 cursor-pointer'
+                        : 'border-border bg-secondary opacity-60 cursor-not-allowed'
                         }`}
                     >
-                      <div className="flex items-start gap-4">
-                        <div className={`w-12 h-12 rounded-full flex items-center justify-center shrink-0 ${paymentSettings?.iyzicoEnabled && paymentMethod === 'credit-card'
-                            ? 'bg-primary/20'
-                            : 'bg-muted'
-                          }`}>
-                          <CreditCard className={`w-6 h-6 ${paymentSettings?.iyzicoEnabled && paymentMethod === 'credit-card'
-                              ? 'text-primary'
-                              : 'text-muted-foreground'
-                            }`} />
+                      <div className="flex items-center justify-center gap-4">
+                        <div className="flex items-center justify-center">
+                          <Image
+                            src="/iyzico/iyzico_ile_ode_colored.svg"
+                            alt="iyzico ile öde"
+                            width={210}
+                            height={72}
+                            className="h-12 w-auto"
+                          />
                         </div>
-                        <div className="flex-1">
-                          <h3 className="font-medium text-foreground mb-1">Kredi Kartı</h3>
-                          {paymentSettings?.iyzicoEnabled ? (
-                            <p className="text-xs text-muted-foreground">Kredi kartı ile ödeme yapın</p>
-                          ) : (
-                            <>
-                              <p className="text-sm text-destructive font-medium mb-2">Şu an seçilemez</p>
-                              <p className="text-xs text-muted-foreground">Iyzico aktif değil</p>
-                            </>
-                          )}
+                        <div className="flex-1 text-center">
+                          <p className="text-sm text-destructive font-medium mb-1">Şu an seçilemez</p>
+                          <p className="text-xs text-muted-foreground">iyzico onayı bekleniyor</p>
                         </div>
                         {paymentSettings?.iyzicoEnabled && paymentMethod === 'credit-card' && (
                           <div className="w-5 h-5 rounded-full bg-primary flex items-center justify-center shrink-0">
@@ -1072,10 +1065,10 @@ IBAN Bilgileri:
                         }
                       }}
                       className={`relative p-6 border-2 rounded-lg transition-all ${paymentSettings?.ibanEftEnabled
-                          ? paymentMethod === 'iban-eft'
-                            ? 'border-primary bg-primary/5 cursor-pointer'
-                            : 'border-border bg-secondary hover:border-foreground/50 cursor-pointer'
-                          : 'border-border bg-secondary opacity-60 cursor-not-allowed'
+                        ? paymentMethod === 'iban-eft'
+                          ? 'border-primary bg-primary/5 cursor-pointer'
+                          : 'border-border bg-secondary hover:border-foreground/50 cursor-pointer'
+                        : 'border-border bg-secondary opacity-60 cursor-not-allowed'
                         }`}
                     >
                       <div className="flex items-start gap-4">
