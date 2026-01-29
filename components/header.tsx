@@ -154,7 +154,7 @@ export function Header() {
               {/* Profile Icon / Auth */}
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <button 
+                  <button
                     className="flex items-center gap-2 p-2 text-foreground hover:text-accent hover:bg-accent/10 rounded-md transition-all cursor-pointer"
                     suppressHydrationWarning
                   >

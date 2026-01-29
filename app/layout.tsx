@@ -31,6 +31,19 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="tr">
+      <head>
+        {/* Google Tag (gtag.js) */}
+        <script async src="https://www.googletagmanager.com/gtag/js?id=G-9WTD6QPS7W"></script>
+        <script
+          // eslint-disable-next-line react/no-danger
+          dangerouslySetInnerHTML={{
+            __html: `window.dataLayer = window.dataLayer || [];
+function gtag(){dataLayer.push(arguments);}
+gtag('js', new Date());
+gtag('config', 'G-9WTD6QPS7W');`,
+          }}
+        />
+      </head>
       <body className={`font-sans antialiased`} suppressHydrationWarning>
         <AuthProvider>
           <CartProvider>

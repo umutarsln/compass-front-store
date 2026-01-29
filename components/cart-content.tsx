@@ -518,13 +518,13 @@ export function CartContent() {
                       checked={kvkkAccepted}
                       onChange={(e) => handleKvkkChange(e.target.checked)}
                       className={`mt-1 w-4 h-4 rounded focus:ring-2 focus:ring-primary cursor-pointer ${showValidationErrors && !kvkkAccepted
-                          ? 'border-red-500 border-2'
-                          : 'border-border'
+                        ? 'border-red-500 border-2'
+                        : 'border-border'
                         }`}
                     />
                     <span className={`text-xs transition-colors ${showValidationErrors && !kvkkAccepted
-                        ? 'text-red-700 dark:text-red-400'
-                        : 'text-muted-foreground group-hover:text-foreground'
+                      ? 'text-red-700 dark:text-red-400'
+                      : 'text-muted-foreground group-hover:text-foreground'
                       }`}>
                       <Link href="/gizlilik" target="_blank" className="text-primary hover:underline">
                         KVKK sözleşmelerini
@@ -548,13 +548,13 @@ export function CartContent() {
                       checked={mesafeliSatisAccepted}
                       onChange={(e) => handleMesafeliSatisChange(e.target.checked)}
                       className={`mt-1 w-4 h-4 rounded focus:ring-2 focus:ring-primary cursor-pointer ${showValidationErrors && !mesafeliSatisAccepted
-                          ? 'border-red-500 border-2'
-                          : 'border-border'
+                        ? 'border-red-500 border-2'
+                        : 'border-border'
                         }`}
                     />
                     <span className={`text-xs transition-colors ${showValidationErrors && !mesafeliSatisAccepted
-                        ? 'text-red-700 dark:text-red-400'
-                        : 'text-muted-foreground group-hover:text-foreground'
+                      ? 'text-red-700 dark:text-red-400'
+                      : 'text-muted-foreground group-hover:text-foreground'
                       }`}>
                       <Link href="/mesafeli-satis-sozlesmesi" target="_blank" className="text-primary hover:underline">
                         Mesafeli satış sözleşmesini
@@ -587,8 +587,8 @@ export function CartContent() {
                     }
                   }}
                   className={`block w-full py-4 font-medium text-sm uppercase tracking-wider text-center transition-colors ${kvkkAccepted && mesafeliSatisAccepted
-                      ? "bg-primary text-primary-foreground hover:bg-primary/90 cursor-pointer"
-                      : "bg-muted text-muted-foreground cursor-pointer hover:bg-muted/80"
+                    ? "bg-primary text-primary-foreground hover:bg-primary/90 cursor-pointer"
+                    : "bg-muted text-muted-foreground cursor-pointer hover:bg-muted/80"
                     }`}
                 >
                   Ödemeye Geç
