@@ -22,6 +22,7 @@ const navItems = [
   { href: "/urunler", label: "Ürünler" },
   { href: "/sevgililer-gunu", label: "Sevgililer Günü" },
   { href: "/hakkimizda", label: "Hakkımızda" },
+  { href: "/siparis-sorgulama", label: "Sipariş Sorgula" },
   { href: "/iletisim", label: "İletişim" },
 ]
 

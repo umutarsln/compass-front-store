@@ -127,7 +127,7 @@ export function ProductCard({
         </div>
         <div className="mt-4">
           <p className="text-[10px] text-muted-foreground uppercase tracking-wider">{category}</p>
-          <h3 className={`mt-1 text-lg font-semibold text-foreground line-clamp-2 min-h-12 ${isInStock ? "group-hover:text-accent transition-colors" : ""}`}>
+          <h3 className={`mt-1 text-base font-semibold text-foreground line-clamp-2 min-h-12 ${isInStock ? "group-hover:text-accent transition-colors" : ""}`}>
             {name}
           </h3>
 
