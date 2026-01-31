@@ -1121,38 +1121,30 @@ IBAN Bilgileri:
                           <h3 className="font-medium text-foreground">Dekont Gönderme Adımları</h3>
                         </div>
                         <div className="space-y-3">
-                          <button
-                            onClick={() => handleStepChange(2)}
-                            className="w-full flex items-start gap-3 text-left hover:bg-background/50 transition-colors p-2 rounded -m-2"
-                          >
+                          <div className="flex items-start gap-3">
                             <div className="w-6 h-6 rounded-full bg-primary text-primary-foreground flex items-center justify-center shrink-0 text-xs font-medium mt-0.5">
                               1
                             </div>
                             <div>
-                              <p className="text-foreground font-medium text-sm">Belirtilen IBAN'a Ödeme Yapın</p>
-                              <p className="text-muted-foreground text-xs mt-0.5">Belirtilen IBAN'a belirtilen tutarı açıklama kısmına sipariş numaranızı yazarak havale/EFT yapın</p>
-                              <p className="text-primary text-xs mt-1 font-medium">Adres bilgilerini düzenlemek için tıklayın</p>
+                              <p className="text-foreground font-medium text-sm">Aşağıda belirtilen IBAN'a ödeme yapınız.</p>
+                              <p className="text-muted-foreground text-xs mt-0.5">Belirtilen IBAN'a belirtilen tutarı havale/EFT yapın</p>
                             </div>
-                          </button>
-                          <button
-                            onClick={() => handleStepChange(1)}
-                            className="w-full flex items-start gap-3 text-left hover:bg-background/50 transition-colors p-2 rounded -m-2"
-                          >
+                          </div>
+                          <div className="flex items-start gap-3">
                             <div className="w-6 h-6 rounded-full bg-primary text-primary-foreground flex items-center justify-center shrink-0 text-xs font-medium mt-0.5">
                               2
                             </div>
                             <div>
-                              <p className="text-foreground font-medium text-sm">Siteye Dönerek WhatsApp ile Devam Edin</p>
-                              <p className="text-muted-foreground text-xs mt-0.5">Ödeme işleminizi tamamladıktan sonra siteye dönerek WhatsApp ile devam edin</p>
-                              <p className="text-primary text-xs mt-1 font-medium">İletişim bilgilerini düzenlemek için tıklayın</p>
+                              <p className="text-foreground font-medium text-sm">Ödemeyi yapıp tekrar siteye döndükten sonra "Ödeme Yaptım" seçeneğini işaretleyin.</p>
+                              <p className="text-muted-foreground text-xs mt-0.5">Ödeme işleminizi tamamladıktan sonra siteye dönerek "Ödeme Yaptım" seçeneğini işaretleyin</p>
                             </div>
-                          </button>
+                          </div>
                           <div className="flex items-start gap-3">
                             <div className="w-6 h-6 rounded-full bg-primary text-primary-foreground flex items-center justify-center shrink-0 text-xs font-medium mt-0.5">
                               3
                             </div>
                             <div>
-                              <p className="text-foreground font-medium text-sm">Dekontu WhatsApp Üzerinden Gönderin</p>
+                              <p className="text-foreground font-medium text-sm">WhatsApp için gelen butona tıklayın ve dekontu bize gönderin.</p>
                               <p className="text-muted-foreground text-xs mt-0.5">Ödeme dekontunuzu WhatsApp üzerinden bizimle paylaşın</p>
                             </div>
                           </div>
@@ -1161,8 +1153,8 @@ IBAN Bilgileri:
                               4
                             </div>
                             <div>
-                              <p className="text-foreground font-medium text-sm">Siparişiniz Onaylanır</p>
-                              <p className="text-muted-foreground text-xs mt-0.5">Dekont kontrol edildikten sonra siparişiniz onaylanır</p>
+                              <p className="text-foreground font-medium text-sm">Siparişinizi takip edin.</p>
+                              <p className="text-muted-foreground text-xs mt-0.5">WhatsApp ile dekont gönderdikten sonra size ekibimiz tarafından verilen sipariş numarası ile siparişinizi sitemizden sipariş sorgula ekranından takip edebilirsiniz</p>
                             </div>
                           </div>
                         </div>
@@ -1316,34 +1308,36 @@ IBAN Bilgileri:
                   </div>
 
                   <div className="flex gap-4">
-                    <button
-                      onClick={() => handleStepChange(2)}
-                      className="flex-1 py-4 border border-foreground text-foreground font-medium text-sm uppercase tracking-wider hover:bg-foreground hover:text-background transition-colors"
-                      disabled={isSubmitting}
-                    >
-                      Geri
-                    </button>
                     {paymentMethod !== 'iban-eft' && (
-                      <button
-                        onClick={handleSubmit}
-                        disabled={isSubmitting || !paymentMethod}
-                        className="flex-1 py-4 bg-primary text-primary-foreground font-medium text-sm uppercase tracking-wider hover:bg-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
-                      >
-                        {isSubmitting ? (
-                          <>
-                            <Loader2 className="w-4 h-4 animate-spin" />
-                            İşleniyor...
-                          </>
-                        ) : (
-                          "Ödeme Yap"
-                        )}
-                      </button>
+                      <>
+                        <button
+                          onClick={() => handleStepChange(2)}
+                          className="flex-1 py-4 border border-foreground text-foreground font-medium text-sm uppercase tracking-wider hover:bg-foreground hover:text-background transition-colors"
+                          disabled={isSubmitting}
+                        >
+                          Geri
+                        </button>
+                        <button
+                          onClick={handleSubmit}
+                          disabled={isSubmitting || !paymentMethod}
+                          className="flex-1 py-4 bg-primary text-primary-foreground font-medium text-sm uppercase tracking-wider hover:bg-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                        >
+                          {isSubmitting ? (
+                            <>
+                              <Loader2 className="w-4 h-4 animate-spin" />
+                              İşleniyor...
+                            </>
+                          ) : (
+                            "Ödeme Yap"
+                          )}
+                        </button>
+                      </>
                     )}
                     {paymentMethod === 'iban-eft' && !createdOrder && (
                       <button
                         onClick={handleSubmit}
                         disabled={isSubmitting || !paymentMethod}
-                        className="flex-1 py-4 bg-primary text-primary-foreground font-medium text-sm uppercase tracking-wider hover:bg-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                        className="w-full py-4 bg-primary text-primary-foreground font-medium text-sm uppercase tracking-wider hover:bg-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                       >
                         {isSubmitting ? (
                           <>
@@ -1351,7 +1345,7 @@ IBAN Bilgileri:
                             İşleniyor...
                           </>
                         ) : (
-                          "Ödeme Yap"
+                          "Ödeme Yaptım"
                         )}
                       </button>
                     )}
