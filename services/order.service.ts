@@ -10,6 +10,34 @@ export enum OrderStatus {
   REFUNDED = 'REFUNDED',
 }
 
+/** Backend'den gelen kişiselleştirme değeri: metin veya dosya (url ile) */
+export type PersonalizationFieldValue = string | { id: string; url: string } | PersonalizationFieldValue[];
+
+export interface OrderItemVariantValue {
+  id: string;
+  value: string;
+  colorCode?: string | null;
+  variantOption: { id: string; name: string; type: string } | null;
+}
+
+export interface OrderItemVariant {
+  id: string;
+  variantValues?: OrderItemVariantValue[];
+  galleries?: Array<{
+    mainImage?: { id: string; s3Url: string } | null;
+    thumbnailImage?: { id: string; s3Url: string } | null;
+  }>;
+}
+
+export interface OrderItemPersonalization {
+  form: { formId: string; versionId: string; title: string; slug: string };
+  schemaSnapshot: { fields: any[]; conditions?: any[] };
+  userValues: Record<string, PersonalizationFieldValue>;
+  pricingBreakdown?: any[];
+  totalPersonalizationAmount?: number;
+  currency?: string;
+}
+
 export interface OrderItem {
   id: string;
   productId: string;
@@ -21,6 +49,8 @@ export interface OrderItem {
   totalPrice: number;
   currency: string;
   createdAt: string;
+  variant?: OrderItemVariant | null;
+  personalization?: OrderItemPersonalization | null;
 }
 
 export interface Address {
