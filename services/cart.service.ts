@@ -62,11 +62,24 @@ export interface CartItem {
   updatedAt: string;
 }
 
+export interface AppliedCoupon {
+  id: string;
+  code: string;
+  name: string;
+  type: string;
+  discountValue: number;
+  discountAmount: number;
+}
+
 export interface Cart {
   id: string;
   userId: string | null;
   status: string;
   items: CartItem[];
+  subtotal: number;
+  discountAmount: number;
+  total: number;
+  appliedCoupon: AppliedCoupon | null;
   createdAt: string;
   updatedAt: string;
 }
@@ -147,6 +160,20 @@ class CartService {
    */
   async getUserCart(): Promise<Cart | null> {
     return await api.get<Cart | null>('/carts/me/cart');
+  }
+
+  /**
+   * Apply coupon to cart
+   */
+  async applyCoupon(cartId: string, code: string): Promise<Cart> {
+    return await api.post<Cart>(`/carts/${cartId}/coupon`, { code });
+  }
+
+  /**
+   * Remove coupon from cart
+   */
+  async removeCoupon(cartId: string): Promise<Cart> {
+    return await api.delete<Cart>(`/carts/${cartId}/coupon`);
   }
 }
 

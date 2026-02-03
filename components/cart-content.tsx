@@ -17,83 +17,48 @@ import { getProductDetail } from "@/services/products"
 import { uploadPersonalizationFiles, preparePersonalizationData } from "@/utils/personalization.helper"
 
 export function CartContent() {
-  const { items, isLoading, removeFromCart, updateQuantity, updatePersonalization, getTotalPrice, getTotalItems, isUpdatingItem, isRemovingItem } = useCart()
+  const { items, cartTotals, isLoading, removeFromCart, updateQuantity, updatePersonalization, getTotalPrice, getTotalItems, applyCoupon: applyCouponToCart, removeCoupon: removeCouponFromCart, applyingCoupon, isUpdatingItem, isRemovingItem } = useCart()
   const { isAuthenticated } = useAuth()
   const [editingItem, setEditingItem] = useState<{ productId: string; variantId: string | null; product: any } | null>(null)
   const [isLoadingProduct, setIsLoadingProduct] = useState(false)
   const [isSavingPersonalization, setIsSavingPersonalization] = useState(false)
   const [isCouponInputOpen, setIsCouponInputOpen] = useState(false)
   const [couponCode, setCouponCode] = useState("")
-  const [appliedCoupon, setAppliedCoupon] = useState<string | null>(null)
   const [couponError, setCouponError] = useState<string | null>(null)
   const [kvkkAccepted, setKvkkAccepted] = useState(false)
   const [mesafeliSatisAccepted, setMesafeliSatisAccepted] = useState(false)
   const [showValidationErrors, setShowValidationErrors] = useState(false)
 
-  // Kupon kodları - Backend'den gelecek (şimdilik test için)
-  const validCoupons: Record<string, { discount: number; type: 'percentage' | 'fixed' }> = {
-    'KUPON10': { discount: 10, type: 'percentage' }
-  }
+  const appliedCoupon = cartTotals?.appliedCoupon ?? null
 
-  const handleApplyCoupon = () => {
+  const handleApplyCoupon = async () => {
     setCouponError(null)
     const upperCode = couponCode.toUpperCase().trim()
-
     if (!upperCode) {
       setCouponError("Lütfen bir kupon kodu girin")
       return
     }
-
-    if (validCoupons[upperCode]) {
-      setAppliedCoupon(upperCode)
+    const result = await applyCouponToCart(upperCode)
+    if (result.success) {
       setCouponCode("")
       setIsCouponInputOpen(false)
-      // Kupon bilgisini localStorage'a kaydet
-      if (typeof window !== 'undefined') {
-        localStorage.setItem('shawk_applied_coupon', JSON.stringify({
-          code: upperCode,
-          discount: validCoupons[upperCode].discount,
-          type: validCoupons[upperCode].type
-        }))
-      }
     } else {
-      setCouponError("Geçersiz kupon kodu")
+      setCouponError(result.message || "Geçersiz kupon kodu")
     }
   }
 
   const handleRemoveCoupon = () => {
-    setAppliedCoupon(null)
-    setCouponCode("")
     setCouponError(null)
-    // localStorage'dan kupon bilgisini kaldır
-    if (typeof window !== 'undefined') {
-      localStorage.removeItem('shawk_applied_coupon')
-    }
+    removeCouponFromCart()
   }
 
-  // Sayfa yüklendiğinde localStorage'dan kupon bilgisini ve KVKK onayını oku
+  // Sayfa yüklendiğinde KVKK ve mesafeli satış onayını oku
   useEffect(() => {
     if (typeof window !== 'undefined') {
-      const savedCoupon = localStorage.getItem('shawk_applied_coupon')
-      if (savedCoupon) {
-        try {
-          const couponData = JSON.parse(savedCoupon)
-          if (validCoupons[couponData.code]) {
-            setAppliedCoupon(couponData.code)
-          }
-        } catch (e) {
-          // Geçersiz veri, temizle
-          localStorage.removeItem('shawk_applied_coupon')
-        }
-      }
-
-      // KVKK onayını kontrol et
       const savedKvkk = localStorage.getItem('shawk_kvkk_accepted')
       if (savedKvkk === 'true') {
         setKvkkAccepted(true)
       }
-
-      // Mesafeli satış sözleşmesi onayını kontrol et
       const savedMesafeliSatis = localStorage.getItem('shawk_mesafeli_satis_accepted')
       if (savedMesafeliSatis === 'true') {
         setMesafeliSatisAccepted(true)
@@ -131,24 +96,9 @@ export function CartContent() {
     }
   }
 
-  const calculateDiscount = () => {
-    if (!appliedCoupon || !validCoupons[appliedCoupon]) return 0
-
-    const coupon = validCoupons[appliedCoupon]
-    const subtotal = getTotalPrice()
-
-    if (coupon.type === 'percentage') {
-      return (subtotal * coupon.discount) / 100
-    } else {
-      return coupon.discount
-    }
-  }
-
-  const getFinalTotal = () => {
-    const subtotal = getTotalPrice()
-    const discount = calculateDiscount()
-    return Math.max(0, subtotal - discount)
-  }
+  const subtotal = cartTotals?.subtotal ?? getTotalPrice()
+  const discountAmount = cartTotals?.discountAmount ?? 0
+  const finalTotal = cartTotals?.total != null ? cartTotals.total : Math.max(0, getTotalPrice() - discountAmount)
 
   // Loading state - show skeleton
   if (isLoading) {
@@ -400,12 +350,12 @@ export function CartContent() {
                   </div>
                   <div className="flex justify-between text-sm">
                     <span className="text-muted-foreground">Ara Toplam</span>
-                    <span className="text-foreground">{getTotalPrice().toLocaleString("tr-TR")} ₺</span>
+                    <span className="text-foreground">{subtotal.toLocaleString("tr-TR")} ₺</span>
                   </div>
-                  {appliedCoupon && calculateDiscount() > 0 && (
+                  {appliedCoupon && discountAmount > 0 && (
                     <div className="flex justify-between text-sm">
-                      <span className="text-muted-foreground">İndirim ({appliedCoupon})</span>
-                      <span className="text-green-600 font-medium">-{calculateDiscount().toLocaleString("tr-TR")} ₺</span>
+                      <span className="text-muted-foreground">İndirim ({appliedCoupon.code})</span>
+                      <span className="text-green-600 font-medium">-{discountAmount.toLocaleString("tr-TR")} ₺</span>
                     </div>
                   )}
                   <div className="flex justify-between text-sm">
@@ -416,13 +366,13 @@ export function CartContent() {
                     <div className="flex justify-between">
                       <span className="font-medium text-foreground">Toplam</span>
                       <div className="flex flex-col items-end">
-                        {appliedCoupon && calculateDiscount() > 0 && (
+                        {appliedCoupon && discountAmount > 0 && (
                           <span className="text-xs text-muted-foreground line-through mb-1">
-                            {getTotalPrice().toLocaleString("tr-TR")} ₺
+                            {subtotal.toLocaleString("tr-TR")} ₺
                           </span>
                         )}
                         <span className="font-medium text-foreground text-lg">
-                          {getFinalTotal().toLocaleString("tr-TR")} ₺
+                          {finalTotal.toLocaleString("tr-TR")} ₺
                         </span>
                       </div>
                     </div>
@@ -430,7 +380,7 @@ export function CartContent() {
                 </div>
 
                 {/* Kupon Kodu */}
-                {/* <div className="mb-4">
+                <div className="mb-4">
                   {!appliedCoupon ? (
                     <>
                       {!isCouponInputOpen ? (
@@ -457,10 +407,8 @@ export function CartContent() {
                                 setCouponCode(e.target.value)
                                 setCouponError(null)
                               }}
-                              onKeyPress={(e) => {
-                                if (e.key === 'Enter') {
-                                  handleApplyCoupon()
-                                }
+                              onKeyDown={(e) => {
+                                if (e.key === 'Enter') handleApplyCoupon()
                               }}
                               placeholder="Kupon kodunu girin"
                               className="flex-1 px-3 py-2 text-sm border border-border bg-background focus:border-foreground focus:outline-none transition-colors"
@@ -468,9 +416,10 @@ export function CartContent() {
                             />
                             <button
                               onClick={handleApplyCoupon}
-                              className="px-4 py-2 bg-primary text-primary-foreground text-sm font-medium hover:bg-primary/90 transition-colors"
+                              disabled={applyingCoupon}
+                              className="px-4 py-2 bg-primary text-primary-foreground text-sm font-medium hover:bg-primary/90 transition-colors disabled:opacity-50"
                             >
-                              Uygula
+                              {applyingCoupon ? <Spinner className="w-4 h-4" /> : "Uygula"}
                             </button>
                             <button
                               onClick={() => {
@@ -490,24 +439,25 @@ export function CartContent() {
                       )}
                     </>
                   ) : (
-                    <div className="flex items-center justify-between p-3 bg-green-50 border border-green-200 rounded">
+                    <div className="flex items-center justify-between p-3 bg-green-50 dark:bg-green-950/30 border border-green-200 dark:border-green-800 rounded">
                       <div className="flex items-center gap-2">
-                        <Check className="w-4 h-4 text-green-600" />
-                        <span className="text-sm font-medium text-green-800">{appliedCoupon}</span>
-                        <span className="text-xs text-green-600">
-                          %{validCoupons[appliedCoupon].discount} indirim uygulandı
+                        <Check className="w-4 h-4 text-green-600 dark:text-green-400" />
+                        <span className="text-sm font-medium text-green-800 dark:text-green-300">{appliedCoupon.code}</span>
+                        <span className="text-xs text-green-600 dark:text-green-400">
+                          {appliedCoupon.discountAmount.toLocaleString("tr-TR")} ₺ indirim uygulandı
                         </span>
                       </div>
                       <button
                         onClick={handleRemoveCoupon}
-                        className="text-green-600 hover:text-green-800 transition-colors"
+                        disabled={applyingCoupon}
+                        className="text-green-600 hover:text-green-800 transition-colors disabled:opacity-50"
                         aria-label="Kuponu kaldır"
                       >
                         <X className="w-4 h-4" />
                       </button>
                     </div>
                   )}
-                </div> */}
+                </div>
 
                 {/* KVKK Onayı */}
                 <div className="mb-3">

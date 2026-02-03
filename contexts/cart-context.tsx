@@ -1,12 +1,11 @@
 "use client"
 
-import { createContext, useContext, useState, useEffect, ReactNode, useCallback } from "react"
-import { cartService, Cart, CartItem as BackendCartItem } from "@/services/cart.service"
+import { createContext, useContext, useState, useEffect, ReactNode } from "react"
+import { cartService, Cart, CartItem as BackendCartItem, AppliedCoupon } from "@/services/cart.service"
 import { useAuth } from "./auth-context"
 import {
   getCartId,
   setCartId,
-  getCartData,
   setCartData,
   clearCartData,
 } from "@/lib/cart-storage"
@@ -37,13 +36,22 @@ export interface CartItem {
   personalization?: any // Personalization snapshot data
 }
 
+export interface CartTotals {
+  subtotal: number
+  discountAmount: number
+  total: number
+  appliedCoupon: AppliedCoupon | null
+}
+
 interface CartContextType {
   items: CartItem[]
+  cartTotals: CartTotals | null
   isSidebarOpen: boolean
   isLoading: boolean
-  addingToCart: Set<string> // productId-variantId kombinasyonları için loading state
-  updatingItems: Set<string> // productId-variantId kombinasyonları için loading state
-  removingItems: Set<string> // productId-variantId kombinasyonları için loading state
+  applyingCoupon: boolean
+  addingToCart: Set<string>
+  updatingItems: Set<string>
+  removingItems: Set<string>
   openSidebar: () => void
   closeSidebar: () => void
   addToCart: (
@@ -69,6 +77,8 @@ interface CartContextType {
   getTotalPrice: () => number
   getCartId: () => string | null
   syncCart: () => Promise<void>
+  applyCoupon: (code: string) => Promise<{ success: boolean; message?: string }>
+  removeCoupon: () => Promise<void>
   isAddingToCart: (productId: string, variantId: string | null) => boolean
   isUpdatingItem: (productId: string, variantId: string | null) => boolean
   isRemovingItem: (productId: string, variantId: string | null) => boolean
@@ -76,10 +86,21 @@ interface CartContextType {
 
 const CartContext = createContext<CartContextType | undefined>(undefined)
 
+function cartToTotals(cart: Cart): CartTotals {
+  return {
+    subtotal: cart.subtotal ?? 0,
+    discountAmount: cart.discountAmount ?? 0,
+    total: cart.total ?? 0,
+    appliedCoupon: cart.appliedCoupon ?? null,
+  }
+}
+
 export function CartProvider({ children }: { children: ReactNode }) {
   const [items, setItems] = useState<CartItem[]>([])
+  const [cartTotals, setCartTotals] = useState<CartTotals | null>(null)
   const [isSidebarOpen, setIsSidebarOpen] = useState(false)
   const [isLoading, setIsLoading] = useState(true)
+  const [applyingCoupon, setApplyingCoupon] = useState(false)
   const [addingToCart, setAddingToCart] = useState<Set<string>>(new Set())
   const [updatingItems, setUpdatingItems] = useState<Set<string>>(new Set())
   const [removingItems, setRemovingItems] = useState<Set<string>>(new Set())
@@ -108,6 +129,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
         if (userCart) {
           cartId = userCart.id
           setCartId(cartId)
+          setCartTotals(cartToTotals(userCart))
           setCartData({
             cartId: userCart.id,
             items: userCart.items.map((item) => ({
@@ -133,6 +155,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
         if (cartId) {
           try {
             const cart = await cartService.getCart(cartId)
+            setCartTotals(cartToTotals(cart))
             setItems(mapBackendItemsToLegacy(cart.items))
             setCartData({
               cartId: cart.id,
@@ -149,6 +172,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
             // Cart not found, create new one
             const newCart = await cartService.createGuestCart()
             setCartId(newCart.id)
+            setCartTotals(cartToTotals(newCart))
             setItems([])
           }
         } else {
@@ -170,6 +194,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
       if (isAuthenticated) {
         const cart = await cartService.getUserCart()
         if (cart) {
+          setCartTotals(cartToTotals(cart))
           setItems(mapBackendItemsToLegacy(cart.items))
           setCartData({
             cartId: cart.id,
@@ -185,6 +210,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
         }
       } else {
         const cart = await cartService.getCart(cartId)
+        setCartTotals(cartToTotals(cart))
         setItems(mapBackendItemsToLegacy(cart.items))
         setCartData({
           cartId: cart.id,
@@ -200,6 +226,36 @@ export function CartProvider({ children }: { children: ReactNode }) {
       }
     } catch (error) {
       console.error("Failed to sync cart:", error)
+    }
+  }
+
+  const applyCoupon = async (code: string): Promise<{ success: boolean; message?: string }> => {
+    const cartId = getCartId()
+    if (!cartId) return { success: false, message: "Sepet bulunamadı" }
+    setApplyingCoupon(true)
+    try {
+      await cartService.applyCoupon(cartId, code)
+      await syncCart()
+      return { success: true }
+    } catch (error: any) {
+      const message = error?.response?.data?.message || error?.message || "Kupon uygulanamadı"
+      return { success: false, message }
+    } finally {
+      setApplyingCoupon(false)
+    }
+  }
+
+  const removeCoupon = async () => {
+    const cartId = getCartId()
+    if (!cartId) return
+    setApplyingCoupon(true)
+    try {
+      await cartService.removeCoupon(cartId)
+      await syncCart()
+    } catch (error) {
+      console.error("Failed to remove coupon:", error)
+    } finally {
+      setApplyingCoupon(false)
     }
   }
 
@@ -239,9 +295,9 @@ export function CartProvider({ children }: { children: ReactNode }) {
       // Personalization data parametreden geliyor (zaten hazırlanmış)
       const personalization = personalizationData
         ? {
-            formValues: personalizationData.formValues,
-            fileIds: personalizationData.fileIds,
-          }
+          formValues: personalizationData.formValues,
+          fileIds: personalizationData.fileIds,
+        }
         : undefined
 
       // Add item to cart
@@ -451,6 +507,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
 
   const clearCart = () => {
     setItems([])
+    setCartTotals(null)
     clearCartData()
   }
 
@@ -459,6 +516,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
   }
 
   const getTotalPrice = () => {
+    if (cartTotals != null && cartTotals.total >= 0) return cartTotals.total
     return items.reduce((total, item) => total + item.price * item.quantity, 0)
   }
 
@@ -470,8 +528,10 @@ export function CartProvider({ children }: { children: ReactNode }) {
     <CartContext.Provider
       value={{
         items,
+        cartTotals,
         isSidebarOpen,
         isLoading,
+        applyingCoupon,
         addingToCart,
         updatingItems,
         removingItems,
@@ -486,6 +546,8 @@ export function CartProvider({ children }: { children: ReactNode }) {
         getTotalPrice,
         getCartId: getCartIdFromContext,
         syncCart,
+        applyCoupon,
+        removeCoupon,
         isAddingToCart,
         isUpdatingItem,
         isRemovingItem,

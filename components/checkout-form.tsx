@@ -17,7 +17,7 @@ import { useToast } from "@/hooks/use-toast"
 export function CheckoutForm() {
   const router = useRouter()
   const { toast } = useToast()
-  const { items, getTotalPrice, getTotalItems, getCartId: getCartIdFromContext, syncCart, isLoading: cartLoading } = useCart()
+  const { items, cartTotals, getTotalPrice, getTotalItems, getCartId: getCartIdFromContext, syncCart, isLoading: cartLoading } = useCart()
   const { user, isAuthenticated } = useAuth()
   const [step, setStep] = useState(1)
   const [visitedSteps, setVisitedSteps] = useState<Set<number>>(new Set([1])) // İlk adım her zaman ziyaret edilmiş
@@ -60,30 +60,6 @@ export function CheckoutForm() {
         })
     }
   }
-  const [appliedCoupon, setAppliedCoupon] = useState<{ code: string; discount: number; type: 'percentage' | 'fixed' } | null>(null)
-
-  // Kupon kodları - Backend'den gelecek (şimdilik test için)
-  const validCoupons: Record<string, { discount: number; type: 'percentage' | 'fixed' }> = {
-    'KUPON10': { discount: 10, type: 'percentage' }
-  }
-
-  // Sayfa yüklendiğinde localStorage'dan kupon bilgisini oku
-  useEffect(() => {
-    if (typeof window !== 'undefined') {
-      const savedCoupon = localStorage.getItem('shawk_applied_coupon')
-      if (savedCoupon) {
-        try {
-          const couponData = JSON.parse(savedCoupon)
-          if (validCoupons[couponData.code]) {
-            setAppliedCoupon(couponData)
-          }
-        } catch (e) {
-          localStorage.removeItem('shawk_applied_coupon')
-        }
-      }
-    }
-  }, [])
-
   const [formData, setFormData] = useState({
     // İletişim bilgileri
     email: "",
@@ -203,19 +179,17 @@ export function CheckoutForm() {
   const handleWhatsApp = () => {
     if (!ibanInfo || !createdOrder) return
 
-    const subtotal = getTotalPrice()
-    const shipping = 0
-    const ibanDiscount = appliedCoupon ? (appliedCoupon.type === 'percentage' ? (subtotal * appliedCoupon.discount) / 100 : appliedCoupon.discount) : 0
-    const total = Math.max(0, subtotal - ibanDiscount + shipping)
+    const msgSubtotal = cartTotals?.subtotal ?? getTotalPrice()
+    const msgDiscount = cartTotals?.discountAmount ?? 0
+    const msgTotal = cartTotals?.total != null ? cartTotals.total : Math.max(0, msgSubtotal - msgDiscount)
 
-    // WhatsApp mesajı oluştur (dekont göndermek için)
     let whatsappMessage = `Merhaba, IBAN ile ödeme yaptım. Dekontumu gönderiyorum.
 
 Sipariş Bilgileri:
-• Ara Toplam: ${subtotal.toLocaleString("tr-TR")} ₺`
+• Ara Toplam: ${msgSubtotal.toLocaleString("tr-TR")} ₺`
 
-    if (ibanDiscount > 0 && appliedCoupon) {
-      whatsappMessage += `\n• İndirim (${appliedCoupon.code}): -${ibanDiscount.toLocaleString("tr-TR")} ₺`
+    if (msgDiscount > 0 && appliedCoupon) {
+      whatsappMessage += `\n• İndirim (${appliedCoupon.code}): -${msgDiscount.toLocaleString("tr-TR")} ₺`
     }
 
     whatsappMessage += `\n• Kargo: Ücretsiz
@@ -471,26 +445,14 @@ IBAN Bilgileri:
         console.log('[CHECKOUT] Billing address kullanılmıyor (useBillingAddress: false)')
       }
 
-      // Order oluştur
+      // Order oluştur (kupon sepette uygulu, backend cart'tan alır)
       console.log('[CHECKOUT] Order DTO oluşturuluyor...')
-
-      // Kupon indirimi hesapla
-      const orderSubtotal = items.reduce((total, item) => total + item.price * item.quantity, 0)
-      let orderDiscount = 0
-      if (appliedCoupon) {
-        if (appliedCoupon.type === 'percentage') {
-          orderDiscount = (orderSubtotal * appliedCoupon.discount) / 100
-        } else {
-          orderDiscount = appliedCoupon.discount
-        }
-      }
 
       const createOrderDto: CreateOrderDto = {
         cartId,
         shippingAddress,
         billingAddress,
         shippingCost: 0, // Ücretsiz kargo
-        discount: orderDiscount,
         notes: formData.notes || undefined,
       }
 
@@ -602,22 +564,11 @@ IBAN Bilgileri:
     )
   }
 
-  const subtotal = getTotalPrice()
   const shipping = 0
-
-  // Kupon indirimi hesapla
-  const calculateDiscount = () => {
-    if (!appliedCoupon) return 0
-
-    if (appliedCoupon.type === 'percentage') {
-      return (subtotal * appliedCoupon.discount) / 100
-    } else {
-      return appliedCoupon.discount
-    }
-  }
-
-  const discount = calculateDiscount()
-  const total = Math.max(0, subtotal - discount + shipping)
+  const subtotal = cartTotals?.subtotal ?? getTotalPrice()
+  const discount = cartTotals?.discountAmount ?? 0
+  const total = cartTotals?.total != null ? cartTotals.total : Math.max(0, subtotal - discount + shipping)
+  const appliedCoupon = cartTotals?.appliedCoupon ?? null
 
   return (
     <section className="py-12 bg-background min-h-screen">
