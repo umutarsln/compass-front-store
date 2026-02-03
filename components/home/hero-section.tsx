@@ -41,7 +41,7 @@ export function HeroSection() {
                 <br /> <b>Her lamba size özel, her ışık bir anı taşır.</b>
               </p>
             </motion.div>
-            
+
             {/* Alt İçerik - Butonlar */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
@@ -89,9 +89,9 @@ export function HeroSection() {
                 Anılarınızı Işığa Dönüştürün
               </h1>
               <p className="mt-6 text-lg text-white/90 max-w-lg leading-relaxed">
-              Fotoğraflarınızdan hazırlanan kişiye özel lambalarla,
-              <br /> en değerli anılarınızı sıcak bir ışıkla yeniden yaşatın.
-              <br /> Her lamba size özel, her ışık bir anı taşır.
+                Fotoğraflarınızdan hazırlanan kişiye özel lambalarla,
+                <br /> en değerli anılarınızı sıcak bir ışıkla yeniden yaşatın.
+                <br /> Her lamba size özel, her ışık bir anı taşır.
               </p>
               <div className="mt-10 flex flex-col sm:flex-row gap-4">
                 <Link
@@ -99,12 +99,6 @@ export function HeroSection() {
                   className="inline-flex items-center justify-center px-8 py-4 bg-white text-black font-medium text-sm uppercase tracking-wider hover:bg-white/90 transition-colors"
                 >
                   Ürünleri Keşfet
-                </Link>
-                <Link
-                  href="/nasil-calisir"
-                  className="inline-flex items-center justify-center px-8 py-4 border-2 border-white text-white font-medium text-sm uppercase tracking-wider hover:bg-white hover:text-black transition-colors"
-                >
-                  Nasıl Çalışır?
                 </Link>
               </div>
             </motion.div>

@@ -86,7 +86,7 @@ export function ValentineHero({
                     Hediyeleri Keşfet
                   </Link>
                   <Link
-                    href="/kategoriler/sevgiliye-ozel"
+                    href="/urunler"
                     className="inline-flex items-center justify-center px-6 py-3 border-2 border-white text-white font-medium text-xs uppercase tracking-wider hover:bg-white hover:text-black transition-colors rounded"
                   >
                     Tüm Ürünler
@@ -168,7 +168,7 @@ export function ValentineHero({
                   Hediyeleri Keşfet
                 </Link>
                 <Link
-                  href="/kategoriler/sevgiliye-ozel"
+                  href="/urunler"
                   className="inline-flex items-center justify-center px-8 py-4 border-2 border-white text-white font-medium text-sm uppercase tracking-wider hover:bg-white hover:text-black transition-colors"
                 >
                   Tüm Ürünler

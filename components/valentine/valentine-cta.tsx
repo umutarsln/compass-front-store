@@ -32,7 +32,7 @@ export function ValentineCTA() {
 
           <div className="mt-10 flex flex-col sm:flex-row gap-4 justify-center">
             <Link
-              href="/kategoriler/sevgiliye-ozel"
+              href="/urunler"
               className="inline-flex items-center justify-center px-10 py-4 bg-accent text-accent-foreground font-medium text-sm uppercase tracking-wider hover:bg-accent/90 transition-colors"
             >
               Hemen Sipariş Ver

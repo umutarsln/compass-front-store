@@ -90,7 +90,7 @@ export function ValentineProducts() {
 
         <div className="text-center mt-12">
           <Link
-            href="/kategoriler/sevgiliye-ozel"
+            href="/urunler"
             className="inline-flex items-center justify-center px-8 py-4 border border-foreground text-foreground font-medium text-sm uppercase tracking-wider hover:bg-foreground hover:text-background transition-colors"
           >
             Tüm Koleksiyonu Gör

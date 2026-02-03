@@ -7,12 +7,12 @@ import { Truck, Tag } from "lucide-react"
 const promotions = [
   {
     id: 1,
-    text: "3000 TL üstüne kargo bedava",
+    text: "Kargo Bedava",
     icon: Truck,
   },
   {
     id: 2,
-    text: "Tüm ürünlerde %20 indirim",
+    text: "Sevgililer Gününe Özel İndirim",
     icon: Tag,
   },
 ]

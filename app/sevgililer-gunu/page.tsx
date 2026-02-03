@@ -17,7 +17,7 @@ export default function ValentinesPage() {
       <main className="pt-26 md:pt-[108px]">
         <ValentineHero />
         <ValentineFeatures />
-        <ValentineProducts />
+        {/* <ValentineProducts /> */}
       </main>
       <Footer />
     </>
