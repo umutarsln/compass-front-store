@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useCallback, useMemo, useEffect } from "react"
+import { useState, useCallback, useMemo, useEffect, useRef } from "react"
 import { motion } from "framer-motion"
 import Image from "next/image"
 import Link from "next/link"
@@ -8,6 +8,7 @@ import { useRouter } from "next/navigation"
 import { Award, Shield, Clock, ChevronLeft, ChevronRight, ShoppingCart } from "lucide-react"
 import { useCart } from "@/contexts/cart-context"
 import type { ProductDetail as ProductDetailType } from "@/services/products"
+import { trackEvent, flushAnalytics } from "@/lib/analytics"
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
 import { Badge } from "@/components/ui/badge"
 import { PersonalizationFormRenderer } from "@/components/personalization/PersonalizationFormRenderer"
@@ -22,6 +23,47 @@ export function ProductDetail({ product }: ProductDetailProps) {
   const [isAddingToCart, setIsAddingToCart] = useState(false)
   const { addToCart } = useCart()
   const router = useRouter()
+  const openedAtRef = useRef<number>(Date.now())
+
+  useEffect(() => {
+    if (process.env.NODE_ENV === 'development') {
+      console.log('[Analytics][ProductDetail] PRODUCT_VIEW', { productId: product.productId, variantId: product.selectedCombination?.id ?? null })
+    }
+    trackEvent({
+      type: 'PRODUCT_VIEW',
+      productId: product.productId,
+      variantId: product.selectedCombination?.id ?? null,
+    })
+  }, [product.productId, product.selectedCombination?.id])
+
+  useEffect(() => {
+    const sendTime = () => {
+      const durationSeconds = Math.round((Date.now() - openedAtRef.current) / 1000)
+      if (durationSeconds > 0) {
+        if (process.env.NODE_ENV === 'development') {
+          console.log('[Analytics][ProductDetail] PRODUCT_TIME', { productId: product.productId, durationSeconds })
+        }
+        trackEvent({
+          type: 'PRODUCT_TIME',
+          productId: product.productId,
+          variantId: product.selectedCombination?.id ?? null,
+          durationSeconds,
+        })
+      }
+      flushAnalytics()
+    }
+    const onVisibilityChange = () => {
+      if (document.visibilityState === 'hidden') sendTime()
+    }
+    const onBeforeUnload = () => sendTime()
+    document.addEventListener('visibilitychange', onVisibilityChange)
+    window.addEventListener('beforeunload', onBeforeUnload)
+    return () => {
+      document.removeEventListener('visibilitychange', onVisibilityChange)
+      window.removeEventListener('beforeunload', onBeforeUnload)
+      sendTime()
+    }
+  }, [product.productId, product.selectedCombination?.id])
 
   // Görselleri hazırla
   const images = useMemo(() => {
@@ -161,10 +203,10 @@ export function ProductDetail({ product }: ProductDetailProps) {
         // 2. ÖNCE Cart ID'yi kontrol et ve yoksa oluştur (dosyalar doğru klasöre kaydedilsin)
         const { getCartId, setCartId } = await import('@/lib/cart-storage')
         const { cartService } = await import('@/services/cart.service')
-        
+
         let cartId = getCartId()
         console.log('[ProductDetail] Initial cart ID check', { cartId: cartId || 'not found' })
-        
+
         // Cart ID yoksa, önce cart oluştur (dosyalar doğru klasöre kaydedilsin)
         if (!cartId) {
           console.log('[ProductDetail] Cart ID not found, creating new cart before file upload...')
@@ -194,7 +236,7 @@ export function ProductDetail({ product }: ProductDetailProps) {
               })),
               cartId: cartId || 'not available',
             })
-            
+
             const { uploadPersonalizationFiles, preparePersonalizationData } = await import('@/utils/personalization.helper')
 
             // Dosyaları yükle (cart ID ile) - ASYNC olarak sırayla bekle

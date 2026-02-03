@@ -9,6 +9,7 @@ import {
   setCartData,
   clearCartData,
 } from "@/lib/cart-storage"
+import { trackEvent } from "@/lib/analytics"
 
 // Legacy interface for backward compatibility
 export interface CartItem {
@@ -306,6 +307,17 @@ export function CartProvider({ children }: { children: ReactNode }) {
         variantId: variantId || undefined,
         quantity: 1,
         personalization,
+      })
+
+      // Analytics: cart_add (frontend "eklendi" anı)
+      if (process.env.NODE_ENV === "development") {
+        console.log("[Analytics][CartContext] CART_ADD", { productId, variantId: variantId || undefined, quantity: 1 })
+      }
+      trackEvent({
+        type: "CART_ADD",
+        productId,
+        variantId: variantId || undefined,
+        quantity: 1,
       })
 
       // Sync cart to get updated state

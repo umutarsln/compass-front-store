@@ -9,6 +9,7 @@ import { Header } from "@/components/header"
 import { CartSidebar } from "@/components/cart-sidebar"
 import { Topbar } from "@/components/topbar"
 import { WhatsAppButton } from "@/components/whatsapp-button"
+import { AnalyticsPageView } from "@/components/analytics-page-view"
 import "./globals.css"
 
 const inter = Inter({ subsets: ["latin"] })
@@ -48,6 +49,7 @@ gtag('config', 'G-9WTD6QPS7W');`,
         <AuthProvider>
           <CartProvider>
             <FavoritesProvider>
+              <AnalyticsPageView />
               <Topbar />
               <Header />
               {children}
