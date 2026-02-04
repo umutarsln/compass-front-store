@@ -15,6 +15,8 @@ export interface CheckoutResponse {
   provider: PaymentProvider;
   redirectUrl: string;
   token?: string;
+  /** true ise tutar 0 (örn. %100 kupon), ödeme alınmadan sipariş ödendi; başarı sayfasına yönlendir */
+  paymentNotRequired?: boolean;
 }
 
 class PaymentService {

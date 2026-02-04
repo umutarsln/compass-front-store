@@ -251,6 +251,10 @@ IBAN Bilgileri:
 
       console.log('[CHECKOUT] IBAN EFT checkout response:', checkoutResponse)
 
+      if (checkoutResponse.paymentNotRequired) {
+        router.push(`/odeme/basarili?orderId=${createdOrder.id}`)
+        return
+      }
       // Başarılı sayfaya yönlendir (onay bekleniyor durumu ile)
       router.push(`/odeme/basarili?orderId=${createdOrder.id}&awaitingConfirmation=true`)
     } catch (error: any) {
@@ -519,7 +523,12 @@ IBAN Bilgileri:
         })
 
         console.log('[CHECKOUT] Checkout response alındı:', checkoutResponse)
-        console.log('[CHECKOUT] Redirect URL:', checkoutResponse.redirectUrl)
+        console.log('[CHECKOUT] Redirect URL:', checkoutResponse.redirectUrl, 'paymentNotRequired:', checkoutResponse.paymentNotRequired)
+
+        if (checkoutResponse.paymentNotRequired) {
+          router.push(`/odeme/basarili?orderId=${order.id}`)
+          return
+        }
 
         // Iyzico payment sayfasına yönlendir
         if (!checkoutResponse.redirectUrl) {
@@ -528,7 +537,6 @@ IBAN Bilgileri:
         }
 
         console.log('[CHECKOUT] Iyzico payment sayfasına yönlendiriliyor:', checkoutResponse.redirectUrl)
-        console.log('[CHECKOUT] İşlem başarıyla tamamlandı!')
 
         // Iyzico ödeme sayfasına yönlendir
         window.location.href = checkoutResponse.redirectUrl
