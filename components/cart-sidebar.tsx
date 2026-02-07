@@ -4,10 +4,158 @@ import { motion, AnimatePresence } from "framer-motion"
 import Image from "next/image"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { X, Plus, Minus, ShoppingBag, Trash2, LogOut } from "lucide-react"
+import { useState, useEffect } from "react"
+import { X, Plus, Minus, ShoppingBag, Trash2, LogOut, FileImage, Loader2 } from "lucide-react"
 import { useCart } from "@/contexts/cart-context"
 import { useAuth } from "@/contexts/auth-context"
 import { Spinner } from "@/components/ui/spinner"
+import { uploadService } from "@/services/upload.service"
+
+// Kişiselleştirme Önizleme Bileşeni
+function PersonalizationPreview({ personalization }: { personalization: any }) {
+  const { userValues, schemaSnapshot } = personalization
+  const [fileUrls, setFileUrls] = useState<Record<string, string>>({})
+  const [loadingFiles, setLoadingFiles] = useState<Record<string, boolean>>({})
+
+  const getFieldDefinition = (fieldKey: string) => {
+    return schemaSnapshot?.fields?.find((f: any) => f.key === fieldKey)
+  }
+
+  // Load file URLs
+  useEffect(() => {
+    const loadFileUrls = async () => {
+      const fileIds: string[] = []
+
+      Object.entries(userValues || {}).forEach(([fieldKey, value]) => {
+        const field = getFieldDefinition(fieldKey)
+        if (!field) return
+
+        const isFileField =
+          field.type === 'IMAGE_PICKER_SINGLE' ||
+          field.type === 'IMAGE_PICKER_MULTI' ||
+          field.type === 'FILE_UPLOAD_SINGLE' ||
+          field.type === 'FILE_UPLOAD_MULTI'
+
+        if (isFileField && value) {
+          const ids = Array.isArray(value) ? value : [value]
+          ids.forEach((id) => {
+            if (typeof id === 'string' && !id.startsWith('http')) {
+              const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
+              if (uuidRegex.test(id)) {
+                fileIds.push(id)
+              }
+            }
+          })
+        }
+      })
+
+      const uniqueFileIds = [...new Set(fileIds)]
+      if (uniqueFileIds.length === 0) return
+
+      setLoadingFiles((prev) => {
+        const newState = { ...prev }
+        uniqueFileIds.forEach((id) => {
+          newState[id] = true
+        })
+        return newState
+      })
+
+      try {
+        const urlPromises = uniqueFileIds.map(async (fileId) => {
+          try {
+            const upload = await uploadService.getUpload(fileId)
+            return { fileId, url: upload.url }
+          } catch (error) {
+            return { fileId, url: null }
+          }
+        })
+
+        const results = await Promise.all(urlPromises)
+        const urlMap: Record<string, string> = {}
+        results.forEach(({ fileId, url }) => {
+          if (url) {
+            urlMap[fileId] = url
+          }
+        })
+
+        setFileUrls((prev) => ({ ...prev, ...urlMap }))
+      } catch (error) {
+        console.error('Failed to load file URLs:', error)
+      } finally {
+        setLoadingFiles((prev) => {
+          const newState = { ...prev }
+          uniqueFileIds.forEach((id) => {
+            newState[id] = false
+          })
+          return newState
+        })
+      }
+    }
+
+    loadFileUrls()
+  }, [userValues, schemaSnapshot])
+
+  const getFileUrl = (fileId: string): string | null => {
+    if (typeof fileId === 'string' && fileId.startsWith('http')) {
+      return fileId
+    }
+    return fileUrls[fileId] || null
+  }
+
+  // Collect images and text descriptions
+  const images: string[] = []
+  const descriptions: string[] = []
+
+  Object.entries(userValues || {}).forEach(([fieldKey, value]) => {
+    const field = getFieldDefinition(fieldKey)
+    if (!field || !value) return
+
+    const isImageField = field.type === 'IMAGE_PICKER_SINGLE' || field.type === 'IMAGE_PICKER_MULTI'
+    const isFileField = isImageField || field.type === 'FILE_UPLOAD_SINGLE' || field.type === 'FILE_UPLOAD_MULTI'
+
+    if (isImageField && value) {
+      const ids = Array.isArray(value) ? value : [value]
+      ids.forEach((id) => {
+        const url = getFileUrl(id)
+        if (url) images.push(url)
+      })
+    } else if (field.type === 'TEXT' || field.type === 'TEXTAREA') {
+      const textValue = String(value)
+      if (textValue) descriptions.push(`${field.title}: ${textValue}`)
+    }
+  })
+
+  if (images.length === 0 && descriptions.length === 0) return null
+
+  return (
+    <div className="mt-2 space-y-1.5">
+      {/* Görseller */}
+      {images.length > 0 && (
+        <div className="flex gap-1.5 flex-wrap">
+          {images.map((url, idx) => (
+            <div key={idx} className="relative w-8 h-8 md:w-10 md:h-10 rounded border border-border overflow-hidden bg-secondary shrink-0">
+              <img
+                src={url}
+                alt={`Kişiselleştirme ${idx + 1}`}
+                className="w-full h-full object-cover"
+              />
+            </div>
+          ))}
+        </div>
+      )}
+      {/* Açıklamalar */}
+      {descriptions.length > 0 && (
+        <div className="space-y-0.5">
+          {descriptions.map((desc, idx) => (
+            <p key={idx} className="text-[10px] md:text-xs text-muted-foreground truncate">
+              {desc}
+            </p>
+          ))}
+        </div>
+      )}
+    </div>
+  )
+}
 
 export function CartSidebar() {
   const pathname = usePathname()
@@ -134,7 +282,7 @@ export function CartSidebar() {
                           />
                         </div>
                         <div className="flex-1 min-w-0">
-                          <h3 className="text-xs md:text-sm font-medium text-foreground truncate">{item.name}</h3>
+                          <h3 className="text-xs md:text-sm font-medium text-foreground break-words">{item.name}</h3>
                           {item.variantValues && item.variantValues.length > 0 ? (
                             <div className="text-[10px] md:text-xs text-muted-foreground mt-1 space-y-0.5">
                               {item.variantValues.map((vv) => (
@@ -143,18 +291,20 @@ export function CartSidebar() {
                                   {vv.variantOption?.type === 'COLOR' && vv.colorCode ? (
                                     <div className="flex items-center gap-1">
                                       <div
-                                        className="w-2.5 h-2.5 md:w-3 md:h-3 rounded-full border border-border/50"
+                                        className="w-2.5 h-2.5 md:w-3 md:h-3 rounded-full border border-border/50 shrink-0"
                                         style={{ backgroundColor: vv.colorCode }}
                                       />
-                                      <span>{vv.value}</span>
+                                      <span className="truncate">{vv.value}</span>
                                     </div>
                                   ) : (
-                                    <span>{vv.value}</span>
+                                    <span className="truncate">{vv.value}</span>
                                   )}
                                 </div>
                               ))}
                             </div>
                           ) : null}
+                          {/* Kişiselleştirme Önizlemesi */}
+                          {item.personalization && <PersonalizationPreview personalization={item.personalization} />}
                           <p className="text-xs md:text-sm font-medium text-foreground mt-1">
                             {item.price.toLocaleString("tr-TR")} ₺
                           </p>

@@ -349,8 +349,13 @@ export function ProductDetail({ product }: ProductDetailProps) {
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        {/* Sol Taraf - Görseller */}
-        <div className="space-y-4">
+        {/* Mobilde: Title ilk sırada (order-1) */}
+        <div className="lg:hidden order-1">
+          <h1 className="text-2xl sm:text-3xl font-serif font-bold text-foreground leading-tight mb-2">{product.name}</h1>
+        </div>
+
+        {/* Mobilde: Görseller ikinci sırada (order-2), Desktop'ta sol tarafta (order-1) */}
+        <div className="lg:order-1 order-2 space-y-4">
           <div className="relative aspect-square bg-muted rounded-lg overflow-hidden">
             <Image
               src={images[selectedImage]}
@@ -397,23 +402,24 @@ export function ProductDetail({ product }: ProductDetailProps) {
               ))}
             </div>
           )}
-          {/* Mobil Ürünler Butonu */}
-          <Link
-            href="/urunler"
-            className="lg:hidden w-full py-4 border-2 border-foreground text-foreground font-medium text-sm uppercase tracking-wider hover:bg-foreground hover:text-background transition-colors flex items-center justify-center rounded-lg mt-4"
-          >
-            Ürünleri Keşfet
-          </Link>
         </div>
 
-        {/* Sağ Taraf - Ürün Bilgileri */}
-        <div className="space-y-6">
-          <div>
+        {/* Mobilde: Subtitle üçüncü sırada (order-3), Desktop'ta sağ tarafta (order-2) */}
+        <div className="lg:order-2 order-3 space-y-6 lg:space-y-6">
+          {/* Desktop'ta: Title burada */}
+          <div className="hidden lg:block">
             <h1 className="text-3xl sm:text-4xl font-serif font-bold text-foreground leading-tight mb-2">{product.name}</h1>
             {product.subtitle && (
               <p className="mt-2 text-sm text-muted-foreground">{product.subtitle}</p>
             )}
           </div>
+
+          {/* Mobilde: Subtitle görsellerden sonra */}
+          {product.subtitle && (
+            <div className="lg:hidden">
+              <p className="text-sm text-muted-foreground">{product.subtitle}</p>
+            </div>
+          )}
 
           <div className="flex items-center gap-4">
             {(() => {
@@ -523,36 +529,28 @@ export function ProductDetail({ product }: ProductDetailProps) {
           )}
 
           {/* Sepete Ekle Butonu */}
-          <div className="flex gap-4">
-            {(() => {
-              const canAddToCart = product.type === 'SIMPLE' || currentCombination
-              return (
-                <button
-                  onClick={handleAddToCart}
-                  disabled={isAddingToCart || !canAddToCart}
-                  className="flex-1 py-4 bg-primary text-primary-foreground font-medium text-sm uppercase tracking-wider hover:bg-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 rounded-lg"
-                >
-                  {isAddingToCart ? (
-                    <>
-                      <div className="w-4 h-4 border-2 border-primary-foreground border-t-transparent rounded-full animate-spin" />
-                      Ekleniyor...
-                    </>
-                  ) : (
-                    <>
-                      <ShoppingCart className="w-4 h-4" />
-                      Sepete Ekle
-                    </>
-                  )}
-                </button>
-              )
-            })()}
-            <Link
-              href="/sepet"
-              className="px-6 py-4 border-2 border-foreground text-foreground font-medium text-sm uppercase tracking-wider hover:bg-foreground hover:text-background transition-colors flex items-center justify-center rounded-lg"
-            >
-              Sepete Git
-            </Link>
-          </div>
+          {(() => {
+            const canAddToCart = product.type === 'SIMPLE' || currentCombination
+            return (
+              <button
+                onClick={handleAddToCart}
+                disabled={isAddingToCart || !canAddToCart}
+                className="w-full py-4 bg-primary text-primary-foreground font-medium text-sm uppercase tracking-wider hover:bg-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 rounded-lg"
+              >
+                {isAddingToCart ? (
+                  <>
+                    <div className="w-4 h-4 border-2 border-primary-foreground border-t-transparent rounded-full animate-spin" />
+                    Ekleniyor...
+                  </>
+                ) : (
+                  <>
+                    <ShoppingCart className="w-4 h-4" />
+                    Sepete Ekle
+                  </>
+                )}
+              </button>
+            )
+          })()}
 
           {/* Ürün Özellikleri */}
           <div className="grid grid-cols-3 gap-4 pt-6 border-t">

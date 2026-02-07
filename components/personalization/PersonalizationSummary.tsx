@@ -155,8 +155,8 @@ export function PersonalizationSummary({
         if (isLoadingSingle) {
           return (
             <div className="mt-2 flex items-center gap-2">
-              <Loader2 className="w-4 h-4 animate-spin text-muted-foreground" />
-              <span className="text-sm text-muted-foreground">Yükleniyor...</span>
+              <Loader2 className="w-3.5 h-3.5 sm:w-4 sm:h-4 animate-spin text-muted-foreground shrink-0" />
+              <span className="text-xs sm:text-sm text-muted-foreground">Yükleniyor...</span>
             </div>
           )
         }
@@ -164,24 +164,23 @@ export function PersonalizationSummary({
         if (singleUrl) {
           const isImage = field.type.includes('IMAGE')
           return (
-            <div className="mt-2">
+            <div className="mt-2 overflow-hidden">
               {isImage ? (
-                <div className="h-24 inline-block">
+                <div className="inline-block max-w-full overflow-hidden">
                   <img
                     src={singleUrl}
                     alt={field.title}
-                    className="rounded-lg object-contain h-24 w-auto max-w-full"
-                    style={{ height: '96px', width: 'auto' }}
+                    className="rounded-lg object-contain max-h-20 sm:max-h-24 w-auto max-w-full"
                   />
                 </div>
               ) : (
-                <div className="flex items-center gap-2 p-2 border rounded-lg">
-                  <FileImage className="w-5 h-5 text-muted-foreground" />
+                <div className="flex items-center gap-2 p-2 border rounded-lg overflow-hidden">
+                  <FileImage className="w-4 h-4 sm:w-5 sm:h-5 text-muted-foreground shrink-0" />
                   <a
                     href={singleUrl}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-sm text-primary hover:underline"
+                    className="text-xs sm:text-sm text-primary hover:underline truncate flex-1 min-w-0"
                   >
                     Dosyayı Görüntüle
                   </a>
@@ -190,7 +189,7 @@ export function PersonalizationSummary({
             </div>
           )
         }
-        return <span className="text-sm text-muted-foreground">Dosya yüklendi</span>
+        return <span className="text-xs sm:text-sm text-muted-foreground">Dosya yüklendi</span>
 
       case "IMAGE_PICKER_MULTI":
       case "FILE_UPLOAD_MULTI":
@@ -203,34 +202,33 @@ export function PersonalizationSummary({
           if (hasLoading) {
             return (
               <div className="mt-2 flex items-center gap-2">
-                <Loader2 className="w-4 h-4 animate-spin text-muted-foreground" />
-                <span className="text-sm text-muted-foreground">Yükleniyor...</span>
+                <Loader2 className="w-3.5 h-3.5 sm:w-4 sm:h-4 animate-spin text-muted-foreground shrink-0" />
+                <span className="text-xs sm:text-sm text-muted-foreground">Yükleniyor...</span>
               </div>
             )
           }
 
           return (
-            <div className="mt-2 flex gap-2 flex-wrap">
+            <div className="mt-2 flex gap-2 flex-wrap overflow-hidden">
               {value.map((fileId, idx) => {
                 const url = getFileUrl(fileId)
                 return (
-                  <div key={idx} className="h-20 inline-block">
+                  <div key={idx} className="h-16 sm:h-20 inline-block max-w-full shrink-0">
                     {url ? (
                       isImage ? (
                         <img
                           src={url}
                           alt={`${field.title} ${idx + 1}`}
-                          className="rounded-lg object-contain h-20 w-auto max-w-full"
-                          style={{ height: '80px', width: 'auto' }}
+                          className="rounded-lg object-contain max-h-16 sm:max-h-20 w-auto max-w-full"
                         />
                       ) : (
-                        <div className="h-20 w-20 border rounded-lg flex items-center justify-center bg-muted">
-                          <FileImage className="w-8 h-8 text-muted-foreground" />
+                        <div className="h-16 w-16 sm:h-20 sm:w-20 border rounded-lg flex items-center justify-center bg-muted">
+                          <FileImage className="w-6 h-6 sm:w-8 sm:h-8 text-muted-foreground" />
                         </div>
                       )
                     ) : (
-                      <div className="h-20 w-20 border rounded-lg flex items-center justify-center bg-muted">
-                        <FileImage className="w-8 h-8 text-muted-foreground" />
+                      <div className="h-16 w-16 sm:h-20 sm:w-20 border rounded-lg flex items-center justify-center bg-muted">
+                        <FileImage className="w-6 h-6 sm:w-8 sm:h-8 text-muted-foreground" />
                       </div>
                     )}
                   </div>
@@ -239,23 +237,23 @@ export function PersonalizationSummary({
             </div>
           )
         }
-        return <span className="text-sm text-muted-foreground">Dosyalar yüklendi</span>
+        return <span className="text-xs sm:text-sm text-muted-foreground">Dosyalar yüklendi</span>
 
       case "COLOR_PICKER":
         return (
-          <div className="flex items-center gap-2 mt-2">
+          <div className="flex items-center gap-2 mt-2 overflow-hidden">
             <div
-              className="w-6 h-6 rounded-full border border-border"
+              className="w-5 h-5 sm:w-6 sm:h-6 rounded-full border border-border shrink-0"
               style={{ backgroundColor: value }}
             />
-            <span className="text-sm">{value}</span>
+            <span className="text-xs sm:text-sm truncate flex-1 min-w-0">{value}</span>
           </div>
         )
 
       case "CHECKBOX":
       case "TOGGLE":
         return (
-          <Badge variant={value ? "default" : "secondary"} className="mt-2">
+          <Badge variant={value ? "default" : "secondary"} className="mt-2 text-xs">
             {value ? "Evet" : "Hayır"}
           </Badge>
         )
@@ -263,59 +261,59 @@ export function PersonalizationSummary({
       case "MULTISELECT":
         if (Array.isArray(value)) {
           return (
-            <div className="mt-2 flex flex-wrap gap-2">
+            <div className="mt-2 flex flex-wrap gap-1.5 sm:gap-2">
               {value.map((v, idx) => (
-                <Badge key={idx} variant="outline">
-                  {v}
+                <Badge key={idx} variant="outline" className="text-xs">
+                  <span className="break-words">{v}</span>
                 </Badge>
               ))}
             </div>
           )
         }
-        return String(value)
+        return <span className="text-xs sm:text-sm break-words">{String(value)}</span>
 
       case "DIMENSIONS":
         if (typeof value === "object" && value !== null) {
           return (
-            <div className="mt-2 text-sm">
+            <div className="mt-2 text-xs sm:text-sm flex flex-wrap gap-2 sm:gap-4">
               {value.width && <span>Genişlik: {value.width}cm</span>}
-              {value.height && <span className="ml-4">Yükseklik: {value.height}cm</span>}
-              {value.depth && <span className="ml-4">Derinlik: {value.depth}cm</span>}
+              {value.height && <span>Yükseklik: {value.height}cm</span>}
+              {value.depth && <span>Derinlik: {value.depth}cm</span>}
             </div>
           )
         }
-        return String(value)
+        return <span className="text-xs sm:text-sm break-words">{String(value)}</span>
 
       default:
-        return <span className="text-sm">{String(value)}</span>
+        return <span className="text-xs sm:text-sm break-words">{String(value)}</span>
     }
   }
 
   return (
-    <Card className="mt-4">
-      <CardHeader>
-        <CardTitle className="text-base">Kişiselleştirme</CardTitle>
+    <Card className="mt-0 sm:mt-0 overflow-hidden w-full max-w-full mx-auto">
+      <CardHeader className="p-3 sm:p-6">
+        <CardTitle className="text-sm sm:text-base">Kişiselleştirme</CardTitle>
       </CardHeader>
-      <CardContent className="space-y-4">
+      <CardContent className="p-3 sm:p-6 pt-0 space-y-3 sm:space-y-4">
         {/* Form Info */}
-        <div className="text-sm text-muted-foreground">
-          <span className="font-medium">{form.title}</span>
+        <div className="text-xs sm:text-sm text-muted-foreground">
+          <span className="font-medium break-words">{form.title}</span>
         </div>
 
         {/* User Values */}
         {Object.keys(userValues).length > 0 && (
-          <div className="space-y-3">
+          <div className="space-y-2 sm:space-y-3">
             {Object.entries(userValues).map(([fieldKey, value]) => {
               const field = getFieldDefinition(fieldKey)
               if (!field || (value === null || value === undefined || value === "")) return null
 
               return (
-                <div key={fieldKey} className="border-b pb-3 last:border-0">
-                  <div className="text-sm font-medium text-foreground">{field.title}</div>
+                <div key={fieldKey} className="border-b pb-2 sm:pb-3 last:border-0 overflow-hidden">
+                  <div className="text-xs sm:text-sm font-medium text-foreground break-words">{field.title}</div>
                   {field.subtitle && (
-                    <div className="text-xs text-muted-foreground mb-1">{field.subtitle}</div>
+                    <div className="text-xs text-muted-foreground mb-1 break-words">{field.subtitle}</div>
                   )}
-                  <div className="mt-1">{renderFieldValue(fieldKey, value)}</div>
+                  <div className="mt-1 overflow-hidden">{renderFieldValue(fieldKey, value)}</div>
                 </div>
               )
             })}
@@ -324,23 +322,23 @@ export function PersonalizationSummary({
 
         {/* Pricing Breakdown */}
         {pricingBreakdown.length > 0 && (
-          <div className="pt-4 border-t">
-            <h4 className="text-sm font-medium text-foreground mb-2">
+          <div className="pt-3 sm:pt-4 border-t">
+            <h4 className="text-xs sm:text-sm font-medium text-foreground mb-2">
               Kişiselleştirme Fiyatlandırması
             </h4>
             <div className="space-y-1">
               {pricingBreakdown.map((item) => (
-                <div key={item.fieldKey} className="flex justify-between text-sm">
-                  <span className="text-muted-foreground">{item.fieldTitle}:</span>
-                  <span className="font-medium">
+                <div key={item.fieldKey} className="flex justify-between text-xs sm:text-sm gap-2">
+                  <span className="text-muted-foreground truncate flex-1 min-w-0">{item.fieldTitle}:</span>
+                  <span className="font-medium shrink-0">
                     +{item.amount.toLocaleString("tr-TR")} ₺
                   </span>
                 </div>
               ))}
             </div>
-            <div className="mt-3 pt-3 border-t flex justify-between text-sm font-semibold">
-              <span>Toplam Kişiselleştirme:</span>
-              <span>+{totalPersonalizationAmount.toLocaleString("tr-TR")} ₺</span>
+            <div className="mt-2 sm:mt-3 pt-2 sm:pt-3 border-t flex justify-between text-xs sm:text-sm font-semibold gap-2">
+              <span className="truncate flex-1 min-w-0">Toplam Kişiselleştirme:</span>
+              <span className="shrink-0">+{totalPersonalizationAmount.toLocaleString("tr-TR")} ₺</span>
             </div>
           </div>
         )}

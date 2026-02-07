@@ -103,15 +103,15 @@ export function CartContent() {
   // Loading state - show skeleton
   if (isLoading) {
     return (
-      <section className="py-12 bg-background min-h-screen">
-        <div className="mx-auto max-w-7xl px-6 lg:px-8">
+      <section className="py-12 bg-background min-h-screen overflow-x-hidden">
+        <div className="mx-auto max-w-7xl px-4 lg:px-8">
           <Skeleton className="h-10 w-48 mb-8" />
           <div className="grid lg:grid-cols-3 gap-8">
             {/* Sepet Ürünleri Skeleton */}
             <div className="lg:col-span-2 space-y-4">
               {[...Array(3)].map((_, i) => (
-                <div key={i} className="flex gap-4 p-4 border border-border bg-background">
-                  <Skeleton className="w-24 h-24 shrink-0" />
+                <div key={i} className="flex gap-3 sm:gap-4 p-3 sm:p-4 border border-border bg-background">
+                  <Skeleton className="w-20 h-20 sm:w-24 sm:h-24 shrink-0" />
                   <div className="flex-1 space-y-3">
                     <Skeleton className="h-5 w-3/4" />
                     <Skeleton className="h-4 w-1/2" />
@@ -167,8 +167,8 @@ export function CartContent() {
   // Empty state - show empty message
   if (items.length === 0) {
     return (
-      <section className="py-24 bg-background min-h-screen">
-        <div className="mx-auto max-w-7xl px-6 lg:px-8">
+      <section className="py-24 bg-background min-h-screen overflow-x-hidden">
+        <div className="mx-auto max-w-7xl px-4 lg:px-8 w-full">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -191,8 +191,8 @@ export function CartContent() {
   }
 
   return (
-    <section className="py-12 bg-background min-h-screen">
-      <div className="mx-auto max-w-7xl px-6 lg:px-8">
+    <section className="py-12 bg-background min-h-screen overflow-x-hidden">
+      <div className="mx-auto max-w-7xl px-4 lg:px-8 w-full">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -200,17 +200,17 @@ export function CartContent() {
         >
           <h1 className="font-serif text-3xl sm:text-4xl text-foreground mb-8">Sepetim</h1>
 
-          <div className="grid lg:grid-cols-3 gap-8">
+          <div className="grid lg:grid-cols-3 gap-6 lg:gap-8 w-full">
             {/* Sepet Ürünleri */}
-            <div className="lg:col-span-2 space-y-4">
+            <div className="lg:col-span-2 space-y-4 w-full min-w-0">
               {items.map((item) => (
                 <motion.div
                   key={item.id}
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
-                  className="flex gap-4 p-4 border border-border bg-background"
+                  className="flex gap-3 sm:gap-4 p-3 sm:p-4 border border-border bg-background w-full max-w-full overflow-hidden"
                 >
-                  <div className="relative w-24 h-24 flex-shrink-0">
+                  <div className="relative w-20 h-20 sm:w-24 sm:h-24 flex-shrink-0">
                     <Image
                       src={item.image || "/placeholders/placeholder.svg"}
                       alt={item.name}
@@ -218,23 +218,23 @@ export function CartContent() {
                       className="object-cover"
                     />
                   </div>
-                  <div className="flex-1">
-                    <h3 className="font-medium text-foreground">{item.name}</h3>
+                  <div className="flex-1 min-w-0">
+                    <h3 className="font-medium text-sm sm:text-base text-foreground break-words">{item.name}</h3>
                     {item.variantValues && item.variantValues.length > 0 ? (
-                      <div className="text-sm text-muted-foreground mt-1 space-y-1">
+                      <div className="text-xs sm:text-sm text-muted-foreground mt-1 space-y-0.5 sm:space-y-1">
                         {item.variantValues.map((vv) => (
-                          <div key={vv.id} className="flex items-center gap-2">
+                          <div key={vv.id} className="flex items-center gap-1.5 sm:gap-2">
                             <span className="font-medium">{vv.variantOption?.name || 'Seçenek'}:</span>
                             {vv.variantOption?.type === 'COLOR' && vv.colorCode ? (
-                              <div className="flex items-center gap-2">
+                              <div className="flex items-center gap-1.5 sm:gap-2">
                                 <div
-                                  className="w-4 h-4 rounded-full border border-border"
+                                  className="w-3 h-3 sm:w-4 sm:h-4 rounded-full border border-border shrink-0"
                                   style={{ backgroundColor: vv.colorCode }}
                                 />
-                                <span>{vv.value}</span>
+                                <span className="truncate">{vv.value}</span>
                               </div>
                             ) : (
-                              <span>{vv.value}</span>
+                              <span className="truncate">{vv.value}</span>
                             )}
                           </div>
                         ))}
@@ -242,9 +242,9 @@ export function CartContent() {
                     ) : null}
                     {/* Personalization Summary */}
                     {item.personalization && (
-                      <div className="mt-4">
-                        <div className="flex items-center justify-between mb-2">
-                          <span className="text-sm font-medium text-foreground">Kişiselleştirme</span>
+                      <div className="mt-3 sm:mt-4 w-full overflow-hidden -mx-3 sm:-mx-4 px-3 sm:px-4">
+                        <div className="flex items-center justify-between mb-2 gap-2 px-0">
+                          <span className="text-xs sm:text-sm font-medium text-foreground truncate flex-1 min-w-0">Kişiselleştirme</span>
                           <Button
                             variant="outline"
                             size="sm"
@@ -268,46 +268,48 @@ export function CartContent() {
                               }
                             }}
                             disabled={isLoadingProduct || isUpdatingItem(item.productId || item.id, item.variantId || null)}
-                            className="h-7 text-xs"
+                            className="h-6 sm:h-7 text-xs shrink-0"
                           >
                             <Edit className="w-3 h-3 mr-1" />
-                            Düzenle
+                            <span className="hidden sm:inline">Düzenle</span>
                           </Button>
                         </div>
-                        <PersonalizationSummary personalization={item.personalization} readOnly />
+                        <div className="overflow-hidden w-full">
+                          <PersonalizationSummary personalization={item.personalization} readOnly />
+                        </div>
                       </div>
                     )}
-                    <div className="flex items-center justify-between mt-4">
-                      <div className="flex items-center gap-2">
+                    <div className="flex items-center justify-between mt-3 sm:mt-4 gap-2">
+                      <div className="flex items-center gap-1.5 sm:gap-2">
                         <button
                           onClick={() => updateQuantity(item.productId || item.id, item.variantId || null, item.quantity - 1)}
                           disabled={isUpdatingItem(item.productId || item.id, item.variantId || null) || isRemovingItem(item.productId || item.id, item.variantId || null)}
-                          className="w-8 h-8 flex items-center justify-center border border-border hover:bg-secondary transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                          className="w-7 h-7 sm:w-8 sm:h-8 flex items-center justify-center border border-border hover:bg-secondary transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                         >
                           {isUpdatingItem(item.productId || item.id, item.variantId || null) ? (
-                            <Spinner className="w-4 h-4" />
+                            <Spinner className="w-3 h-3 sm:w-4 sm:h-4" />
                           ) : (
-                            <Minus className="w-4 h-4" />
+                            <Minus className="w-3 h-3 sm:w-4 sm:h-4" />
                           )}
                         </button>
-                        <span className="w-8 text-center text-sm font-medium">{item.quantity}</span>
+                        <span className="w-6 sm:w-8 text-center text-xs sm:text-sm font-medium">{item.quantity}</span>
                         <button
                           onClick={() => updateQuantity(item.productId || item.id, item.variantId || null, item.quantity + 1)}
                           disabled={isUpdatingItem(item.productId || item.id, item.variantId || null) || isRemovingItem(item.productId || item.id, item.variantId || null)}
-                          className="w-8 h-8 flex items-center justify-center border border-border hover:bg-secondary transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                          className="w-7 h-7 sm:w-8 sm:h-8 flex items-center justify-center border border-border hover:bg-secondary transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                         >
                           {isUpdatingItem(item.productId || item.id, item.variantId || null) ? (
-                            <Spinner className="w-4 h-4" />
+                            <Spinner className="w-3 h-3 sm:w-4 sm:h-4" />
                           ) : (
-                            <Plus className="w-4 h-4" />
+                            <Plus className="w-3 h-3 sm:w-4 sm:h-4" />
                           )}
                         </button>
                       </div>
-                      <div className="flex items-center gap-4">
+                      <div className="flex items-center gap-2 sm:gap-4">
                         <div className="flex flex-col items-end">
                           {item.discountedPrice && item.basePrice && item.discountedPrice < item.basePrice ? (
                             <>
-                              <p className="text-sm font-medium text-foreground">
+                              <p className="text-xs sm:text-sm font-medium text-foreground">
                                 {(item.discountedPrice * item.quantity).toLocaleString("tr-TR")} ₺
                               </p>
                               <p className="text-xs text-muted-foreground line-through">
@@ -315,7 +317,7 @@ export function CartContent() {
                               </p>
                             </>
                           ) : (
-                            <p className="text-sm font-medium text-foreground">
+                            <p className="text-xs sm:text-sm font-medium text-foreground">
                               {((item.basePrice || item.price) * item.quantity).toLocaleString("tr-TR")} ₺
                             </p>
                           )}
@@ -323,13 +325,13 @@ export function CartContent() {
                         <button
                           onClick={() => removeFromCart(item.productId || item.id, item.variantId || null)}
                           disabled={isRemovingItem(item.productId || item.id, item.variantId || null) || isUpdatingItem(item.productId || item.id, item.variantId || null)}
-                          className="p-2 text-muted-foreground hover:text-foreground transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                          className="p-1.5 sm:p-2 text-muted-foreground hover:text-foreground transition-colors disabled:opacity-50 disabled:cursor-not-allowed shrink-0"
                           aria-label="Ürünü kaldır"
                         >
                           {isRemovingItem(item.productId || item.id, item.variantId || null) ? (
-                            <Spinner className="w-4 h-4" />
+                            <Spinner className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                           ) : (
-                            <Trash2 className="w-4 h-4" />
+                            <Trash2 className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                           )}
                         </button>
                       </div>
@@ -340,38 +342,38 @@ export function CartContent() {
             </div>
 
             {/* Sipariş Özeti */}
-            <div className="lg:col-span-1">
-              <div className="sticky top-24 p-6 border border-border bg-background">
-                <h2 className="font-serif text-xl text-foreground mb-6">Sipariş Özeti</h2>
-                <div className="space-y-4 mb-6">
-                  <div className="flex justify-between text-sm">
+            <div className="lg:col-span-1 w-full min-w-0">
+              <div className="lg:sticky lg:top-24 p-4 sm:p-6 border border-border bg-background w-full max-w-full overflow-hidden">
+                <h2 className="font-serif text-lg sm:text-xl text-foreground mb-4 sm:mb-6">Sipariş Özeti</h2>
+                <div className="space-y-3 sm:space-y-4 mb-4 sm:mb-6">
+                  <div className="flex justify-between text-xs sm:text-sm">
                     <span className="text-muted-foreground">Toplam Ürün</span>
                     <span className="text-foreground">{getTotalItems()} adet</span>
                   </div>
-                  <div className="flex justify-between text-sm">
+                  <div className="flex justify-between text-xs sm:text-sm">
                     <span className="text-muted-foreground">Ara Toplam</span>
                     <span className="text-foreground">{subtotal.toLocaleString("tr-TR")} ₺</span>
                   </div>
                   {appliedCoupon && discountAmount > 0 && (
-                    <div className="flex justify-between text-sm">
+                    <div className="flex justify-between text-xs sm:text-sm">
                       <span className="text-muted-foreground">İndirim ({appliedCoupon.code})</span>
                       <span className="text-green-600 font-medium">-{discountAmount.toLocaleString("tr-TR")} ₺</span>
                     </div>
                   )}
-                  <div className="flex justify-between text-sm">
+                  <div className="flex justify-between text-xs sm:text-sm">
                     <span className="text-muted-foreground">Kargo</span>
                     <span className="text-foreground">Ücretsiz</span>
                   </div>
-                  <div className="border-t border-border pt-4">
+                  <div className="border-t border-border pt-3 sm:pt-4">
                     <div className="flex justify-between">
-                      <span className="font-medium text-foreground">Toplam</span>
+                      <span className="font-medium text-sm sm:text-base text-foreground">Toplam</span>
                       <div className="flex flex-col items-end">
                         {appliedCoupon && discountAmount > 0 && (
-                          <span className="text-xs text-muted-foreground line-through mb-1">
+                          <span className="text-xs text-muted-foreground line-through mb-0.5 sm:mb-1">
                             {subtotal.toLocaleString("tr-TR")} ₺
                           </span>
                         )}
-                        <span className="font-medium text-foreground text-lg">
+                        <span className="font-medium text-foreground text-base sm:text-lg">
                           {finalTotal.toLocaleString("tr-TR")} ₺
                         </span>
                       </div>
@@ -386,9 +388,9 @@ export function CartContent() {
                       {!isCouponInputOpen ? (
                         <button
                           onClick={() => setIsCouponInputOpen(true)}
-                          className="w-full flex items-center justify-center gap-2 py-2.5 text-sm text-foreground border border-border hover:bg-secondary transition-colors"
+                          className="w-full flex items-center justify-center gap-2 py-2 sm:py-2.5 text-xs sm:text-sm text-foreground border border-border hover:bg-secondary transition-colors"
                         >
-                          <Tag className="w-4 h-4" />
+                          <Tag className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                           Kupon Kodu Kullan
                         </button>
                       ) : (
@@ -399,7 +401,7 @@ export function CartContent() {
                           transition={{ duration: 0.3 }}
                           className="space-y-2"
                         >
-                          <div className="flex gap-2">
+                          <div className="flex gap-1.5 sm:gap-2">
                             <input
                               type="text"
                               value={couponCode}
@@ -411,15 +413,15 @@ export function CartContent() {
                                 if (e.key === 'Enter') handleApplyCoupon()
                               }}
                               placeholder="Kupon kodunu girin"
-                              className="flex-1 px-3 py-2 text-sm border border-border bg-background focus:border-foreground focus:outline-none transition-colors"
+                              className="flex-1 px-2.5 sm:px-3 py-1.5 sm:py-2 text-xs sm:text-sm border border-border bg-background focus:border-foreground focus:outline-none transition-colors"
                               autoFocus
                             />
                             <button
                               onClick={handleApplyCoupon}
                               disabled={applyingCoupon}
-                              className="px-4 py-2 bg-primary text-primary-foreground text-sm font-medium hover:bg-primary/90 transition-colors disabled:opacity-50"
+                              className="px-3 sm:px-4 py-1.5 sm:py-2 bg-primary text-primary-foreground text-xs sm:text-sm font-medium hover:bg-primary/90 transition-colors disabled:opacity-50 shrink-0"
                             >
-                              {applyingCoupon ? <Spinner className="w-4 h-4" /> : "Uygula"}
+                              {applyingCoupon ? <Spinner className="w-3.5 h-3.5 sm:w-4 sm:h-4" /> : "Uygula"}
                             </button>
                             <button
                               onClick={() => {
@@ -427,9 +429,9 @@ export function CartContent() {
                                 setCouponCode("")
                                 setCouponError(null)
                               }}
-                              className="px-3 py-2 border border-border hover:bg-secondary transition-colors"
+                              className="px-2 sm:px-3 py-1.5 sm:py-2 border border-border hover:bg-secondary transition-colors shrink-0"
                             >
-                              <X className="w-4 h-4" />
+                              <X className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                             </button>
                           </div>
                           {couponError && (
@@ -536,7 +538,7 @@ export function CartContent() {
                       window.location.href = isAuthenticated ? "/odeme" : "/odeme-auth"
                     }
                   }}
-                  className={`block w-full py-4 font-medium text-sm uppercase tracking-wider text-center transition-colors ${kvkkAccepted && mesafeliSatisAccepted
+                  className={`block w-full py-3 sm:py-4 font-medium text-xs sm:text-sm uppercase tracking-wider text-center transition-colors ${kvkkAccepted && mesafeliSatisAccepted
                     ? "bg-primary text-primary-foreground hover:bg-primary/90 cursor-pointer"
                     : "bg-muted text-muted-foreground cursor-pointer hover:bg-muted/80"
                     }`}
@@ -545,7 +547,7 @@ export function CartContent() {
                 </button>
                 <Link
                   href="/urunler"
-                  className="block w-full mt-3 py-4 border border-foreground text-foreground font-medium text-sm uppercase tracking-wider hover:bg-foreground hover:text-background transition-colors text-center"
+                  className="block w-full mt-2 sm:mt-3 py-3 sm:py-4 border border-foreground text-foreground font-medium text-xs sm:text-sm uppercase tracking-wider hover:bg-foreground hover:text-background transition-colors text-center"
                 >
                   Alışverişe Devam Et
                 </Link>
