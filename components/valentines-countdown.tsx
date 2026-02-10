@@ -18,7 +18,7 @@ export function ValentinesCountdown() {
 
     const calculateTimeLeft = () => {
       const now = new Date().getTime()
-      const difference = targetDate - now
+      const difference = 0 // targetDate - now
 
       if (difference > 0) {
         const days = Math.floor(difference / (1000 * 60 * 60 * 24))
