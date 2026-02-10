@@ -6,6 +6,7 @@ import { personalizationService } from "@/services/personalization.service"
 import { uploadService } from "@/services/upload.service"
 import { Button } from "@/components/ui/button"
 import { Alert, AlertDescription } from "@/components/ui/alert"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Loader2, AlertCircle } from "lucide-react"
 
 interface PersonalizationFormRendererProps {
@@ -421,24 +422,23 @@ export function PersonalizationFormRenderer({
   }, [formValues, fileIds, selectedFiles, deletedFileIds, pricingBreakdown, totalPersonalizationAmount])
 
   return (
-    <div className="mt-8 space-y-6 border-t pt-8 overflow-x-hidden">
-      <div>
-        <h3 className="text-lg font-semibold text-foreground mb-2">
+    <Card className="mt-4 lg:mt-8 overflow-x-hidden border-2">
+      <CardHeader className="p-3 lg:p-6 pb-2 lg:pb-4">
+        <CardTitle className="text-sm lg:text-lg font-semibold text-foreground mb-1 lg:mb-2">
           Kişiselleştirme
-        </h3>
-        <p className="text-sm text-muted-foreground">
+        </CardTitle>
+        <p className="text-xs lg:text-sm text-muted-foreground">
           Ürününüzü kişiselleştirmek için aşağıdaki formu doldurun.
         </p>
-      </div>
+      </CardHeader>
 
-      {errors._general && (
-        <Alert variant="destructive">
-          <AlertCircle className="h-4 w-4" />
-          <AlertDescription>{errors._general}</AlertDescription>
-        </Alert>
-      )}
-
-      <div className="space-y-6 overflow-x-hidden">
+      <CardContent className="p-3 lg:p-6 pt-0 space-y-3 lg:space-y-6 overflow-x-hidden">
+        {errors._general && (
+          <Alert variant="destructive">
+            <AlertCircle className="h-4 w-4" />
+            <AlertDescription>{errors._general}</AlertDescription>
+          </Alert>
+        )}
         {visibleFields.map((field) => (
           <FieldRenderer
             key={field.id}
@@ -485,32 +485,34 @@ export function PersonalizationFormRenderer({
             isLoadingExistingFiles={loadingExistingFiles[field.key] || false}
           />
         ))}
-      </div>
+      </CardContent>
 
       {pricingBreakdown.length > 0 && (
-        <div className="mt-6 p-4 bg-muted rounded-lg">
-          <h4 className="text-sm font-medium text-foreground mb-2">
-            Kişiselleştirme Fiyatlandırması
-          </h4>
-          <div className="space-y-1">
-            {pricingBreakdown.map((item) => (
-              <div
-                key={item.fieldKey}
-                className="flex justify-between text-sm"
-              >
-                <span className="text-muted-foreground">{item.fieldTitle}:</span>
-                <span className="font-medium">
-                  +{item.amount.toLocaleString("tr-TR")} ₺
-                </span>
-              </div>
-            ))}
-          </div>
-          <div className="mt-3 pt-3 border-t flex justify-between text-base font-semibold">
-            <span>Toplam Kişiselleştirme:</span>
-            <span>+{totalPersonalizationAmount.toLocaleString("tr-TR")} ₺</span>
+        <div className="px-3 lg:px-6 pb-3 lg:pb-6">
+          <div className="p-4 bg-muted rounded-lg">
+            <h4 className="text-sm font-medium text-foreground mb-2">
+              Kişiselleştirme Fiyatlandırması
+            </h4>
+            <div className="space-y-1">
+              {pricingBreakdown.map((item) => (
+                <div
+                  key={item.fieldKey}
+                  className="flex justify-between text-sm"
+                >
+                  <span className="text-muted-foreground">{item.fieldTitle}:</span>
+                  <span className="font-medium">
+                    +{item.amount.toLocaleString("tr-TR")} ₺
+                  </span>
+                </div>
+              ))}
+            </div>
+            <div className="mt-3 pt-3 border-t flex justify-between text-base font-semibold">
+              <span>Toplam Kişiselleştirme:</span>
+              <span>+{totalPersonalizationAmount.toLocaleString("tr-TR")} ₺</span>
+            </div>
           </div>
         </div>
       )}
-    </div>
+    </Card>
   )
 }

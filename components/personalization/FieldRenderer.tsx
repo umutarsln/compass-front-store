@@ -104,7 +104,7 @@ export function FieldRenderer({
       if (maxFiles && totalCount > maxFiles) {
         setUploadErrors((prev) => ({
           ...prev,
-          [field.key]: `Maksimum ${maxFiles} dosya seçebilirsiniz (şu anda ${existingCount} mevcut dosya var, ${currentCount} yeni seçili dosya var)`,
+          [field.key]: `Maksimum ${maxFiles} dosya seçilebilir`,
         }))
         return // Validation failed, don't proceed
       }
@@ -121,7 +121,7 @@ export function FieldRenderer({
       if (allowedTypes.length > 0 && !allowedTypes.includes(file.type)) {
         setUploadErrors((prev) => ({
           ...prev,
-          [field.key]: `Dosya tipi desteklenmiyor. İzin verilen tipler: ${allowedTypes.join(', ')}`,
+          [field.key]: `Desteklenmeyen dosya tipi`,
         }))
         return
       }
@@ -129,7 +129,7 @@ export function FieldRenderer({
       if (maxSize && file.size > maxSize) {
         setUploadErrors((prev) => ({
           ...prev,
-          [field.key]: `Dosya boyutu çok büyük. Maksimum: ${field.config.maxFileSize}MB`,
+          [field.key]: `Maksimum ${field.config.maxFileSize}MB`,
         }))
         return
       }
@@ -324,7 +324,7 @@ export function FieldRenderer({
             value={value || ""}
             onChange={(e) => onChange(e.target.value)}
             placeholder={field.helperText || ""}
-            className={error ? "border-red-500" : ""}
+            className={`text-sm lg:text-base py-2 lg:py-2.5 ${error ? "border-red-500" : ""}`}
           />
         )
 
@@ -334,8 +334,8 @@ export function FieldRenderer({
             value={value || ""}
             onChange={(e) => onChange(e.target.value)}
             placeholder={field.helperText || ""}
-            className={error ? "border-red-500" : ""}
-            rows={4}
+            className={`text-sm lg:text-base py-2 lg:py-2.5 ${error ? "border-red-500" : ""}`}
+            rows={3}
           />
         )
 
@@ -346,7 +346,7 @@ export function FieldRenderer({
             value={value || ""}
             onChange={(e) => onChange(Number(e.target.value))}
             placeholder={field.helperText || ""}
-            className={error ? "border-red-500" : ""}
+            className={`text-sm lg:text-base py-2 lg:py-2.5 ${error ? "border-red-500" : ""}`}
             min={field.validationRules?.min}
             max={field.validationRules?.max}
           />
@@ -360,7 +360,7 @@ export function FieldRenderer({
             onValueChange={onChange}
           >
             <SelectTrigger className={error ? "border-red-500" : ""}>
-              <SelectValue placeholder="Seçiniz..." />
+              <SelectValue placeholder={field.helperText || "Seçiniz"} />
             </SelectTrigger>
             <SelectContent>
               {selectOptions.map((option: string) => (
@@ -427,8 +427,9 @@ export function FieldRenderer({
               checked={value || false}
               onCheckedChange={onChange}
             />
-            <Label htmlFor={field.key} className="cursor-pointer">
-              {field.subtitle || field.title}
+            <Label htmlFor={field.key} className="cursor-pointer text-xs lg:text-sm">
+              {field.title}
+              {field.required && <span className="text-red-500 ml-1">*</span>}
             </Label>
           </div>
         )
@@ -441,8 +442,9 @@ export function FieldRenderer({
               checked={value || false}
               onCheckedChange={onChange}
             />
-            <Label htmlFor={field.key} className="cursor-pointer">
-              {field.subtitle || field.title}
+            <Label htmlFor={field.key} className="cursor-pointer text-xs lg:text-sm">
+              {field.title}
+              {field.required && <span className="text-red-500 ml-1">*</span>}
             </Label>
           </div>
         )
@@ -499,10 +501,8 @@ export function FieldRenderer({
               onChange={(e) => onChange(Number(e.target.value))}
               className="w-full"
             />
-            <div className="flex justify-between text-sm text-muted-foreground">
-              <span>{min}</span>
-              <span className="font-medium">{value || min}</span>
-              <span>{max}</span>
+            <div className="text-center text-sm font-medium text-foreground">
+              {value || min}
             </div>
           </div>
         )
@@ -511,7 +511,6 @@ export function FieldRenderer({
         return (
           <div className="grid grid-cols-3 gap-2">
             <div>
-              <Label className="text-xs">Genişlik</Label>
               <Input
                 type="number"
                 value={value?.width || ""}
@@ -521,11 +520,10 @@ export function FieldRenderer({
                     width: Number(e.target.value),
                   })
                 }
-                placeholder="cm"
+                placeholder="Genişlik"
               />
             </div>
             <div>
-              <Label className="text-xs">Yükseklik</Label>
               <Input
                 type="number"
                 value={value?.height || ""}
@@ -535,11 +533,10 @@ export function FieldRenderer({
                     height: Number(e.target.value),
                   })
                 }
-                placeholder="cm"
+                placeholder="Yükseklik"
               />
             </div>
             <div>
-              <Label className="text-xs">Derinlik</Label>
               <Input
                 type="number"
                 value={value?.depth || ""}
@@ -549,7 +546,7 @@ export function FieldRenderer({
                     depth: Number(e.target.value),
                   })
                 }
-                placeholder="cm"
+                placeholder="Derinlik"
               />
             </div>
           </div>
@@ -579,7 +576,7 @@ export function FieldRenderer({
                 handleClick()
               }}
               className={`
-                relative border-2 border-dashed rounded-lg p-6 text-center cursor-pointer transition-all
+                relative border-2 border-dashed rounded-lg p-3 lg:p-4 text-center cursor-pointer transition-all
                 ${isDragActive ? "border-primary bg-primary/5" : "border-border hover:border-primary/50"}
                 ${error ? "border-red-500" : ""}
               `}
@@ -604,40 +601,18 @@ export function FieldRenderer({
                   }
                 }}
               />
-              <div className="flex flex-col items-center gap-3">
-                <Upload className="w-8 h-8 text-muted-foreground" />
-                <div>
-                  <p className="text-sm font-medium text-foreground">
-                    {isDragActive
-                      ? "Dosyaları buraya bırakın"
-                      : "Dosyaları buraya sürükleyin"}
-                  </p>
-                  <p className="text-xs text-muted-foreground mt-1">
-                    veya tıklayarak seçin
-                  </p>
-                  {field.config?.maxFileSize && (
-                    <p className="text-xs text-muted-foreground mt-1">
-                      Maksimum dosya boyutu: {field.config.maxFileSize}MB
-                    </p>
-                  )}
-                  {field.config?.minFileCount && isMulti && (
-                    <p className="text-xs text-muted-foreground mt-1">
-                      Minimum {field.config.minFileCount} dosya gerekli
-                    </p>
-                  )}
-                  {field.config?.maxFileCount && isMulti && (
-                    <p className="text-xs text-muted-foreground mt-1">
-                      Maksimum {field.config.maxFileCount} dosya
-                    </p>
-                  )}
-                </div>
+              <div className="flex flex-col items-center gap-1.5 lg:gap-2">
+                <Upload className="w-5 h-5 lg:w-6 lg:h-6 text-muted-foreground" />
+                <p className="text-xs lg:text-sm text-foreground">
+                  {isDragActive ? "Bırakın" : "Sürükleyin veya tıklayın"}
+                </p>
               </div>
             </div>
 
             {/* Existing Files Preview (from cart/order) */}
             {existingFiles.length > 0 && (
               <div className="space-y-2 overflow-x-hidden">
-                <Label className="text-sm font-medium">Mevcut Dosyalar:</Label>
+                <Label className="text-xs text-muted-foreground">Yüklenmiş</Label>
                 {isLoadingExistingFiles ? (
                   <div className="flex items-center justify-center py-4">
                     <Loader2 className="w-5 h-5 animate-spin text-muted-foreground" />
@@ -687,7 +662,7 @@ export function FieldRenderer({
             {/* Selected Files Preview (newly selected) */}
             {selectedFiles.length > 0 && (
               <div className="space-y-2 overflow-x-hidden">
-                <Label className="text-sm font-medium">Yeni Seçilen Dosyalar:</Label>
+                <Label className="text-xs text-muted-foreground">Seçilen</Label>
                 <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 overflow-x-hidden">
                   {selectedFiles.map((fileData, index) => (
                     <div
@@ -719,14 +694,6 @@ export function FieldRenderer({
                           <X className="w-4 h-4" />
                         </Button>
                       </div>
-                      <div className="p-2">
-                        <p className="text-xs text-muted-foreground truncate">
-                          {fileData.file.name}
-                        </p>
-                        <p className="text-xs text-muted-foreground">
-                          {(fileData.file.size / 1024 / 1024).toFixed(2)} MB
-                        </p>
-                      </div>
                     </div>
                   ))}
                 </div>
@@ -740,10 +707,6 @@ export function FieldRenderer({
                   {uploadErrors[field.key]}
                 </AlertDescription>
               </Alert>
-            )}
-
-            {field.helperText && !uploadErrors[field.key] && (
-              <p className="text-xs text-muted-foreground">{field.helperText}</p>
             )}
           </div>
         )
@@ -761,22 +724,18 @@ export function FieldRenderer({
   }
 
   return (
-    <div className="space-y-2">
-      <Label htmlFor={field.key}>
-        {field.title}
-        {field.required && <span className="text-red-500 ml-1">*</span>}
-      </Label>
-      {field.subtitle && (
-        <p className="text-sm text-muted-foreground">{field.subtitle}</p>
+    <div className="space-y-1.5 lg:space-y-2">
+      {field.type !== "CHECKBOX" && field.type !== "TOGGLE" && (
+        <Label htmlFor={field.key} className="text-xs lg:text-sm font-medium">
+          {field.title}
+          {field.required && <span className="text-red-500 ml-1">*</span>}
+        </Label>
       )}
       {renderField()}
-      {field.helperText && !error && (
-        <p className="text-xs text-muted-foreground">{field.helperText}</p>
-      )}
       {error && (
-        <Alert variant="destructive" className="py-2">
-          <AlertCircle className="h-4 w-4" />
-          <AlertDescription className="text-sm">{error}</AlertDescription>
+        <Alert variant="destructive" className="py-1.5 lg:py-2">
+          <AlertCircle className="h-3.5 w-3.5 lg:h-4 lg:w-4" />
+          <AlertDescription className="text-xs lg:text-sm">{error}</AlertDescription>
         </Alert>
       )}
     </div>

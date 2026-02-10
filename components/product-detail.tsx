@@ -5,7 +5,7 @@ import { motion } from "framer-motion"
 import Image from "next/image"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
-import { Award, Shield, Clock, ChevronLeft, ChevronRight, ShoppingCart } from "lucide-react"
+import { Award, Shield, Clock, ChevronLeft, ChevronRight, ShoppingCart, Timer, Truck, RefreshCw } from "lucide-react"
 import { useCart } from "@/contexts/cart-context"
 import type { ProductDetail as ProductDetailType } from "@/services/products"
 import { trackEvent, flushAnalytics } from "@/lib/analytics"
@@ -24,6 +24,7 @@ export function ProductDetail({ product }: ProductDetailProps) {
   const { addToCart } = useCart()
   const router = useRouter()
   const openedAtRef = useRef<number>(Date.now())
+  const personalizationRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     if (process.env.NODE_ENV === 'development') {
@@ -35,6 +36,38 @@ export function ProductDetail({ product }: ProductDetailProps) {
       variantId: product.selectedCombination?.id ?? null,
     })
   }, [product.productId, product.selectedCombination?.id])
+
+  const TrustBadges = () => (
+    <div className="grid grid-cols-3 gap-2 lg:gap-4">
+      <div className="flex items-center gap-2 lg:gap-3">
+        <div className="flex-shrink-0 w-8 h-8 lg:w-10 lg:h-10 rounded-full bg-primary/10 flex items-center justify-center">
+          <Timer className="w-4 h-4 lg:w-5 lg:h-5 text-primary" />
+        </div>
+        <div className="min-w-0">
+          <p className="text-xs lg:text-sm font-medium text-foreground truncate">Sınırlı Süreli Kampanya</p>
+          <p className="text-[10px] lg:text-xs text-muted-foreground truncate">Özel fırsatlar</p>
+        </div>
+      </div>
+      <div className="flex items-center gap-2 lg:gap-3">
+        <div className="flex-shrink-0 w-8 h-8 lg:w-10 lg:h-10 rounded-full bg-primary/10 flex items-center justify-center">
+          <Truck className="w-4 h-4 lg:w-5 lg:h-5 text-primary" />
+        </div>
+        <div className="min-w-0">
+          <p className="text-xs lg:text-sm font-medium text-foreground truncate">Ücretsiz Kargo</p>
+          <p className="text-[10px] lg:text-xs text-muted-foreground truncate">Tüm siparişlerde</p>
+        </div>
+      </div>
+      <div className="flex items-center gap-2 lg:gap-3">
+        <div className="flex-shrink-0 w-8 h-8 lg:w-10 lg:h-10 rounded-full bg-primary/10 flex items-center justify-center">
+          <RefreshCw className="w-4 h-4 lg:w-5 lg:h-5 text-primary" />
+        </div>
+        <div className="min-w-0">
+          <p className="text-xs lg:text-sm font-medium text-foreground truncate">14 Gün İade Garantisi</p>
+          <p className="text-[10px] lg:text-xs text-muted-foreground truncate">Koşulsuz iade</p>
+        </div>
+      </div>
+    </div>
+  )
 
   useEffect(() => {
     const sendTime = () => {
@@ -196,6 +229,19 @@ export function ProductDetail({ product }: ProductDetailProps) {
           const isValid = await formData.validate()
           if (!isValid) {
             setIsAddingToCart(false)
+            // Mobilde kişiselleştirme formuna scroll yap (header'ın altına)
+            if (personalizationRef.current) {
+              setTimeout(() => {
+                const headerOffset = 120 // Topbar + Header yüksekliği
+                const elementPosition = personalizationRef.current?.getBoundingClientRect().top || 0
+                const offsetPosition = elementPosition + window.pageYOffset - headerOffset
+
+                window.scrollTo({
+                  top: offsetPosition,
+                  behavior: 'smooth'
+                })
+              }, 100)
+            }
             return
           }
         }
@@ -347,15 +393,65 @@ export function ProductDetail({ product }: ProductDetailProps) {
   }
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        {/* Mobilde: Title ilk sırada (order-1) */}
-        <div className="lg:hidden order-1">
-          <h1 className="text-2xl sm:text-3xl font-serif font-bold text-foreground leading-tight mb-2">{product.name}</h1>
+    <div className="container mx-auto px-4 py-4 lg:py-8 pb-24 lg:pb-4">
+      {/* Mobilde: Image en üstte */}
+      <div className="lg:hidden space-y-3 mb-4">
+        <div className="relative w-full bg-muted rounded-lg overflow-hidden" style={{ aspectRatio: '1' }}>
+          <Image
+            src={images[selectedImage]}
+            alt={product.name}
+            fill
+            className="object-cover"
+            priority
+          />
+          {images.length > 1 && (
+            <>
+              <button
+                onClick={prevImage}
+                className="absolute left-2 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white p-1.5 rounded-full transition-colors"
+                aria-label="Önceki resim"
+              >
+                <ChevronLeft className="w-4 h-4" />
+              </button>
+              <button
+                onClick={nextImage}
+                className="absolute right-2 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white p-1.5 rounded-full transition-colors"
+                aria-label="Sonraki resim"
+              >
+                <ChevronRight className="w-4 h-4" />
+              </button>
+            </>
+          )}
         </div>
+        {/* Nokta göstergeler */}
+        {images.length > 1 && (
+          <div className="flex justify-center gap-2 py-2">
+            {images.map((_, index) => (
+              <button
+                key={index}
+                onClick={() => setSelectedImage(index)}
+                className={`h-2 rounded-full transition-all ${
+                  selectedImage === index 
+                    ? 'bg-primary w-6' 
+                    : 'bg-muted-foreground/30 w-2'
+                }`}
+                aria-label={`Resim ${index + 1}`}
+              />
+            ))}
+          </div>
+        )}
+        {/* Title ve Subtitle */}
+        <div>
+          <h1 className="text-xl font-serif font-bold text-foreground leading-tight mb-1">{product.name}</h1>
+          {product.subtitle && (
+            <p className="text-xs text-muted-foreground">{product.subtitle}</p>
+          )}
+        </div>
+      </div>
 
-        {/* Mobilde: Görseller ikinci sırada (order-2), Desktop'ta sol tarafta (order-1) */}
-        <div className="lg:order-1 order-2 space-y-4">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 lg:gap-8">
+        {/* Desktop'ta: Görseller sol tarafta */}
+        <div className="hidden lg:block lg:order-1 space-y-4">
           <div className="relative aspect-square bg-muted rounded-lg overflow-hidden">
             <Image
               src={images[selectedImage]}
@@ -404,8 +500,8 @@ export function ProductDetail({ product }: ProductDetailProps) {
           )}
         </div>
 
-        {/* Mobilde: Subtitle üçüncü sırada (order-3), Desktop'ta sağ tarafta (order-2) */}
-        <div className="lg:order-2 order-3 space-y-6 lg:space-y-6">
+        {/* Desktop'ta: Sağ tarafta içerik */}
+        <div className="lg:order-2 space-y-3 lg:space-y-6">
           {/* Desktop'ta: Title burada */}
           <div className="hidden lg:block">
             <h1 className="text-3xl sm:text-4xl font-serif font-bold text-foreground leading-tight mb-2">{product.name}</h1>
@@ -414,31 +510,24 @@ export function ProductDetail({ product }: ProductDetailProps) {
             )}
           </div>
 
-          {/* Mobilde: Subtitle görsellerden sonra */}
-          {product.subtitle && (
-            <div className="lg:hidden">
-              <p className="text-sm text-muted-foreground">{product.subtitle}</p>
-            </div>
-          )}
-
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-3 lg:gap-4">
             {(() => {
               // SIMPLE ürünler için
               if (product.type === 'SIMPLE') {
                 if (product.discountedPrice) {
                   return (
                     <>
-                      <span className="text-3xl font-bold text-foreground">
+                      <span className="text-2xl lg:text-3xl font-bold text-foreground">
                         {product.discountedPrice.toLocaleString('tr-TR')} ₺
                       </span>
-                      <span className="text-xl text-muted-foreground line-through">
+                      <span className="text-lg lg:text-xl text-muted-foreground line-through">
                         {product.basePrice.toLocaleString('tr-TR')} ₺
                       </span>
                     </>
                   )
                 } else {
                   return (
-                    <span className="text-3xl font-bold text-foreground">
+                    <span className="text-2xl lg:text-3xl font-bold text-foreground">
                       {product.basePrice.toLocaleString('tr-TR')} ₺
                     </span>
                   )
@@ -450,17 +539,17 @@ export function ProductDetail({ product }: ProductDetailProps) {
                 if (currentCombination.discountedPrice) {
                   return (
                     <>
-                      <span className="text-3xl font-bold text-foreground">
+                      <span className="text-2xl lg:text-3xl font-bold text-foreground">
                         {currentCombination.discountedPrice.toLocaleString('tr-TR')} ₺
                       </span>
-                      <span className="text-xl text-muted-foreground line-through">
+                      <span className="text-lg lg:text-xl text-muted-foreground line-through">
                         {currentCombination.basePrice.toLocaleString('tr-TR')} ₺
                       </span>
                     </>
                   )
                 } else {
                   return (
-                    <span className="text-3xl font-bold text-foreground">
+                    <span className="text-2xl lg:text-3xl font-bold text-foreground">
                       {currentCombination.basePrice.toLocaleString('tr-TR')} ₺
                     </span>
                   )
@@ -469,7 +558,7 @@ export function ProductDetail({ product }: ProductDetailProps) {
 
               // Kombinasyon seçilmediyse
               return (
-                <span className="text-3xl font-bold text-foreground">
+                <span className="text-2xl lg:text-3xl font-bold text-foreground">
                   {displayPrice.toLocaleString('tr-TR')} ₺
                 </span>
               )
@@ -478,13 +567,13 @@ export function ProductDetail({ product }: ProductDetailProps) {
 
           {/* Varyasyon Seçimi */}
           {product.type === 'VARIANT' && product.variantOptions && (
-            <div className="space-y-4">
+            <div className="space-y-3 lg:space-y-4">
               {product.variantOptions.map((option) => (
                 <div key={option.id}>
-                  <label className="block text-sm font-medium text-foreground mb-2">
+                  <label className="block text-xs lg:text-sm font-medium text-foreground mb-1.5 lg:mb-2">
                     {option.name}
                   </label>
-                  <div className="flex flex-wrap gap-2">
+                  <div className="flex flex-wrap gap-1.5 lg:gap-2">
                     {option.values.map((value) => {
                       const isSelected = selectedVariantValues[option.id] === value.id
                       const isSelectable = isVariantValueSelectable(option.id, value.id)
@@ -496,7 +585,7 @@ export function ProductDetail({ product }: ProductDetailProps) {
                           onClick={() => handleVariantValueSelect(option.id, value.id)}
                           disabled={isDisabled}
                           className={`
-                            px-4 py-2 rounded-lg border-2 transition-all
+                            px-3 py-1.5 lg:px-4 lg:py-2 text-xs lg:text-sm rounded-lg border-2 transition-all
                             ${isSelected
                               ? 'border-primary bg-primary text-primary-foreground'
                               : 'border-border hover:border-primary/50'
@@ -517,9 +606,14 @@ export function ProductDetail({ product }: ProductDetailProps) {
             </div>
           )}
 
+          {/* Güvenilirlik İfadeleri - Mobilde görünür */}
+          <div className="mt-4 lg:mt-6 pt-4 border-t border-border">
+            <TrustBadges />
+          </div>
+
           {/* Kişiselleştirme Formu */}
           {product.personalizationForm && (
-            <div className="mt-6">
+            <div ref={personalizationRef} id="personalization-form" className="mt-3 lg:mt-6">
               <PersonalizationFormRenderer
                 formData={product.personalizationForm}
                 productId={product.productId}
@@ -528,32 +622,34 @@ export function ProductDetail({ product }: ProductDetailProps) {
             </div>
           )}
 
-          {/* Sepete Ekle Butonu */}
+          {/* Desktop'ta: Sepete Ekle Butonu */}
           {(() => {
             const canAddToCart = product.type === 'SIMPLE' || currentCombination
             return (
-              <button
-                onClick={handleAddToCart}
-                disabled={isAddingToCart || !canAddToCart}
-                className="w-full py-4 bg-primary text-primary-foreground font-medium text-sm uppercase tracking-wider hover:bg-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 rounded-lg"
-              >
-                {isAddingToCart ? (
-                  <>
-                    <div className="w-4 h-4 border-2 border-primary-foreground border-t-transparent rounded-full animate-spin" />
-                    Ekleniyor...
-                  </>
-                ) : (
-                  <>
-                    <ShoppingCart className="w-4 h-4" />
-                    Sepete Ekle
-                  </>
-                )}
-              </button>
+              <div className="hidden lg:block">
+                <button
+                  onClick={handleAddToCart}
+                  disabled={isAddingToCart || !canAddToCart}
+                  className="w-full py-4 bg-primary text-primary-foreground font-medium text-sm uppercase tracking-wider hover:bg-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 rounded-lg"
+                >
+                  {isAddingToCart ? (
+                    <>
+                      <div className="w-4 h-4 border-2 border-primary-foreground border-t-transparent rounded-full animate-spin" />
+                      Ekleniyor...
+                    </>
+                  ) : (
+                    <>
+                      <ShoppingCart className="w-4 h-4" />
+                      Sepete Ekle
+                    </>
+                  )}
+                </button>
+              </div>
             )
           })()}
 
-          {/* Ürün Özellikleri */}
-          <div className="grid grid-cols-3 gap-4 pt-6 border-t">
+          {/* Ürün Özellikleri - Desktop'ta */}
+          <div className="hidden lg:grid grid-cols-3 gap-4 pt-6 border-t">
             <div className="flex items-center gap-2">
               <Award className="w-5 h-5 text-muted-foreground" />
               <div>
@@ -579,9 +675,9 @@ export function ProductDetail({ product }: ProductDetailProps) {
         </div>
       </div>
 
-      {/* Ürün Açıklaması */}
+      {/* Ürün Açıklaması - Mobilde en altta */}
       {product.description && (
-        <div className="mt-12">
+        <div className="mt-6 lg:mt-12">
           <Tabs defaultValue="description" className="w-full">
             <TabsList>
               <TabsTrigger value="description">Açıklama</TabsTrigger>
@@ -600,6 +696,72 @@ export function ProductDetail({ product }: ProductDetailProps) {
           </Tabs>
         </div>
       )}
+
+      {/* Mobilde: Sticky Sepete Ekle Butonu ve Ürün Özellikleri */}
+      {(() => {
+        const canAddToCart = product.type === 'SIMPLE' || currentCombination
+        return (
+          <div className="lg:hidden fixed bottom-0 left-0 right-0 z-50 bg-background border-t border-border shadow-lg">
+            <div className="container mx-auto px-4 py-3">
+              <div className="flex items-center gap-2 mb-2">
+                <div className="flex items-center gap-1.5 flex-1">
+                  <Award className="w-4 h-4 text-muted-foreground flex-shrink-0" />
+                  <div className="min-w-0">
+                    <p className="text-xs font-medium text-foreground truncate">Kaliteli Ürün</p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-1.5 flex-1">
+                  <Shield className="w-4 h-4 text-muted-foreground flex-shrink-0" />
+                  <div className="min-w-0">
+                    <p className="text-xs font-medium text-foreground truncate">Güvenli Ödeme</p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-1.5 flex-1">
+                  <Clock className="w-4 h-4 text-muted-foreground flex-shrink-0" />
+                  <div className="min-w-0">
+                    <p className="text-xs font-medium text-foreground truncate">Hızlı Teslimat</p>
+                  </div>
+                </div>
+              </div>
+              <div className="flex gap-2">
+                <button
+                  onClick={handleAddToCart}
+                  disabled={isAddingToCart || !canAddToCart}
+                  className="flex-1 py-4 bg-primary text-primary-foreground font-medium text-sm uppercase tracking-wider hover:bg-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 rounded-lg"
+                >
+                  {isAddingToCart ? (
+                    <>
+                      <div className="w-4 h-4 border-2 border-primary-foreground border-t-transparent rounded-full animate-spin" />
+                      Ekleniyor...
+                    </>
+                  ) : (
+                    <>
+                      <ShoppingCart className="w-4 h-4" />
+                      Sepete Ekle
+                    </>
+                  )}
+                </button>
+                <a
+                  href={`https://wa.me/905519770858?text=${encodeURIComponent("Merhaba, ürünleriniz hakkında bilgi almak istiyorum.")}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex-shrink-0 w-[56px] h-[56px] bg-[#25D366] text-white rounded-lg shadow-lg hover:shadow-xl transition-shadow flex items-center justify-center"
+                  aria-label="WhatsApp ile iletişime geç"
+                >
+                  <svg
+                    className="w-6 h-6"
+                    fill="currentColor"
+                    viewBox="0 0 24 24"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z" />
+                  </svg>
+                </a>
+              </div>
+            </div>
+          </div>
+        )
+      })()}
     </div>
   )
 }

@@ -242,8 +242,8 @@ export function CartContent() {
                     ) : null}
                     {/* Personalization Summary */}
                     {item.personalization && (
-                      <div className="mt-3 sm:mt-4 w-full overflow-hidden -mx-3 sm:-mx-4 px-3 sm:px-4">
-                        <div className="flex items-center justify-between mb-2 gap-2 px-0">
+                      <div className="mt-3 sm:mt-4 w-full overflow-hidden">
+                        <div className="flex items-center justify-between mb-2 gap-2">
                           <span className="text-xs sm:text-sm font-medium text-foreground truncate flex-1 min-w-0">Kişiselleştirme</span>
                           <Button
                             variant="outline"
@@ -275,7 +275,7 @@ export function CartContent() {
                           </Button>
                         </div>
                         <div className="overflow-hidden w-full">
-                          <PersonalizationSummary personalization={item.personalization} readOnly />
+                        <PersonalizationSummary personalization={item.personalization} readOnly />
                         </div>
                       </div>
                     )}

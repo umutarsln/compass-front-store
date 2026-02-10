@@ -290,7 +290,7 @@ export function PersonalizationSummary({
   }
 
   return (
-    <Card className="mt-0 sm:mt-0 overflow-hidden w-full max-w-full mx-auto">
+    <Card className="mt-0 sm:mt-0 overflow-hidden w-full max-w-full">
       <CardHeader className="p-3 sm:p-6">
         <CardTitle className="text-sm sm:text-base">Kişiselleştirme</CardTitle>
       </CardHeader>
