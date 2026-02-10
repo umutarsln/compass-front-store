@@ -13,6 +13,7 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
 import { Badge } from "@/components/ui/badge"
 import { PersonalizationFormRenderer } from "@/components/personalization/PersonalizationFormRenderer"
 import { MarkdownContent } from "@/components/markdown-content"
+import { ValentinesCountdown } from "@/components/valentines-countdown"
 
 interface ProductDetailProps {
   product: ProductDetailType
@@ -673,6 +674,11 @@ export function ProductDetail({ product }: ProductDetailProps) {
             </div>
           </div>
         </div>
+      </div>
+
+      {/* Sevgililer Günü Geri Sayım */}
+      <div className="mt-6 lg:mt-8">
+        <ValentinesCountdown />
       </div>
 
       {/* Ürün Açıklaması - Mobilde en altta */}

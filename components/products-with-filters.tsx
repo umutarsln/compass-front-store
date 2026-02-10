@@ -32,6 +32,7 @@ import type { Tag } from "@/services/tags"
 import type { OrderBy } from "@/services/products"
 import { getProducts } from "@/services"
 import { transformProductList } from "@/lib/product-transformer"
+import { ValentinesCountdown } from "@/components/valentines-countdown"
 
 interface ProductsWithFiltersProps {
   initialProducts: FrontendProduct[]
@@ -474,7 +475,7 @@ export function ProductsWithFilters({
   // FiltersSidebar'ı memoize et - sadece bağımlılıklar değiştiğinde yeniden render et
   const FiltersSidebar = useMemo(() => (
     <aside className="w-full lg:w-64 flex-shrink-0 z-900">
-      <div className="sticky top-24 space-y-6">
+      <div className="space-y-6">
         <div className="flex items-center justify-between">
           <h2 className="text-lg font-medium text-foreground">Filtreler</h2>
           <Button
@@ -645,6 +646,11 @@ export function ProductsWithFilters({
       <div className="mx-auto max-w-7xl px-6 lg:px-8">
         {/* Başlık */}
 
+        {/* Mobilde: Sevgililer Günü Geri Sayım - Filtreler Butonunun Üstünde */}
+        <div className="lg:hidden mb-4 -mx-6 px-6">
+          <ValentinesCountdown />
+        </div>
+
         {/* Mobile Filtreler Butonu */}
         <div className="lg:hidden sticky top-[108px] z-50 bg-background border-b border-border mb-6 -mx-6 px-6 py-4" suppressHydrationWarning>
           <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
@@ -665,17 +671,24 @@ export function ProductsWithFilters({
 
         <div className="flex gap-8">
           {/* Desktop Filtreler */}
-          <div className="hidden lg:block">
-            {FiltersSidebar}
+          <div className="hidden lg:block w-64 flex-shrink-0">
+            <div className="sticky top-24 space-y-6">
+              {FiltersSidebar}
+              {/* Desktop'ta: Sevgililer Günü Geri Sayım - Filtrelerin Altında, Her Zaman */}
+              <div className="w-full">
+                <ValentinesCountdown />
+              </div>
+            </div>
           </div>
 
           {/* Ürünler */}
           <div className="flex-1">
             {/* Sıralama ve Limit */}
-            <div className="flex items-center justify-between mb-6">
-              <p className="text-sm text-muted-foreground">
+            <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4 mb-6">
+              <p className="text-sm text-muted-foreground shrink-0">
                 {pagination.total} ürün bulundu
               </p>
+              
               <div className="flex items-center gap-4" suppressHydrationWarning>
                 <Select
                   value={filters.orderBy}
