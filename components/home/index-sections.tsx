@@ -115,7 +115,11 @@ export function IndexSections({ featuredProducts }: IndexSectionsProps) {
                 </Button>
               </Link>
               <Link href="/teklif-al">
-                <Button variant="outline" size="lg" className="text-base border-background text-background hover:bg-background/10">
+                <Button
+                  variant="outline"
+                  size="lg"
+                  className="text-base border-background bg-background text-foreground hover:bg-background/90"
+                >
                   Ücretsiz Teklif Alın
                 </Button>
               </Link>
@@ -197,12 +201,25 @@ export function IndexSections({ featuredProducts }: IndexSectionsProps) {
             <div>
               <span className="text-primary font-semibold text-sm uppercase tracking-wider">Öne Çıkanlar</span>
               <h2 className="font-display text-3xl md:text-4xl font-bold text-foreground mt-2">Popüler Ürünler</h2>
+              <p className="text-sm text-muted-foreground mt-3">
+                En çok tercih edilen modelleri, kurulum ve satış sonrası destek avantajlarıyla birlikte keşfedin.
+              </p>
             </div>
             <Link href="/urunler">
               <Button variant="outline" size="sm">
                 Tümünü Gör <ArrowRight className="ml-1 h-4 w-4" />
               </Button>
             </Link>
+          </div>
+          <div className="flex flex-wrap gap-2 mb-8">
+            {["Hızlı Teslimat", "Yerinde Kurulum", "Teknik Destek", "Garanti Kapsamı"].map((item) => (
+              <span
+                key={item}
+                className="inline-flex items-center rounded-full border border-primary/20 bg-primary/5 px-3 py-1 text-xs font-medium text-primary"
+              >
+                {item}
+              </span>
+            ))}
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {featuredProducts.length > 0 ? (
@@ -247,7 +264,7 @@ export function IndexSections({ featuredProducts }: IndexSectionsProps) {
                   </div>
                 ))}
               </div>
-              <Link href="/hizmetler">
+              <Link href="/iletisim">
                 <Button size="lg" className="mt-8">
                   <Wrench className="mr-2 h-5 w-5" /> Servis Talebi Oluştur
                 </Button>
@@ -302,7 +319,7 @@ export function IndexSections({ featuredProducts }: IndexSectionsProps) {
               {
                 icon: Users,
                 title: "Uzman Ekip",
-                desc: "Alanında uzman mühendis ve teknisyen kadromuzla hizmet veriyoruz.",
+                desc: "Her projede sürdürülebilir hizmet kalitesi, hızlı geri dönüş ve çözüm odaklı destek sunuyoruz.",
               },
               {
                 icon: Headphones,
