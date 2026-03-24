@@ -4,8 +4,8 @@ import { Clock, Mail, MapPin, Phone } from "lucide-react"
  * İletişim sayfası için tek merkezden yönetilen kart bilgileri.
  */
 export const contactInfoCards = [
-  { icon: Phone, label: "Telefon", value: "0551 977 08 58", href: "tel:+905519770858" },
-  { icon: Mail, label: "E-posta", value: "emredgli07@gmail.com", href: "mailto:emredgli07@gmail.com" },
+  { icon: Phone, label: "Telefon", value: "0555 000 00 00", href: "tel:+905550000000" },
+  { icon: Mail, label: "E-posta", value: "demo@compassreklam.com", href: "mailto:demo@compassreklam.com" },
   { icon: MapPin, label: "Adres", value: "Yenidoğan Mah. 3079 sokak no:13, Kepez / Antalya" },
   { icon: Clock, label: "Çalışma Saatleri", value: "Her gün 7/24 açık" },
 ]

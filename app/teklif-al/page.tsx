@@ -11,6 +11,7 @@ import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { useToast } from "@/hooks/use-toast"
 import { useCart } from "@/contexts/cart-context"
+import { contactInfoCards } from "@/lib/contact-content"
 
 /**
  * Teklif Al sayfası - Forge QuoteRequest UI
@@ -29,6 +30,8 @@ export default function TeklifAlPage() {
   })
 
   const totalItems = getTotalItems()
+  const contactPhone = contactInfoCards.find((item) => item.label === "Telefon")
+  const contactEmail = contactInfoCards.find((item) => item.label === "E-posta")
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }))
@@ -206,14 +209,14 @@ export default function TeklifAlPage() {
                 <div className="mt-6 pt-4 border-t border-border">
                   <div className="flex items-center gap-2 text-sm text-muted-foreground mb-2">
                     <Phone className="h-4 w-4 text-primary" />
-                    <a href="tel:+905519770858" className="hover:text-primary transition-colors">
-                      0551 977 08 58
+                    <a href={contactPhone?.href || "#"} className="hover:text-primary transition-colors">
+                      {contactPhone?.value || "Telefon bilgisi yakında eklenecek"}
                     </a>
                   </div>
                   <div className="flex items-center gap-2 text-sm text-muted-foreground">
                     <Mail className="h-4 w-4 text-primary" />
-                    <a href="mailto:emredgli07@gmail.com" className="hover:text-primary transition-colors">
-                      emredgli07@gmail.com
+                    <a href={contactEmail?.href || "#"} className="hover:text-primary transition-colors">
+                      {contactEmail?.value || "E-posta bilgisi yakında eklenecek"}
                     </a>
                   </div>
                 </div>
