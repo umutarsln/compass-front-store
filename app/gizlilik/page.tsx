@@ -22,7 +22,7 @@ export default function PrivacyPolicyPage() {
                 Gizlilik ve Kişisel Verilerin Korunması Politikası
               </h1>
               <p className="text-lg text-muted-foreground leading-relaxed">
-                Bu Gizlilik ve Kişisel Verilerin Korunması Politikası ("Politika"), Shawk tarafından işletilen internet sitesi üzerinden elde edilen kişisel verilerin kullanımına ve korunmasına ilişkin esasları düzenler.
+                Bu Gizlilik ve Kişisel Verilerin Korunması Politikası ("Politika"), compass tarafından işletilen internet sitesi üzerinden elde edilen kişisel verilerin kullanımına ve korunmasına ilişkin esasları düzenler.
               </p>
             </motion.div>
           </div>

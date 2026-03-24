@@ -391,7 +391,7 @@ IBAN Bilgileri:
             console.log('[CHECKOUT] User cart ID alındı:', cartId)
             // Save to localStorage for next time
             if (typeof window !== 'undefined') {
-              localStorage.setItem('shawk_cart_id', userCart.id)
+              localStorage.setItem('compass_cart_id', userCart.id)
               console.log('[CHECKOUT] Cart ID localStorage\'a kaydedildi')
             }
           }

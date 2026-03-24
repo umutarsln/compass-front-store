@@ -7,7 +7,7 @@ const teamMembers = [
   {
     name: "Durmuş Kartcı",
     image: "/placeholders/placeholder.svg", // Görsel eklenecek
-    description: "Shawk'ın kurucusu olarak, her ürünün bir hikaye taşıdığına inanıyorum. Fotoğraflarınızdan özel lambalar üretirken, her detayın mükemmel olması için çalışıyoruz. Müşterilerimizin anılarını ışığa dönüştürmek benim için sadece bir iş değil, bir tutku."
+    description: "compass'ın kurucusu olarak, her ürünün bir hikaye taşıdığına inanıyorum. Fotoğraflarınızdan özel lambalar üretirken, her detayın mükemmel olması için çalışıyoruz. Müşterilerimizin anılarını ışığa dönüştürmek benim için sadece bir iş değil, bir tutku."
   },
   {
     name: "Hüseyin Emre Dağlı",

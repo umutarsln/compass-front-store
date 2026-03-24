@@ -22,7 +22,7 @@ export default function TermsOfServicePage() {
                 Kullanım Şartları ve Koşulları
               </h1>
               <p className="text-lg text-muted-foreground leading-relaxed">
-                Shawk web sitesini kullanarak, aşağıdaki kullanım koşullarını kabul etmiş sayılırsınız.
+                compass web sitesini kullanarak, aşağıdaki kullanım koşullarını kabul etmiş sayılırsınız.
               </p>
             </motion.div>
           </div>
@@ -47,7 +47,7 @@ export default function TermsOfServicePage() {
                     <h2 className="font-serif text-2xl text-foreground">Genel Koşullar</h2>
                   </div>
                   <p className="text-muted-foreground leading-relaxed mb-4">
-                    Shawk web sitesini ziyaret ederek ve hizmetlerimizi kullanarak, aşağıdaki kullanım koşullarını 
+                    compass web sitesini ziyaret ederek ve hizmetlerimizi kullanarak, aşağıdaki kullanım koşullarını 
                     kabul etmiş sayılırsınız. Bu koşulları kabul etmiyorsanız, lütfen web sitemizi kullanmayın.
                   </p>
                   <p className="text-muted-foreground leading-relaxed">
@@ -149,7 +149,7 @@ export default function TermsOfServicePage() {
                     <h2 className="font-serif text-2xl text-foreground">Fikri Mülkiyet</h2>
                   </div>
                   <p className="text-muted-foreground leading-relaxed mb-4">
-                    Web sitemizdeki tüm içerikler (metin, görseller, logolar, tasarımlar) Shawk'a aittir ve 
+                    Web sitemizdeki tüm içerikler (metin, görseller, logolar, tasarımlar) compass'a aittir ve 
                     telif hakkı koruması altındadır. İzinsiz kullanım, kopyalama veya dağıtım yasaktır.
                   </p>
                   <p className="text-muted-foreground leading-relaxed">
@@ -167,7 +167,7 @@ export default function TermsOfServicePage() {
                     <h2 className="font-serif text-2xl text-foreground">Sorumluluk Reddi</h2>
                   </div>
                   <p className="text-muted-foreground leading-relaxed mb-4">
-                    Shawk, web sitesinin kesintisiz ve hatasız çalışmasını garanti etmez. Aşağıdaki durumlarda 
+                    compass, web sitesinin kesintisiz ve hatasız çalışmasını garanti etmez. Aşağıdaki durumlarda 
                     sorumluluk kabul etmeyiz:
                   </p>
                   <ul className="space-y-2 text-muted-foreground list-disc list-inside">

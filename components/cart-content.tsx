@@ -47,11 +47,11 @@ export function CartContent() {
   // Sayfa yüklendiğinde KVKK ve mesafeli satış onayını oku
   useEffect(() => {
     if (typeof window !== 'undefined') {
-      const savedKvkk = localStorage.getItem('shawk_kvkk_accepted')
+      const savedKvkk = localStorage.getItem('compass_kvkk_accepted')
       if (savedKvkk === 'true') {
         setKvkkAccepted(true)
       }
-      const savedMesafeliSatis = localStorage.getItem('shawk_mesafeli_satis_accepted')
+      const savedMesafeliSatis = localStorage.getItem('compass_mesafeli_satis_accepted')
       if (savedMesafeliSatis === 'true') {
         setMesafeliSatisAccepted(true)
       }
@@ -62,9 +62,9 @@ export function CartContent() {
     setKvkkAccepted(accepted)
     if (typeof window !== 'undefined') {
       if (accepted) {
-        localStorage.setItem('shawk_kvkk_accepted', 'true')
+        localStorage.setItem('compass_kvkk_accepted', 'true')
       } else {
-        localStorage.removeItem('shawk_kvkk_accepted')
+        localStorage.removeItem('compass_kvkk_accepted')
       }
     }
     // Onaylandığında validation hatalarını gizle
@@ -77,9 +77,9 @@ export function CartContent() {
     setMesafeliSatisAccepted(accepted)
     if (typeof window !== 'undefined') {
       if (accepted) {
-        localStorage.setItem('shawk_mesafeli_satis_accepted', 'true')
+        localStorage.setItem('compass_mesafeli_satis_accepted', 'true')
       } else {
-        localStorage.removeItem('shawk_mesafeli_satis_accepted')
+        localStorage.removeItem('compass_mesafeli_satis_accepted')
       }
     }
     // Onaylandığında validation hatalarını gizle

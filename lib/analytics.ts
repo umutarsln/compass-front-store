@@ -4,8 +4,8 @@
  * Detaylı log: development'ta [Analytics] prefix ile console'a yazılır.
  */
 
-const SESSION_ID_KEY = 'shawk_analytics_session_id';
-const QUEUE_KEY = 'shawk_analytics_queue';
+const SESSION_ID_KEY = 'compass_analytics_session_id';
+const QUEUE_KEY = 'compass_analytics_queue';
 const MAX_QUEUE = 20;
 const BATCH_SIZE = 10;
 

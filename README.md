@@ -1,1 +1,1 @@
-# shawk-ecommerce-store
+# compass-ecommerce-store

@@ -54,8 +54,8 @@ export default function MesafeliSatisSozlesmesiPage() {
                         <li><span className="font-medium">Firma Unvanı:</span> AMEAN BİLGİSAYAR ENERJİ TURİZM GIDA SANAYİ VE TİCARET LİMİTED ŞİRKETİ</li>
                         <li><span className="font-medium">Adres:</span>Gençlik Mah. Tevfik Işık Cad. 2.Kural Apt. No:13/B Muratpaşa/Antalya - Posta Kodu: 07100</li>
                         <li><span className="font-medium">Telefon:</span> 0551 977 08 58</li>
-                        <li><span className="font-medium">E-Posta:</span> info@shawk.com.tr</li>
-                        <li><span className="font-medium">Web Sitesi:</span> www.shawk.com.tr</li>
+                        <li><span className="font-medium">E-Posta:</span> info@compass.com.tr</li>
+                        <li><span className="font-medium">Web Sitesi:</span> www.compass.com.tr</li>
                       </ul>
                     </div>
                     

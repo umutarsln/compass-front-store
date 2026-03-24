@@ -18,7 +18,7 @@ export async function generateMetadata({ params }: ProductPageProps) {
     if (!product) return {}
 
     return {
-      title: `${product.name} | Shawk`,
+      title: `${product.name} | compass`,
       description: product.seoDescription || product.description,
     }
   } catch {
@@ -26,7 +26,7 @@ export async function generateMetadata({ params }: ProductPageProps) {
     const staticProduct = getStaticProductDetailBySlugOrId(slug, usdTryRate)
     if (!staticProduct) return {}
     return {
-      title: `${staticProduct.name} | Shawk`,
+      title: `${staticProduct.name} | compass`,
       description: staticProduct.seoDescription || staticProduct.description,
     }
   }

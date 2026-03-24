@@ -1,4 +1,4 @@
-const FAVORITES_KEY = 'shawk_favorites';
+const FAVORITES_KEY = 'compass_favorites';
 
 export interface LocalFavoritesData {
     productIds: string[];

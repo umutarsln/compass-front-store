@@ -2,7 +2,7 @@ import { Footer } from "@/components/footer"
 import { CheckoutForm } from "@/components/checkout-form"
 
 export const metadata = {
-  title: "Güvenli Ödeme | Shawk",
+  title: "Güvenli Ödeme | compass",
   description: "Siparişinizi güvenle tamamlayın.",
 }
 

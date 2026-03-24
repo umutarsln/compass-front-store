@@ -1,5 +1,5 @@
-const CART_ID_KEY = 'shawk_cart_id';
-const CART_DATA_KEY = 'shawk_cart_data';
+const CART_ID_KEY = 'compass_cart_id';
+const CART_DATA_KEY = 'compass_cart_data';
 
 export interface LocalCartData {
     cartId: string;
