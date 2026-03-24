@@ -1,25 +1,25 @@
-import { HeroSection } from "@/components/home/hero-section"
-import { DiscountCountdown } from "@/components/home/discount-countdown"
-import { CategoriesSection } from "@/components/home/categories-section"
-import { HowItWorksSection } from "@/components/home/how-it-works-section"
-import { LifestyleSection } from "@/components/home/lifestyle-section"
-import { TrustSection } from "@/components/home/trust-section"
-import { InstagramSection } from "@/components/home/instagram-section"
-import { CTASection } from "@/components/home/cta-section"
 import { Footer } from "@/components/footer"
+import { IndexSections } from "@/components/home/index-sections"
+import { getProducts } from "@/services/products"
+import { transformProductListItem } from "@/lib/product-transformer"
 
-export default function HomePage() {
+/**
+ * Ana sayfa - Forge Index UI
+ * Ürünler API'den çekilir
+ */
+export default async function HomePage() {
+  let featuredProducts: Awaited<ReturnType<typeof transformProductListItem>>[] = []
+  try {
+    const result = await getProducts({ limit: 6 })
+    featuredProducts = result.products.map(transformProductListItem)
+  } catch {
+    // API hatası durumunda boş liste
+  }
+
   return (
     <>
       <main>
-        <HeroSection />
-        <DiscountCountdown />
-        <CategoriesSection />
-        <HowItWorksSection />
-        <LifestyleSection />
-        <TrustSection />
-        <InstagramSection />
-        <CTASection />
+        <IndexSections featuredProducts={featuredProducts} />
       </main>
       <Footer />
     </>

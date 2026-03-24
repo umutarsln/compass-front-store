@@ -368,6 +368,14 @@ export function CartSidebar() {
                   >
                     Sepete Git
                   </Link>
+                  {/* Satın Al: sıradaki adım (ödeme) sayfasına yönlendirir */}
+                  <Link
+                    href={isAuthenticated ? "/odeme" : "/odeme-auth"}
+                    onClick={closeSidebar}
+                    className="block w-full py-2.5 md:py-3 border border-foreground text-foreground text-center text-sm md:text-base font-medium uppercase tracking-wider hover:bg-foreground hover:text-background transition-colors"
+                  >
+                    Satın Al
+                  </Link>
                 </div>
               )}
             </motion.div>

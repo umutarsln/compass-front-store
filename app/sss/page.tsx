@@ -1,7 +1,6 @@
 "use client"
 
 import { motion } from "framer-motion"
-import { Header } from "@/components/header"
 import { Footer } from "@/components/footer"
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
 import { HelpCircle, Package, ShoppingBag, Truck, CreditCard, Heart, RefreshCw } from "lucide-react"
@@ -146,8 +145,7 @@ const faqCategories = [
 export default function FAQPage() {
   return (
     <>
-      <Header />
-      <main className="pt-26 md:pt-[108px]">
+      <main>
         {/* Hero Section */}
         <section className="relative pt-24 pb-12 bg-background overflow-hidden">
           <div className="mx-auto max-w-7xl px-6 lg:px-8">

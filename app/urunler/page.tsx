@@ -1,10 +1,20 @@
-import { Header } from "@/components/header"
 import { Footer } from "@/components/footer"
-import { ProductsWithFilters } from "@/components/products-with-filters"
-import { getProducts, getCategories, getTags } from "@/services"
+import { ProductsForgeStyle } from "@/components/products-forge-style"
+import { getProducts, getCategories } from "@/services"
 import { transformProductList } from "@/lib/product-transformer"
+import type { FrontendProduct } from "@/lib/product-transformer"
 import type { OrderBy } from "@/services/products"
 import type { Category } from "@/services/categories"
+import { getUsdTryRate } from "@/lib/exchange-rate"
+import { getStaticFrontendProducts } from "@/lib/static-product-details"
+
+/** API erişilemediğinde kullanılacak statik kategoriler */
+const STATIC_CATEGORIES: Category[] = [
+  { id: "static-1", name: "UV Baskı", slug: "uv-baski", children: [], parentId: null, parent: null, image: null, isActive: true, displayOrder: 0, createdAt: "", updatedAt: "" },
+  { id: "static-2", name: "Plotter Folyo Kesici", slug: "plotter-folyo-kesici", children: [], parentId: null, parent: null, image: null, isActive: true, displayOrder: 1, createdAt: "", updatedAt: "" },
+  { id: "static-3", name: "Etiket Kesim", slug: "etiket-kesim", children: [], parentId: null, parent: null, image: null, isActive: true, displayOrder: 2, createdAt: "", updatedAt: "" },
+  { id: "static-4", name: "Dijital Baskı", slug: "dijital-baski", children: [], parentId: null, parent: null, image: null, isActive: true, displayOrder: 3, createdAt: "", updatedAt: "" },
+]
 
 // Kategoriyi slug'a göre bul (recursive)
 function findCategoryBySlug(categories: Category[], slug: string): Category | null {
@@ -68,92 +78,71 @@ interface ProductsPageProps {
 }
 
 export const metadata = {
-  title: "Tüm Ürünler | Shawk",
-  description: "Kişiselleştirilmiş 3D LED lambalarımızın tamamını keşfedin.",
+  title: "Ürünlerimiz | Compass Reklam",
+  description: "Endüstriyel baskı teknolojilerinde geniş ürün yelpazemizi keşfedin.",
+}
+
+/** Slug'a göre kategori adını döndürür (statik filtre için) */
+function getCategoryNamesBySlugs(categories: Category[], slugs: string[]): Set<string> {
+  const names = new Set<string>()
+  for (const slug of slugs) {
+    const cat = findCategoryBySlug(categories, slug)
+    if (cat) names.add(cat.name)
+  }
+  return names
 }
 
 export default async function ProductsPage({ searchParams }: ProductsPageProps) {
-  const params = await searchParams;
+  const params = await searchParams
+
+  let categories: Category[]
+  let transformedProducts: FrontendProduct[]
+  let expandedCategorySlugs: string[]
 
   try {
-    // Backend'den kategorileri ve tag'leri paralel olarak çek
-    const [categories, tags] = await Promise.all([
-      getCategories(),
-      getTags(),
-    ])
+    categories = await getCategories()
+  } catch (err) {
+    console.warn("Kategoriler API'den alınamadı, statik liste kullanılıyor.", err)
+    categories = STATIC_CATEGORIES
+  }
 
-    // categorySlugs'ı parse et
-    const categorySlugsArray = params.categorySlugs ? params.categorySlugs.split(',') : []
+  const categorySlugsArray = params.categorySlugs ? params.categorySlugs.split(",") : []
+  expandedCategorySlugs = expandCategorySlugs(categorySlugsArray, categories)
+  const expandedCategorySlugsString =
+    expandedCategorySlugs.length > 0 ? expandedCategorySlugs.join(",") : undefined
 
-    // Parent kategori varsa ve çocukları yoksa, çocuklarını da ekle
-    const expandedCategorySlugs = expandCategorySlugs(categorySlugsArray, categories)
-    const expandedCategorySlugsString = expandedCategorySlugs.length > 0
-      ? expandedCategorySlugs.join(',')
-      : undefined
-
-    // Backend'den ürünleri filtre parametreleriyle çek
+  try {
     const productsResponse = await getProducts({
       search: params.search,
       categorySlugs: expandedCategorySlugsString,
       tagSlugs: params.tagSlugs,
-      // minPrice: params.minPrice ? Number(params.minPrice) : undefined,
-      // maxPrice: params.maxPrice ? Number(params.maxPrice) : undefined,
-      orderBy: params.orderBy || 'created_at_desc',
+      orderBy: params.orderBy || "created_at_desc",
       page: params.page ? Number(params.page) : 1,
       limit: params.limit ? Number(params.limit) : 20,
     })
-
-    // Backend verisini frontend formatına dönüştür
-    const transformedProducts = transformProductList(productsResponse.products)
-
-    return (
-      <>
-        <Header />
-        <main className="pt-26 md:pt-[108px]">
-          <ProductsWithFilters
-            initialProducts={transformedProducts}
-            initialPagination={{
-              total: productsResponse.total,
-              page: productsResponse.page,
-              limit: productsResponse.limit,
-              totalPages: productsResponse.totalPages,
-            }}
-            categories={categories}
-            tags={tags}
-            initialFilters={{
-              search: params.search || '',
-              categorySlugs: expandedCategorySlugs, // Genişletilmiş kategori slug'ları
-              tagSlugs: params.tagSlugs ? params.tagSlugs.split(',') : [],
-              minPrice: params.minPrice ? Number(params.minPrice) : undefined,
-              maxPrice: params.maxPrice ? Number(params.maxPrice) : undefined,
-              orderBy: params.orderBy || 'created_at_desc',
-              page: params.page ? Number(params.page) : 1,
-              limit: params.limit ? Number(params.limit) : 20,
-            }}
-          />
-        </main>
-        <Footer />
-      </>
-    )
-  } catch (error) {
-    console.error('Error fetching products:', error)
-    return (
-      <>
-        <Header />
-        <main className="pt-26 md:pt-[108px]">
-          <div className="mx-auto max-w-7xl px-6 lg:px-8 py-24">
-            <div className="text-center">
-              <h1 className="font-serif text-4xl sm:text-5xl lg:text-6xl text-foreground mb-4">
-                Ürünler Yüklenirken Hata Oluştu
-              </h1>
-              <p className="text-muted-foreground">
-                Lütfen daha sonra tekrar deneyin.
-              </p>
-            </div>
-          </div>
-        </main>
-        <Footer />
-      </>
-    )
+    transformedProducts = transformProductList(productsResponse.products)
+  } catch (err) {
+    console.warn("Ürünler API'den alınamadı, statik liste kullanılıyor.", err)
+    const usdTryRate = await getUsdTryRate()
+    const staticProducts = getStaticFrontendProducts(usdTryRate)
+    if (expandedCategorySlugs.length > 0) {
+      const allowedNames = getCategoryNamesBySlugs(categories, expandedCategorySlugs)
+      transformedProducts = staticProducts.filter((p) => allowedNames.has(p.category))
+    } else {
+      transformedProducts = staticProducts
+    }
   }
+
+  return (
+    <>
+      <main>
+        <ProductsForgeStyle
+          initialProducts={transformedProducts}
+          categories={categories}
+          initialCategorySlugs={expandedCategorySlugs}
+        />
+      </main>
+      <Footer />
+    </>
+  )
 }

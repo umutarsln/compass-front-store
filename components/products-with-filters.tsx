@@ -32,7 +32,6 @@ import type { Tag } from "@/services/tags"
 import type { OrderBy } from "@/services/products"
 import { getProducts } from "@/services"
 import { transformProductList } from "@/lib/product-transformer"
-import { ValentinesCountdown } from "@/components/valentines-countdown"
 
 interface ProductsWithFiltersProps {
   initialProducts: FrontendProduct[]
@@ -646,11 +645,6 @@ export function ProductsWithFilters({
       <div className="mx-auto max-w-7xl px-6 lg:px-8">
         {/* Başlık */}
 
-        {/* Mobilde: Sevgililer Günü Geri Sayım - Filtreler Butonunun Üstünde */}
-        <div className="lg:hidden mb-4 -mx-6 px-6">
-          <ValentinesCountdown />
-        </div>
-
         {/* Mobile Filtreler Butonu */}
         <div className="lg:hidden sticky top-[108px] z-50 bg-background border-b border-border mb-6 -mx-6 px-6 py-4" suppressHydrationWarning>
           <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
@@ -674,10 +668,6 @@ export function ProductsWithFilters({
           <div className="hidden lg:block w-64 flex-shrink-0">
             <div className="sticky top-24 space-y-6">
               {FiltersSidebar}
-              {/* Desktop'ta: Sevgililer Günü Geri Sayım - Filtrelerin Altında, Her Zaman */}
-              <div className="w-full">
-                <ValentinesCountdown />
-              </div>
             </div>
           </div>
 

@@ -4,8 +4,9 @@ import { useState } from "react"
 import { motion } from "framer-motion"
 import Image from "next/image"
 import Link from "next/link"
-import { ShoppingCart } from "lucide-react"
+import { ShoppingCart, Eye } from "lucide-react"
 import { useCart } from "@/contexts/cart-context"
+import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Spinner } from "@/components/ui/spinner"
 import type { FrontendProduct } from "@/lib/product-transformer"
@@ -65,28 +66,43 @@ export function ProductCard({
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       whileInView={{ opacity: 1, y: 0 }}
+      whileHover={{ y: -4 }}
       viewport={{ once: true }}
-      transition={{ duration: 0.5 }}
+      transition={{ duration: 0.3 }}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
-      className={!isInStock ? "opacity-10" : ""}
+      className={`group/card bg-card rounded-lg overflow-hidden shadow-card hover:shadow-elevated transition-all duration-300 border border-border ${!isInStock ? "opacity-60" : ""}`}
     >
-      <Link href={detailUrl} className={`group block ${!isInStock ? "opacity-80 grayscale-25" : ""}`}>
-        <div className="relative aspect-4/5 overflow-hidden bg-secondary rounded-lg">
+      <Link href={detailUrl} className={`block ${!isInStock ? "opacity-80 grayscale-25" : ""}`}>
+        <div className="relative aspect-[4/3] overflow-hidden bg-secondary">
           <Image
             src={image || "/placeholders/placeholder.svg"}
             alt={name}
             fill
             loading="eager"
-            className={`object-cover transition-transform duration-500 ${isInStock ? "group-hover:scale-105" : ""}`}
+            className={`object-cover transition-transform duration-500 ${isInStock ? "group-hover/card:scale-105" : ""}`}
           />
           {isInStock && (
-            <>
-              <div className="absolute inset-0 bg-foreground/0 group-hover:bg-foreground/5 transition-colors duration-300" />
-              <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none">
-                <div className="absolute inset-0 shadow-[inset_0_0_60px_rgba(255,200,150,0.15)]" />
-              </div>
-            </>
+            <div className="absolute inset-0 bg-foreground/0 group-hover/card:bg-foreground/20 transition-colors duration-300 flex items-center justify-center gap-2 opacity-0 group-hover/card:opacity-100">
+              <Link href={detailUrl} onClick={(e) => e.stopPropagation()} className="pointer-events-auto">
+                <button
+                  type="button"
+                  className="rounded-full h-10 w-10 flex items-center justify-center bg-secondary text-white hover:bg-secondary/80 transition-colors border border-border"
+                  aria-label="Detayları görüntüle"
+                >
+                  <Eye className="h-4 w-4" />
+                </button>
+              </Link>
+              <button
+                type="button"
+                onClick={handleAddToCart}
+                disabled={isAdding}
+                className="rounded-full h-10 w-10 flex items-center justify-center bg-primary text-primary-foreground hover:opacity-90 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed pointer-events-auto"
+                aria-label="Sepete ekle"
+              >
+                {isAdding ? <Spinner className="h-4 w-4" /> : <ShoppingCart className="h-4 w-4" />}
+              </button>
+            </div>
           )}
 
           {/* İndirim Badge - Sol Üst */}
@@ -107,48 +123,35 @@ export function ProductCard({
             </div>
           )}
 
-          {/* Action Buttons */}
-          {/* {isInStock && (
-            <div className={`absolute top-3 right-3 flex flex-col gap-2 transition-opacity duration-300 ${isHovered || isAdding ? "opacity-100" : "opacity-0"}`}>
-              <button
-                onClick={handleAddToCart}
-                disabled={isAdding}
-                className="p-2 rounded-full backdrop-blur-sm bg-background/80 text-foreground hover:bg-background transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                aria-label="Sepete Ekle"
-              >
-                {isAdding ? (
-                  <Spinner className="w-4 h-4" />
-                ) : (
-                  <ShoppingCart className="w-4 h-4" />
-                )}
-              </button>
-            </div>
-          )} */}
         </div>
-        <div className="mt-4">
-          <p className="text-[10px] text-muted-foreground uppercase tracking-wider">{category}</p>
-          <h3 className={`mt-1 text-base font-semibold text-foreground line-clamp-2 min-h-12 ${isInStock ? "group-hover:text-accent transition-colors" : ""}`}>
+        <div className="p-4">
+          <p className="text-xs text-primary font-semibold uppercase tracking-wider mb-1">{category}</p>
+          <h3 className={`font-display font-semibold text-foreground line-clamp-2 text-sm leading-tight hover:text-primary transition-colors ${!isInStock ? "" : ""}`}>
             {name}
           </h3>
 
           <p className="mt-1 text-xs text-muted-foreground min-h-4 line-clamp-1">{subtitle}</p>
 
 
-          {/* Fiyat ve İndirim */}
-          <div className="mt-2 flex items-baseline gap-2">
-            {discountedPrice && basePrice > discountedPrice ? (
-              <>
+          {/* Fiyat ve İndirim - Forge: 0 ise "Teklif Alın" accent renginde */}
+          <div className="mt-2 flex items-baseline gap-2 font-display">
+            {price != null && price > 0 ? (
+              discountedPrice && basePrice > discountedPrice ? (
+                <>
+                  <span className="text-lg font-bold text-foreground">
+                    {discountedPrice.toLocaleString("tr-TR")} ₺
+                  </span>
+                  <span className="text-sm text-muted-foreground line-through">
+                    {basePrice.toLocaleString("tr-TR")} ₺
+                  </span>
+                </>
+              ) : (
                 <span className="text-lg font-bold text-foreground">
-                  {discountedPrice.toLocaleString("tr-TR")} ₺
+                  {price.toLocaleString("tr-TR")} ₺
                 </span>
-                <span className="text-sm text-muted-foreground line-through">
-                  {basePrice.toLocaleString("tr-TR")} ₺
-                </span>
-              </>
+              )
             ) : (
-              <span className="text-lg font-bold text-foreground">
-                {price.toLocaleString("tr-TR")} ₺
-              </span>
+              <span className="text-lg font-bold text-accent">Teklif Alın</span>
             )}
           </div>
 
@@ -190,6 +193,20 @@ export function ProductCard({
               })}
             </div>
           )}
+
+          <div className="mt-3 flex flex-col gap-2">
+            {/* Satın Al: sıradaki adım (ürün detay veya sepet) için ürün detayına gider */}
+            <Link href={detailUrl}>
+              <Button variant="hero" size="sm" className="w-full text-xs">
+                Satın Al
+              </Button>
+            </Link>
+            <Link href={detailUrl}>
+              <Button variant="hero-outline" size="sm" className="w-full text-xs">
+                Detayları İncele
+              </Button>
+            </Link>
+          </div>
         </div>
       </Link>
     </motion.div>

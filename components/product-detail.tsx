@@ -4,28 +4,58 @@ import { useState, useCallback, useMemo, useEffect, useRef } from "react"
 import { motion } from "framer-motion"
 import Image from "next/image"
 import Link from "next/link"
-import { useRouter } from "next/navigation"
-import { Award, Shield, Clock, ChevronLeft, ChevronRight, ShoppingCart, Timer, Truck, RefreshCw } from "lucide-react"
+import { useRouter, usePathname } from "next/navigation"
+import { Award, Shield, Clock, ChevronLeft, ChevronRight, ShoppingCart, Timer, Truck, RefreshCw, MessageCircle } from "lucide-react"
 import { useCart } from "@/contexts/cart-context"
+import { useAuth } from "@/contexts/auth-context"
 import type { ProductDetail as ProductDetailType } from "@/services/products"
 import { trackEvent, flushAnalytics } from "@/lib/analytics"
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
 import { Badge } from "@/components/ui/badge"
-import { PersonalizationFormRenderer } from "@/components/personalization/PersonalizationFormRenderer"
 import { MarkdownContent } from "@/components/markdown-content"
-import { ValentinesCountdown } from "@/components/valentines-countdown"
+import { cn } from "@/lib/utils"
 
 interface ProductDetailProps {
   product: ProductDetailType
 }
 
+/** Teklif için kullanılan WhatsApp iş hattı (ülke kodu + numara, başında + yok). */
+const WHATSAPP_TEKLIF_PHONE = "905519770858"
+
+/**
+ * Ürün sayfası URL'si ve sabit teklif metniyle wa.me bağlantısı üretir.
+ * @param productPageUrl Tam sayfa adresi (ör. https://site.com/urun/slug)
+ */
+function buildWhatsAppTeklifHref(productPageUrl: string): string {
+  const text = `Merhabalar, bu ürünün fiyatı için teklif alabilir miyim\n${productPageUrl}`
+  return `https://wa.me/${WHATSAPP_TEKLIF_PHONE}?text=${encodeURIComponent(text)}`
+}
+
+/**
+ * Ürün detay görünümü: galeri, fiyat, varyant, sepet ve WhatsApp teklif bağlantısı.
+ */
 export function ProductDetail({ product }: ProductDetailProps) {
   const [selectedImage, setSelectedImage] = useState(0)
   const [isAddingToCart, setIsAddingToCart] = useState(false)
   const { addToCart } = useCart()
+  const { isAuthenticated } = useAuth()
   const router = useRouter()
+  const pathname = usePathname()
+  const [siteOrigin, setSiteOrigin] = useState("")
   const openedAtRef = useRef<number>(Date.now())
-  const personalizationRef = useRef<HTMLDivElement>(null)
+
+  /** İstemci tarafında gerçek origin'i alır (SSR sonrası tam ürün linki için). */
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      setSiteOrigin(window.location.origin)
+    }
+  }, [])
+
+  const productPageUrl = useMemo(() => {
+    const path = pathname || `/urun/${product.slug}`
+    return siteOrigin ? `${siteOrigin}${path}` : path
+  }, [pathname, product.slug, siteOrigin])
+
+  const whatsappTeklifHref = useMemo(() => buildWhatsAppTeklifHref(productPageUrl), [productPageUrl])
 
   useEffect(() => {
     if (process.env.NODE_ENV === 'development') {
@@ -38,6 +68,7 @@ export function ProductDetail({ product }: ProductDetailProps) {
     })
   }, [product.productId, product.selectedCombination?.id])
 
+  /** Kampanya / kargo / iade kısa güven metinleri (mobil ve masaüstü). */
   const TrustBadges = () => (
     <div className="grid grid-cols-3 gap-2 lg:gap-4">
       <div className="flex items-center gap-2 lg:gap-3">
@@ -46,7 +77,7 @@ export function ProductDetail({ product }: ProductDetailProps) {
         </div>
         <div className="min-w-0">
           <p className="text-xs lg:text-sm font-medium text-foreground truncate">Sınırlı Süreli Kampanya</p>
-          <p className="text-[10px] lg:text-xs text-muted-foreground truncate">Özel fırsatlar</p>
+          <p className="text-[10px] lg:text-xs text-foreground/70 truncate">Özel fırsatlar</p>
         </div>
       </div>
       <div className="flex items-center gap-2 lg:gap-3">
@@ -55,7 +86,7 @@ export function ProductDetail({ product }: ProductDetailProps) {
         </div>
         <div className="min-w-0">
           <p className="text-xs lg:text-sm font-medium text-foreground truncate">Ücretsiz Kargo</p>
-          <p className="text-[10px] lg:text-xs text-muted-foreground truncate">Tüm siparişlerde</p>
+          <p className="text-[10px] lg:text-xs text-foreground/70 truncate">Tüm siparişlerde</p>
         </div>
       </div>
       <div className="flex items-center gap-2 lg:gap-3">
@@ -64,7 +95,7 @@ export function ProductDetail({ product }: ProductDetailProps) {
         </div>
         <div className="min-w-0">
           <p className="text-xs lg:text-sm font-medium text-foreground truncate">14 Gün İade Garantisi</p>
-          <p className="text-[10px] lg:text-xs text-muted-foreground truncate">Koşulsuz iade</p>
+          <p className="text-[10px] lg:text-xs text-foreground/70 truncate">Koşulsuz iade</p>
         </div>
       </div>
     </div>
@@ -207,7 +238,11 @@ export function ProductDetail({ product }: ProductDetailProps) {
     }
   }, [product, currentCombination, validCombinations])
 
-  const handleAddToCart = async () => {
+  /**
+   * Sepete ekler. İsteğe bağlı olarak ekleme sonrası ödeme sayfasına yönlendirir (Satın Al).
+   * @param redirectToCheckout true ise sepete ekledikten sonra /odeme veya /odeme-auth sayfasına gider
+   */
+  const handleAddToCart = async (redirectToCheckout?: boolean) => {
     setIsAddingToCart(true)
 
     try {
@@ -230,19 +265,6 @@ export function ProductDetail({ product }: ProductDetailProps) {
           const isValid = await formData.validate()
           if (!isValid) {
             setIsAddingToCart(false)
-            // Mobilde kişiselleştirme formuna scroll yap (header'ın altına)
-            if (personalizationRef.current) {
-              setTimeout(() => {
-                const headerOffset = 120 // Topbar + Header yüksekliği
-                const elementPosition = personalizationRef.current?.getBoundingClientRect().top || 0
-                const offsetPosition = elementPosition + window.pageYOffset - headerOffset
-
-                window.scrollTo({
-                  top: offsetPosition,
-                  behavior: 'smooth'
-                })
-              }, 100)
-            }
             return
           }
         }
@@ -364,6 +386,9 @@ export function ProductDetail({ product }: ProductDetailProps) {
       }
 
       await addToCart(cartItem, personalizationData, true)
+      if (redirectToCheckout) {
+        router.push(isAuthenticated ? "/odeme" : "/odeme-auth")
+      }
     } catch (error: any) {
       console.error("[ProductDetail] Failed to add to cart:", error)
     } finally {
@@ -385,19 +410,49 @@ export function ProductDetail({ product }: ProductDetailProps) {
     setSelectedVariantValues(newSelectedValues)
   }
 
+  /** Galeride bir sonraki görsele geçer. */
   const nextImage = () => {
     setSelectedImage((prev) => (prev + 1) % images.length)
   }
 
+  /** Galeride bir önceki görsele geçer. */
   const prevImage = () => {
     setSelectedImage((prev) => (prev - 1 + images.length) % images.length)
   }
 
+  const categoryName = product.categories?.[0]?.name || "Ürünler"
+  /**
+   * Uzun açıklamadan ürün başlığı altında gösterilecek kısa özeti üretir.
+   * İlk paragraf/satırı alır ve okunabilir uzunlukta kırpar.
+   */
+  const shortDescription = useMemo(() => {
+    const raw = (product.description || "")
+      .replace(/\r/g, "")
+      .split("\n")
+      .map((line) => line.trim())
+      .filter((line) => line.length > 0 && !line.startsWith("-") && !line.startsWith("#"))[0] || ""
+    if (!raw) return ""
+    return raw.length > 220 ? `${raw.slice(0, 217)}...` : raw
+  }, [product.description])
+
+  /** WhatsApp "Teklif Al" bağlantıları için ortak stil. */
+  const teklifAlButtonClass =
+    "py-3 border-2 border-[#25D366] text-[#25D366] font-medium text-sm uppercase tracking-wider hover:bg-[#25D366]/12 transition-colors flex items-center justify-center gap-2 rounded-lg"
+
   return (
-    <div className="container mx-auto px-4 py-4 lg:py-8 pb-24 lg:pb-4">
+    <div className="container py-4 lg:py-8 pb-24 lg:pb-4">
+      {/* Breadcrumb - Forge style */}
+      <nav className="flex items-center gap-2 text-sm text-foreground/70 mb-8">
+        <Link href="/" className="hover:text-primary transition-colors">Ana Sayfa</Link>
+        <ChevronRight className="h-3 w-3" />
+        <Link href="/urunler" className="hover:text-primary transition-colors">Ürünler</Link>
+        <ChevronRight className="h-3 w-3" />
+        <span className="text-foreground">{product.name}</span>
+      </nav>
+
       {/* Mobilde: Image en üstte */}
       <div className="lg:hidden space-y-3 mb-4">
-        <div className="relative w-full bg-muted rounded-lg overflow-hidden" style={{ aspectRatio: '1' }}>
+        <div className="relative w-full bg-card rounded-lg overflow-hidden border border-border shadow-card" style={{ aspectRatio: '1' }}>
           <Image
             src={images[selectedImage]}
             alt={product.name}
@@ -434,7 +489,7 @@ export function ProductDetail({ product }: ProductDetailProps) {
                 className={`h-2 rounded-full transition-all ${
                   selectedImage === index 
                     ? 'bg-primary w-6' 
-                    : 'bg-muted-foreground/30 w-2'
+                    : 'bg-primary/30 w-2'
                 }`}
                 aria-label={`Resim ${index + 1}`}
               />
@@ -443,9 +498,15 @@ export function ProductDetail({ product }: ProductDetailProps) {
         )}
         {/* Title ve Subtitle */}
         <div>
-          <h1 className="text-xl font-serif font-bold text-foreground leading-tight mb-1">{product.name}</h1>
+          <span className="text-primary font-semibold text-sm uppercase tracking-wider">{categoryName}</span>
+          <h1 className="text-xl font-display font-bold text-foreground leading-tight mt-1 mb-1">{product.name}</h1>
           {product.subtitle && (
-            <p className="text-xs text-muted-foreground">{product.subtitle}</p>
+            <p className="text-xs text-foreground/70">{product.subtitle}</p>
+          )}
+          {shortDescription && (
+            <p className="mt-2 text-xs text-foreground bg-primary/[0.08] border border-primary/20 rounded-md px-3 py-2">
+              {shortDescription}
+            </p>
           )}
         </div>
       </div>
@@ -453,7 +514,7 @@ export function ProductDetail({ product }: ProductDetailProps) {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 lg:gap-8">
         {/* Desktop'ta: Görseller sol tarafta */}
         <div className="hidden lg:block lg:order-1 space-y-4">
-          <div className="relative aspect-square bg-muted rounded-lg overflow-hidden">
+          <div className="relative aspect-square bg-card rounded-lg overflow-hidden border border-border shadow-card">
             <Image
               src={images[selectedImage]}
               alt={product.name}
@@ -503,11 +564,17 @@ export function ProductDetail({ product }: ProductDetailProps) {
 
         {/* Desktop'ta: Sağ tarafta içerik */}
         <div className="lg:order-2 space-y-3 lg:space-y-6">
-          {/* Desktop'ta: Title burada */}
+          {/* Desktop'ta: Title burada - Forge style */}
           <div className="hidden lg:block">
-            <h1 className="text-3xl sm:text-4xl font-serif font-bold text-foreground leading-tight mb-2">{product.name}</h1>
+            <span className="text-primary font-semibold text-sm uppercase tracking-wider">{categoryName}</span>
+            <h1 className="text-3xl sm:text-4xl font-display font-bold text-foreground leading-tight mt-1 mb-2">{product.name}</h1>
             {product.subtitle && (
-              <p className="mt-2 text-sm text-muted-foreground">{product.subtitle}</p>
+              <p className="mt-2 text-sm text-foreground/70">{product.subtitle}</p>
+            )}
+            {shortDescription && (
+              <p className="mt-3 text-sm text-foreground bg-primary/[0.08] border border-primary/20 rounded-lg px-4 py-3 leading-relaxed">
+                {shortDescription}
+              </p>
             )}
           </div>
 
@@ -521,7 +588,7 @@ export function ProductDetail({ product }: ProductDetailProps) {
                       <span className="text-2xl lg:text-3xl font-bold text-foreground">
                         {product.discountedPrice.toLocaleString('tr-TR')} ₺
                       </span>
-                      <span className="text-lg lg:text-xl text-muted-foreground line-through">
+                      <span className="text-lg lg:text-xl text-foreground/45 line-through">
                         {product.basePrice.toLocaleString('tr-TR')} ₺
                       </span>
                     </>
@@ -543,7 +610,7 @@ export function ProductDetail({ product }: ProductDetailProps) {
                       <span className="text-2xl lg:text-3xl font-bold text-foreground">
                         {currentCombination.discountedPrice.toLocaleString('tr-TR')} ₺
                       </span>
-                      <span className="text-lg lg:text-xl text-muted-foreground line-through">
+                      <span className="text-lg lg:text-xl text-foreground/45 line-through">
                         {currentCombination.basePrice.toLocaleString('tr-TR')} ₺
                       </span>
                     </>
@@ -612,39 +679,54 @@ export function ProductDetail({ product }: ProductDetailProps) {
             <TrustBadges />
           </div>
 
-          {/* Kişiselleştirme Formu */}
-          {product.personalizationForm && (
-            <div ref={personalizationRef} id="personalization-form" className="mt-3 lg:mt-6">
-              <PersonalizationFormRenderer
-                formData={product.personalizationForm}
-                productId={product.productId}
-                variantId={product.type === 'VARIANT' ? currentCombination?.id : undefined}
-              />
-            </div>
-          )}
-
-          {/* Desktop'ta: Sepete Ekle Butonu */}
+          {/* Desktop'ta: Satın Al ve Sepete Ekle Butonları */}
           {(() => {
             const canAddToCart = product.type === 'SIMPLE' || currentCombination
             return (
-              <div className="hidden lg:block">
-                <button
-                  onClick={handleAddToCart}
-                  disabled={isAddingToCart || !canAddToCart}
-                  className="w-full py-4 bg-primary text-primary-foreground font-medium text-sm uppercase tracking-wider hover:bg-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 rounded-lg"
+              <div className="hidden lg:block space-y-2">
+                <div className="grid grid-cols-2 gap-2">
+                  <button
+                    onClick={() => handleAddToCart(true)}
+                    disabled={isAddingToCart || !canAddToCart}
+                    className="w-full py-4 bg-primary text-primary-foreground font-medium text-sm uppercase tracking-wider hover:bg-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 rounded-lg"
+                  >
+                    {isAddingToCart ? (
+                      <>
+                        <div className="w-4 h-4 border-2 border-primary-foreground border-t-transparent rounded-full animate-spin" />
+                        Yönlendiriliyor...
+                      </>
+                    ) : (
+                      <>Satın Al</>
+                    )}
+                  </button>
+                  <button
+                    onClick={() => handleAddToCart()}
+                    disabled={isAddingToCart || !canAddToCart}
+                    className="w-full py-3 border border-foreground text-foreground font-medium text-sm uppercase tracking-wider hover:bg-foreground hover:text-background transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 rounded-lg"
+                  >
+                    {isAddingToCart ? (
+                      <>
+                        <div className="w-4 h-4 border-2 border-foreground border-t-transparent rounded-full animate-spin" />
+                        Ekleniyor...
+                      </>
+                    ) : (
+                      <>
+                        <ShoppingCart className="w-4 h-4" />
+                        Sepete Ekle
+                      </>
+                    )}
+                  </button>
+                </div>
+                <a
+                  href={whatsappTeklifHref}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className={cn("w-full", teklifAlButtonClass)}
+                  aria-label="WhatsApp ile teklif al"
                 >
-                  {isAddingToCart ? (
-                    <>
-                      <div className="w-4 h-4 border-2 border-primary-foreground border-t-transparent rounded-full animate-spin" />
-                      Ekleniyor...
-                    </>
-                  ) : (
-                    <>
-                      <ShoppingCart className="w-4 h-4" />
-                      Sepete Ekle
-                    </>
-                  )}
-                </button>
+                  <MessageCircle className="w-4 h-4 shrink-0" />
+                  Teklif Al
+                </a>
               </div>
             )
           })()}
@@ -652,55 +734,50 @@ export function ProductDetail({ product }: ProductDetailProps) {
           {/* Ürün Özellikleri - Desktop'ta */}
           <div className="hidden lg:grid grid-cols-3 gap-4 pt-6 border-t">
             <div className="flex items-center gap-2">
-              <Award className="w-5 h-5 text-muted-foreground" />
+              <Award className="w-5 h-5 text-primary" />
               <div>
                 <p className="text-sm font-medium text-foreground">Kaliteli Ürün</p>
-                <p className="text-xs text-muted-foreground">Ahşap Plaka</p>
+                <p className="text-xs text-foreground/70">Ahşap Plaka</p>
               </div>
             </div>
             <div className="flex items-center gap-2">
-              <Shield className="w-5 h-5 text-muted-foreground" />
+              <Shield className="w-5 h-5 text-primary" />
               <div>
                 <p className="text-sm font-medium text-foreground">Güvenli Ödeme</p>
-                <p className="text-xs text-muted-foreground">SSL ile korumalı</p>
+                <p className="text-xs text-foreground/70">SSL ile korumalı</p>
               </div>
             </div>
             <div className="flex items-center gap-2">
-              <Clock className="w-5 h-5 text-muted-foreground" />
+              <Clock className="w-5 h-5 text-primary" />
               <div>
                 <p className="text-sm font-medium text-foreground">Hızlı Teslimat</p>
-                <p className="text-xs text-muted-foreground">1-2 Hafta</p>
+                <p className="text-xs text-foreground/70">1-2 Hafta</p>
               </div>
             </div>
           </div>
         </div>
       </div>
 
-      {/* Sevgililer Günü Geri Sayım */}
-      <div className="mt-6 lg:mt-8">
-        <ValentinesCountdown />
-      </div>
-
-      {/* Ürün Açıklaması - Mobilde en altta */}
+      {/* Ürün açıklaması — Forge kart stili, gövde metni site ile aynı (font-sans) */}
       {product.description && (
-        <div className="mt-6 lg:mt-12">
-          <Tabs defaultValue="description" className="w-full">
-            <TabsList>
-              <TabsTrigger value="description">Açıklama</TabsTrigger>
-            </TabsList>
-
-            <TabsContent value="description" className="mt-0">
-              <div className="bg-secondary/30 border-x border-b border-border p-6 lg:p-8 -mt-px">
-                <div className="space-y-6">
-                  <div>
-                    <h3 className="text-lg font-serif font-medium text-foreground mb-4">Ürün Hakkında</h3>
-                    <MarkdownContent content={product.description} />
-                  </div>
-                </div>
-              </div>
-            </TabsContent>
-          </Tabs>
-        </div>
+        <section className="mt-6 lg:mt-12" aria-labelledby="product-description-heading">
+          <div className="rounded-lg border border-border bg-card shadow-card overflow-hidden">
+            <div className="border-b border-primary/15 bg-primary/[0.06] px-4 py-3 sm:px-6 sm:py-4">
+              <h2
+                id="product-description-heading"
+                className="font-display text-base sm:text-lg font-semibold text-foreground tracking-tight"
+              >
+                Ürün açıklaması
+              </h2>
+              <p className="mt-1 text-xs sm:text-sm text-foreground/70">
+                Teknik özellikler ve kullanım detayları
+              </p>
+            </div>
+            <div className="p-4 sm:p-6 lg:p-8">
+              <MarkdownContent content={product.description} variant="product" />
+            </div>
+          </div>
+        </section>
       )}
 
       {/* Mobilde: Sticky Sepete Ekle Butonu ve Ürün Özellikleri */}
@@ -711,57 +788,67 @@ export function ProductDetail({ product }: ProductDetailProps) {
             <div className="container mx-auto px-4 py-3">
               <div className="flex items-center gap-2 mb-2">
                 <div className="flex items-center gap-1.5 flex-1">
-                  <Award className="w-4 h-4 text-muted-foreground flex-shrink-0" />
+                  <Award className="w-4 h-4 text-primary flex-shrink-0" />
                   <div className="min-w-0">
                     <p className="text-xs font-medium text-foreground truncate">Kaliteli Ürün</p>
                   </div>
                 </div>
                 <div className="flex items-center gap-1.5 flex-1">
-                  <Shield className="w-4 h-4 text-muted-foreground flex-shrink-0" />
+                  <Shield className="w-4 h-4 text-primary flex-shrink-0" />
                   <div className="min-w-0">
                     <p className="text-xs font-medium text-foreground truncate">Güvenli Ödeme</p>
                   </div>
                 </div>
                 <div className="flex items-center gap-1.5 flex-1">
-                  <Clock className="w-4 h-4 text-muted-foreground flex-shrink-0" />
+                  <Clock className="w-4 h-4 text-primary flex-shrink-0" />
                   <div className="min-w-0">
                     <p className="text-xs font-medium text-foreground truncate">Hızlı Teslimat</p>
                   </div>
                 </div>
               </div>
-              <div className="flex gap-2">
-                <button
-                  onClick={handleAddToCart}
-                  disabled={isAddingToCart || !canAddToCart}
-                  className="flex-1 py-4 bg-primary text-primary-foreground font-medium text-sm uppercase tracking-wider hover:bg-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 rounded-lg"
-                >
-                  {isAddingToCart ? (
-                    <>
-                      <div className="w-4 h-4 border-2 border-primary-foreground border-t-transparent rounded-full animate-spin" />
-                      Ekleniyor...
-                    </>
-                  ) : (
-                    <>
-                      <ShoppingCart className="w-4 h-4" />
-                      Sepete Ekle
-                    </>
-                  )}
-                </button>
+              <div className="flex flex-col gap-2">
+                <div className="grid grid-cols-2 gap-2">
+                  <button
+                    onClick={() => handleAddToCart(true)}
+                    disabled={isAddingToCart || !canAddToCart}
+                    className="w-full py-4 bg-primary text-primary-foreground font-medium text-sm uppercase tracking-wider hover:bg-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 rounded-lg"
+                  >
+                    {isAddingToCart ? (
+                      <>
+                        <div className="w-4 h-4 border-2 border-primary-foreground border-t-transparent rounded-full animate-spin" />
+                        Yönlendiriliyor...
+                      </>
+                    ) : (
+                      <>Satın Al</>
+                    )}
+                  </button>
+                  <button
+                    onClick={() => handleAddToCart()}
+                    disabled={isAddingToCart || !canAddToCart}
+                    className="w-full py-3 border border-foreground text-foreground font-medium text-sm uppercase tracking-wider hover:bg-foreground hover:text-background transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 rounded-lg"
+                  >
+                    {isAddingToCart ? (
+                      <>
+                        <div className="w-4 h-4 border-2 border-foreground border-t-transparent rounded-full animate-spin" />
+                        Ekleniyor...
+                      </>
+                    ) : (
+                      <>
+                        <ShoppingCart className="w-4 h-4" />
+                        Sepete Ekle
+                      </>
+                    )}
+                  </button>
+                </div>
                 <a
-                  href={`https://wa.me/905519770858?text=${encodeURIComponent("Merhaba, ürünleriniz hakkında bilgi almak istiyorum.")}`}
+                  href={whatsappTeklifHref}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex-shrink-0 w-[56px] h-[56px] bg-[#25D366] text-white rounded-lg shadow-lg hover:shadow-xl transition-shadow flex items-center justify-center"
-                  aria-label="WhatsApp ile iletişime geç"
+                  className={cn("w-full", teklifAlButtonClass)}
+                  aria-label="WhatsApp ile teklif al"
                 >
-                  <svg
-                    className="w-6 h-6"
-                    fill="currentColor"
-                    viewBox="0 0 24 24"
-                    xmlns="http://www.w3.org/2000/svg"
-                  >
-                    <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z" />
-                  </svg>
+                  <MessageCircle className="w-4 h-4 shrink-0" />
+                  Teklif Al
                 </a>
               </div>
             </div>

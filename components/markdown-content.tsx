@@ -2,68 +2,156 @@
 
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
+import { cn } from "@/lib/utils"
 
-interface MarkdownContentProps {
+export interface MarkdownContentProps {
   content: string
   className?: string
+  /** Ürün detay sayfası: gövde metni site varsayılanı (sans) ile hizalanır */
+  variant?: "default" | "product"
 }
 
-export function MarkdownContent({ content, className = "" }: MarkdownContentProps) {
+/**
+ * Markdown içeriğini proje tipografisiyle render eder.
+ * @param variant "product" ürün detayında okunabilir gövde ve başlık hiyerarşisi kullanır
+ */
+export function MarkdownContent({ content, className = "", variant = "default" }: MarkdownContentProps) {
+  const isProduct = variant === "product"
+  const rootClass = isProduct
+    ? "markdown-content font-sans text-[15px] sm:text-base text-foreground leading-[1.65] antialiased"
+    : "markdown-content text-sm text-muted-foreground leading-relaxed [&_h2]:font-display [&_h3]:font-display"
+
   return (
-    <div className={`markdown-content text-sm text-muted-foreground leading-relaxed ${className}`}>
+    <div className={cn(rootClass, className)}>
       <ReactMarkdown
         remarkPlugins={[remarkGfm]}
         components={{
           h1: ({ node, ...props }) => (
-            <h1 className="text-2xl font-bold text-foreground mt-6 mb-4 first:mt-0" {...props} />
-          ),
-          h2: ({ node, ...props }) => (
-            <h2 className="text-xl font-bold text-foreground mt-5 mb-3" {...props} />
-          ),
-          h3: ({ node, ...props }) => (
-            <h3 className="text-lg font-semibold text-foreground mt-4 mb-2" {...props} />
-          ),
-          h4: ({ node, ...props }) => (
-            <h4 className="text-base font-semibold text-foreground mt-3 mb-2" {...props} />
-          ),
-          h5: ({ node, ...props }) => (
-            <h5 className="font-semibold text-foreground mt-2 mb-1" {...props} />
-          ),
-          h6: ({ node, ...props }) => (
-            <h6 className="font-semibold text-muted-foreground mt-2 mb-1" {...props} />
-          ),
-          p: ({ node, ...props }) => (
-            <p className="mb-4 last:mb-0" {...props} />
-          ),
-          ul: ({ node, ...props }) => (
-            <ul className="list-disc list-inside mb-4 space-y-2" {...props} />
-          ),
-          ol: ({ node, ...props }) => (
-            <ol className="list-decimal list-inside mb-4 space-y-2" {...props} />
-          ),
-          li: ({ node, ...props }) => (
-            <li className="text-muted-foreground" {...props} />
-          ),
-          blockquote: ({ node, ...props }) => (
-            <blockquote
-              className="border-l-4 border-primary/30 pl-4 py-2 my-4 italic text-muted-foreground bg-secondary/30 rounded-r"
+            <h1
+              className={cn(
+                "text-foreground first:mt-0",
+                isProduct
+                  ? "font-display text-xl sm:text-2xl font-bold mt-6 mb-3"
+                  : "text-2xl font-bold mt-6 mb-4",
+              )}
               {...props}
             />
           ),
-          code: ({ node, inline, ...props }: any) =>
-            inline ? (
+          h2: ({ node, ...props }) => (
+            <h2
+              className={cn(
+                "text-foreground pb-2 border-b border-border/70",
+                isProduct
+                  ? "font-display text-lg sm:text-xl font-semibold mt-8 mb-3 first:mt-0"
+                  : "text-xl font-bold mt-7 mb-3",
+              )}
+              {...props}
+            />
+          ),
+          h3: ({ node, ...props }) => (
+            <h3
+              className={cn(
+                "text-foreground",
+                isProduct
+                  ? "font-display text-base sm:text-lg font-semibold mt-6 mb-2"
+                  : "text-lg font-semibold mt-5 mb-2",
+              )}
+              {...props}
+            />
+          ),
+          h4: ({ node, ...props }) => (
+            <h4
+              className={cn(
+                "font-semibold text-foreground",
+                isProduct ? "text-sm sm:text-base mt-4 mb-2" : "text-base mt-3 mb-2",
+              )}
+              {...props}
+            />
+          ),
+          h5: ({ node, ...props }) => (
+            <h5 className={cn("font-semibold text-foreground mt-2 mb-1", isProduct && "text-sm")} {...props} />
+          ),
+          h6: ({ node, ...props }) => (
+            <h6
+              className={cn(
+                "font-semibold mt-2 mb-1",
+                isProduct ? "text-xs sm:text-sm text-foreground/80" : "text-muted-foreground",
+              )}
+              {...props}
+            />
+          ),
+          p: ({ node, ...props }) => (
+            <p
+              className={cn(
+                "mb-4 last:mb-0",
+                isProduct ? "text-foreground" : "",
+              )}
+              {...props}
+            />
+          ),
+          ul: ({ node, ...props }) => (
+            <ul
+              className={cn(
+                "list-disc mb-4 space-y-2 pl-1 marker:text-primary",
+                isProduct ? "list-outside ml-5 sm:ml-6" : "list-inside",
+              )}
+              {...props}
+            />
+          ),
+          ol: ({ node, ...props }) => (
+            <ol
+              className={cn(
+                "list-decimal mb-4 space-y-2 pl-1 marker:text-primary",
+                isProduct ? "list-outside ml-5 sm:ml-6" : "list-inside",
+              )}
+              {...props}
+            />
+          ),
+          li: ({ node, ...props }) => (
+            <li
+              className={cn(
+                "leading-7",
+                isProduct ? "text-foreground pl-1" : "text-muted-foreground",
+              )}
+              {...props}
+            />
+          ),
+          blockquote: ({ node, ...props }) => (
+            <blockquote
+              className={cn(
+                "border-l-4 pl-4 py-2 my-4 italic rounded-r",
+                isProduct
+                  ? "border-primary/40 bg-primary/[0.06] text-foreground/95"
+                  : "border-primary/30 text-muted-foreground bg-secondary/30",
+              )}
+              {...props}
+            />
+          ),
+          code: ({ node, inline, ...props }: any) => {
+            const codeBg = isProduct ? "bg-primary/10" : "bg-secondary/50"
+            return inline ? (
               <code
-                className="bg-secondary/50 rounded px-1.5 py-0.5 font-mono text-sm text-foreground"
+                className={cn("rounded px-1.5 py-0.5 font-mono text-sm text-foreground", codeBg)}
                 {...props}
               />
             ) : (
               <code
-                className="block bg-secondary/50 rounded p-4 font-mono text-sm text-foreground overflow-x-auto my-4"
+                className={cn(
+                  "block rounded p-4 font-mono text-sm text-foreground overflow-x-auto my-4",
+                  codeBg,
+                )}
                 {...props}
               />
-            ),
+            )
+          },
           pre: ({ node, ...props }) => (
-            <pre className="bg-secondary/50 rounded p-4 font-mono text-sm overflow-x-auto my-4" {...props} />
+            <pre
+              className={cn(
+                "rounded p-4 font-mono text-sm overflow-x-auto my-4",
+                isProduct ? "bg-primary/10" : "bg-secondary/50",
+              )}
+              {...props}
+            />
           ),
           table: ({ node, ...props }) => (
             <table
@@ -72,7 +160,7 @@ export function MarkdownContent({ content, className = "" }: MarkdownContentProp
             />
           ),
           thead: ({ node, ...props }) => (
-            <thead className="bg-secondary/50" {...props} />
+            <thead className={isProduct ? "bg-primary/10" : "bg-secondary/50"} {...props} />
           ),
           tbody: ({ node, ...props }) => (
             <tbody {...props} />

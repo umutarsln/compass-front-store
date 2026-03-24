@@ -1,10 +1,11 @@
 import { notFound } from "next/navigation"
-import { Header } from "@/components/header"
 import { Footer } from "@/components/footer"
 import { ProductDetail } from "@/components/product-detail"
 import { SimilarProducts } from "@/components/similar-products"
 import { getProductDetail } from "@/services/products"
 import { getProducts } from "@/services/products"
+import { getUsdTryRate } from "@/lib/exchange-rate"
+import { getStaticProductDetailBySlugOrId } from "@/lib/static-product-details"
 
 interface ProductPageProps {
   params: Promise<{ slug: string }>
@@ -21,7 +22,13 @@ export async function generateMetadata({ params }: ProductPageProps) {
       description: product.seoDescription || product.description,
     }
   } catch {
-    return {}
+    const usdTryRate = await getUsdTryRate()
+    const staticProduct = getStaticProductDetailBySlugOrId(slug, usdTryRate)
+    if (!staticProduct) return {}
+    return {
+      title: `${staticProduct.name} | Shawk`,
+      description: staticProduct.seoDescription || staticProduct.description,
+    }
   }
 }
 
@@ -46,8 +53,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
 
     return (
       <>
-        <Header />
-        <main className="pt-26 md:pt-[108px]">
+        <main>
           <ProductDetail product={product} />
           {similarProducts.length > 0 && <SimilarProducts products={similarProducts} />}
         </main>
@@ -56,6 +62,18 @@ export default async function ProductPage({ params }: ProductPageProps) {
     )
   } catch (error) {
     console.error('Error fetching product:', error)
-    notFound()
+    const usdTryRate = await getUsdTryRate()
+    const staticProduct = getStaticProductDetailBySlugOrId(slug, usdTryRate)
+    if (!staticProduct) {
+      notFound()
+    }
+    return (
+      <>
+        <main>
+          <ProductDetail product={staticProduct} />
+        </main>
+        <Footer />
+      </>
+    )
   }
 }

@@ -1,4 +1,3 @@
-import { Header } from "@/components/header"
 import { Footer } from "@/components/footer"
 import { CartContent } from "@/components/cart-content"
 
@@ -10,8 +9,7 @@ export const metadata = {
 export default function CartPage() {
   return (
     <>
-      <Header />
-      <main className="pt-26 md:pt-[108px]">
+      <main>
         <CartContent />
       </main>
       <Footer />

@@ -4,7 +4,6 @@ import { useState, useEffect, Suspense } from "react"
 import { motion } from "framer-motion"
 import { useRouter, useSearchParams } from "next/navigation"
 import Link from "next/link"
-import { Header } from "@/components/header"
 import { Footer } from "@/components/footer"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
@@ -69,8 +68,7 @@ function LoginForm() {
 
     return (
         <>
-            <Header />
-            <main className="pt-26 md:pt-[108px]">
+            <main>
                 {/* Hero Section */}
                 <section className="relative py-12 bg-background overflow-hidden">
                     <div className="mx-auto max-w-7xl px-6 lg:px-8">

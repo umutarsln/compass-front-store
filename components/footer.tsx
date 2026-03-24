@@ -1,119 +1,83 @@
 import Link from "next/link"
-import Image from "next/image"
-import { Instagram } from "lucide-react"
+import { Phone, Mail, MapPin } from "lucide-react"
 
-const footerLinks = {
-  company: [
-    { href: "/hakkimizda", label: "Hakkımızda" },
-    { href: "/iletisim", label: "İletişim" },
-    { href: "/sss", label: "Sıkça Sorulan Sorular" },
-  ],
-  support: [
-    { href: "/kargo-iade", label: "Kargo & İade" },
-    { href: "/gizlilik", label: "Gizlilik Politikası" },
-    { href: "/kullanim-kosullari", label: "Kullanım Koşulları" },
-    { href: "/mesafeli-satis-sozlesmesi", label: "Mesafeli Satış Sözleşmesi" },
-  ],
-}
-
+/** Forge tarzı Compass Reklam footer bileşeni - Marka, hızlı bağlantılar, ürün kategorileri, iletişim */
 export function Footer() {
   return (
-    <footer className="bg-secondary border-t border-border">
-      <div className="mx-auto max-w-7xl px-6 lg:px-8 py-16">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-12">
-          <div className="md:col-span-2">
-            <Link href="/" className="inline-block">
-              <Image
-                src="/logos/shawk-logo.svg"
-                alt="Shawk Logo"
-                width={200}
-                height={67}
-                className="h-14 md:h-16 w-auto"
-              />
-            </Link>
-            <p className="mt-4 text-muted-foreground max-w-md leading-relaxed">
-              Shawk ile anılarınızı ışığa dönüştürün. Her lamba, özel bir hikaye taşır ve sevdiklerinize unutulmaz anlar yaşatır. Kişiselleştirilmiş tasarımlarımızla duygularınızı somutlaştırın.
-            </p>
-            <div className="flex gap-4 mt-6">
-              <a
-                href="https://www.instagram.com/shawk.lamp/"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="w-10 h-10 flex items-center justify-center bg-background text-foreground hover:bg-accent hover:text-accent-foreground transition-colors"
-                aria-label="Instagram"
-              >
-                <Instagram className="w-5 h-5" />
-              </a>
-              {/* <a
-                href="https://tiktok.com"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="w-10 h-10 flex items-center justify-center bg-background text-foreground hover:bg-accent hover:text-accent-foreground transition-colors"
-                aria-label="TikTok"
-              >
-                <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-5.2 1.74 2.89 2.89 0 0 1 2.31-4.64 2.93 2.93 0 0 1 .88.13V9.4a6.84 6.84 0 0 0-1-.05A6.33 6.33 0 0 0 5 20.1a6.34 6.34 0 0 0 10.86-4.43v-7a8.16 8.16 0 0 0 4.77 1.52v-3.4a4.85 4.85 0 0 1-1-.1z"/>
-                </svg>
-              </a> */}
-              <a
-                href="https://wa.me/905519770858"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="w-10 h-10 flex items-center justify-center bg-background text-foreground hover:bg-accent hover:text-accent-foreground transition-colors"
-                aria-label="WhatsApp"
-              >
-                <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z" />
-                </svg>
-              </a>
+    <footer className="bg-secondary text-secondary-foreground">
+      <div className="container py-16">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10">
+          {/* Brand */}
+          <div>
+            <div className="flex items-center gap-2 mb-4">
+              <div className="h-10 w-10 rounded-lg bg-gradient-primary flex items-center justify-center">
+                <span className="font-display font-bold text-lg text-secondary-foreground">C</span>
+              </div>
+              <div>
+                <span className="font-display font-bold text-lg leading-none block">Compass</span>
+                <span className="text-xs text-primary font-semibold tracking-wider uppercase">Reklam</span>
+              </div>
             </div>
+            <p className="text-sm text-muted-foreground leading-relaxed">
+              Endüstriyel baskı teknolojilerinde Türkiye&apos;nin lider çözüm ortağı. 15+ yıllık deneyimimizle yanınızdayız.
+            </p>
           </div>
 
+          {/* Quick Links */}
           <div>
-            <h3 className="text-sm font-semibold text-foreground uppercase tracking-wider">Kurumsal</h3>
-            <ul className="mt-4 space-y-3">
-              {footerLinks.company.map((link) => (
-                <li key={link.href}>
-                  <Link href={link.href} className="text-muted-foreground hover:text-foreground transition-colors">
-                    {link.label}
-                  </Link>
-                </li>
-              ))}
+            <h4 className="font-display font-semibold mb-4 text-primary">Hızlı Bağlantılar</h4>
+            <ul className="space-y-2 text-sm">
+              <li><Link href="/urunler" className="text-muted-foreground hover:text-primary transition-colors">Ürünler</Link></li>
+              <li><Link href="/hizmetler" className="text-muted-foreground hover:text-primary transition-colors">Teknik Servis</Link></li>
+              <li><Link href="/hakkimizda" className="text-muted-foreground hover:text-primary transition-colors">Hakkımızda</Link></li>
+              <li><Link href="/blog" className="text-muted-foreground hover:text-primary transition-colors">Blog</Link></li>
+              <li><Link href="/iletisim" className="text-muted-foreground hover:text-primary transition-colors">İletişim</Link></li>
             </ul>
           </div>
 
+          {/* Products */}
           <div>
-            <h3 className="text-sm font-semibold text-foreground uppercase tracking-wider">Destek</h3>
-            <ul className="mt-4 space-y-3">
-              {footerLinks.support.map((link) => (
-                <li key={link.href}>
-                  <Link href={link.href} className="text-muted-foreground hover:text-foreground transition-colors">
-                    {link.label}
-                  </Link>
-                </li>
-              ))}
+            <h4 className="font-display font-semibold mb-4 text-primary">Ürün Kategorileri</h4>
+            <ul className="space-y-2 text-sm">
+              <li><Link href="/urunler" className="text-muted-foreground hover:text-primary transition-colors">UV Baskı Makineleri</Link></li>
+              <li><Link href="/urunler" className="text-muted-foreground hover:text-primary transition-colors">DTF Yazıcılar</Link></li>
+              <li><Link href="/urunler" className="text-muted-foreground hover:text-primary transition-colors">Lazer Kesim</Link></li>
+              <li><Link href="/urunler" className="text-muted-foreground hover:text-primary transition-colors">Laminasyon Makineleri</Link></li>
+              <li><Link href="/urunler" className="text-muted-foreground hover:text-primary transition-colors">Sarf Malzemeleri</Link></li>
+            </ul>
+          </div>
+
+          {/* Contact */}
+          <div>
+            <h4 className="font-display font-semibold mb-4 text-primary">İletişim</h4>
+            <ul className="space-y-3 text-sm">
+              <li className="flex items-start gap-2 text-muted-foreground">
+                <MapPin className="h-4 w-4 mt-0.5 text-primary shrink-0" />
+                İstanbul, Türkiye
+              </li>
+              <li>
+                <a href="tel:+902125551234" className="flex items-center gap-2 text-muted-foreground hover:text-primary transition-colors">
+                  <Phone className="h-4 w-4 text-primary" />
+                  +90 212 555 12 34
+                </a>
+              </li>
+              <li>
+                <a href="mailto:info@compassreklam.com" className="flex items-center gap-2 text-muted-foreground hover:text-primary transition-colors">
+                  <Mail className="h-4 w-4 text-primary" />
+                  info@compassreklam.com
+                </a>
+              </li>
             </ul>
           </div>
         </div>
 
-        <div className="mt-12 pt-8 border-t border-border">
-          <p className="text-sm text-muted-foreground text-center">
-            © {new Date().getFullYear()} Shawk. Tüm hakları saklıdır.
+        <div className="border-t border-muted mt-10 pt-6 flex flex-col md:flex-row items-center justify-between gap-4">
+          <p className="text-xs text-muted-foreground">
+            © 2026 Compass Reklam. Tüm hakları saklıdır.
           </p>
-        </div>
-      </div>
-      
-      {/* iyzico Logo Band */}
-      <div className="bg-background border-t border-border py-6 mt-8">
-        <div className="mx-auto max-w-7xl px-6 lg:px-8">
-          <div className="flex justify-center items-center">
-            <Image
-              src="/iyzico/logo_band_colored.svg"
-              alt="iyzico ile öde"
-              width={429}
-              height={32}
-              className="h-8 w-auto"
-            />
+          <div className="flex items-center gap-4 text-xs text-muted-foreground">
+            <Link href="/gizlilik" className="hover:text-primary transition-colors">Gizlilik Politikası</Link>
+            <Link href="/kullanim-kosullari" className="hover:text-primary transition-colors">Kullanım Koşulları</Link>
           </div>
         </div>
       </div>

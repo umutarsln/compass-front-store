@@ -4,7 +4,6 @@ import { useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { motion } from "framer-motion"
 import Link from "next/link"
-import { Header } from "@/components/header"
 import { Footer } from "@/components/footer"
 import { useAuth } from "@/contexts/auth-context"
 import { LogIn, ShoppingBag, ArrowRight } from "lucide-react"
@@ -26,8 +25,7 @@ export default function CheckoutAuthPage() {
 
   return (
     <>
-      <Header />
-      <main className="pt-26 md:pt-[108px]">
+      <main>
         <section className="py-12 sm:py-24 bg-background min-h-screen overflow-x-hidden">
           <div className="mx-auto max-w-4xl px-4 lg:px-8">
             <motion.div
@@ -37,7 +35,7 @@ export default function CheckoutAuthPage() {
               className="max-w-3xl mx-auto text-center"
             >
               <ShoppingBag className="w-12 h-12 sm:w-16 sm:h-16 text-muted-foreground mx-auto mb-4 sm:mb-6" />
-              <h1 className="font-serif text-xl sm:text-2xl md:text-3xl text-foreground mb-3 sm:mb-4">
+              <h1 className="font-display text-xl sm:text-2xl md:text-3xl font-bold text-foreground mb-3 sm:mb-4">
                 Ödeme İşlemine Devam Etmek İçin
               </h1>
               <p className="text-muted-foreground mb-6 sm:mb-8 text-sm sm:text-base">
@@ -59,7 +57,7 @@ export default function CheckoutAuthPage() {
                       <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-primary/10 flex items-center justify-center group-hover:bg-primary/20 transition-colors">
                         <LogIn className="w-5 h-5 sm:w-6 sm:h-6 text-primary" />
                       </div>
-                      <h2 className="font-serif text-base sm:text-lg text-foreground">Giriş Yap</h2>
+                      <h2 className="font-display text-base sm:text-lg font-semibold text-foreground">Giriş Yap</h2>
                       <p className="text-xs sm:text-sm text-muted-foreground text-center">
                         Hesabınıza giriş yaparak siparişinizi tamamlayın
                       </p>
@@ -85,7 +83,7 @@ export default function CheckoutAuthPage() {
                       <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-primary-foreground/20 flex items-center justify-center group-hover:bg-primary-foreground/30 transition-colors">
                         <ShoppingBag className="w-5 h-5 sm:w-6 sm:h-6 text-primary-foreground" />
                       </div>
-                      <h2 className="font-serif text-base sm:text-lg">Üye Olmadan Devam Et</h2>
+                      <h2 className="font-display text-base sm:text-lg font-semibold">Üye Olmadan Devam Et</h2>
                       <p className="text-xs sm:text-sm text-primary-foreground/80 text-center">
                         Hesap oluşturmadan siparişinizi tamamlayın
                       </p>

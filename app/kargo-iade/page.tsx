@@ -1,7 +1,6 @@
 "use client"
 
 import { motion } from "framer-motion"
-import { Header } from "@/components/header"
 import { Footer } from "@/components/footer"
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
 import { Package, Truck, RefreshCw, Shield } from "lucide-react"
@@ -9,8 +8,7 @@ import { Package, Truck, RefreshCw, Shield } from "lucide-react"
 export default function ShippingReturnsPage() {
   return (
     <>
-      <Header />
-      <main className="pt-26 md:pt-[108px]">
+      <main>
         {/* Hero Section */}
         <section className="relative py-24 bg-background overflow-hidden">
           <div className="mx-auto max-w-7xl px-6 lg:px-8">

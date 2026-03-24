@@ -4,24 +4,16 @@ import { useState, useEffect } from "react"
 import { motion } from "framer-motion"
 import Image from "next/image"
 import Link from "next/link"
-import { Trash2, Plus, Minus, ShoppingBag, Edit, Tag, X, Check } from "lucide-react"
+import { Trash2, Plus, Minus, ShoppingBag, Tag, X, Check, ArrowLeft } from "lucide-react"
 import { useCart } from "@/contexts/cart-context"
 import { useAuth } from "@/contexts/auth-context"
 import { Spinner } from "@/components/ui/spinner"
 import { Skeleton } from "@/components/ui/skeleton"
-import { PersonalizationSummary } from "@/components/personalization/PersonalizationSummary"
-import { PersonalizationFormRenderer } from "@/components/personalization/PersonalizationFormRenderer"
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
-import { getProductDetail } from "@/services/products"
-import { uploadPersonalizationFiles, preparePersonalizationData } from "@/utils/personalization.helper"
 
 export function CartContent() {
-  const { items, cartTotals, isLoading, removeFromCart, updateQuantity, updatePersonalization, getTotalPrice, getTotalItems, applyCoupon: applyCouponToCart, removeCoupon: removeCouponFromCart, applyingCoupon, isUpdatingItem, isRemovingItem } = useCart()
+  const { items, cartTotals, isLoading, removeFromCart, updateQuantity, getTotalPrice, getTotalItems, applyCoupon: applyCouponToCart, removeCoupon: removeCouponFromCart, applyingCoupon, isUpdatingItem, isRemovingItem } = useCart()
   const { isAuthenticated } = useAuth()
-  const [editingItem, setEditingItem] = useState<{ productId: string; variantId: string | null; product: any } | null>(null)
-  const [isLoadingProduct, setIsLoadingProduct] = useState(false)
-  const [isSavingPersonalization, setIsSavingPersonalization] = useState(false)
   const [isCouponInputOpen, setIsCouponInputOpen] = useState(false)
   const [couponCode, setCouponCode] = useState("")
   const [couponError, setCouponError] = useState<string | null>(null)
@@ -164,25 +156,26 @@ export function CartContent() {
     )
   }
 
-  // Empty state - show empty message
+  // Empty state - Forge Cart UI
   if (items.length === 0) {
     return (
-      <section className="py-24 bg-background min-h-screen overflow-x-hidden">
-        <div className="mx-auto max-w-7xl px-4 lg:px-8 w-full">
+      <section className="py-24 bg-background min-h-[60vh] overflow-x-hidden">
+        <div className="container">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
-            className="text-center py-16"
+            className="flex flex-col items-center justify-center py-20"
           >
-            <ShoppingBag className="w-16 h-16 text-muted-foreground mx-auto mb-4" />
-            <h1 className="font-serif text-3xl sm:text-4xl text-foreground mb-4">Sepetiniz Boş</h1>
-            <p className="text-muted-foreground mb-8">Sepetinize henüz ürün eklenmemiş.</p>
-            <Link
-              href="/urunler"
-              className="inline-flex items-center justify-center px-8 py-4 bg-primary text-primary-foreground font-medium text-sm uppercase tracking-wider hover:bg-primary/90 transition-colors"
-            >
-              Alışverişe Başla
+            <div className="h-20 w-20 rounded-full bg-muted flex items-center justify-center mb-6">
+              <ShoppingBag className="h-10 w-10 text-muted-foreground" />
+            </div>
+            <h1 className="font-display text-2xl font-bold text-foreground mb-2">Sepetiniz Boş</h1>
+            <p className="text-muted-foreground mb-6">Henüz sepetinize ürün eklemediniz.</p>
+            <Link href="/urunler">
+              <Button size="lg">
+                <ArrowLeft className="mr-2 h-4 w-4" /> Ürünlere Göz At
+              </Button>
             </Link>
           </motion.div>
         </div>
@@ -190,15 +183,19 @@ export function CartContent() {
     )
   }
 
+  const totalItems = getTotalItems()
+
   return (
     <section className="py-12 bg-background min-h-screen overflow-x-hidden">
-      <div className="mx-auto max-w-7xl px-4 lg:px-8 w-full">
+      <div className="container">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
         >
-          <h1 className="font-serif text-3xl sm:text-4xl text-foreground mb-8">Sepetim</h1>
+          <h1 className="font-display text-3xl md:text-4xl font-bold text-foreground mb-8">
+            Sepetim <span className="text-primary">({totalItems})</span>
+          </h1>
 
           <div className="grid lg:grid-cols-3 gap-6 lg:gap-8 w-full">
             {/* Sepet Ürünleri */}
@@ -240,44 +237,8 @@ export function CartContent() {
                         ))}
                       </div>
                     ) : null}
-                    {/* Personalization Summary */}
                     {item.personalization && (
-                      <div className="mt-3 sm:mt-4 w-full overflow-hidden">
-                        <div className="flex items-center justify-between mb-2 gap-2">
-                          <span className="text-xs sm:text-sm font-medium text-foreground truncate flex-1 min-w-0">Kişiselleştirme</span>
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={async () => {
-                              setIsLoadingProduct(true)
-                              try {
-                                // Get product detail to load personalization form
-                                // Use product slug if available, otherwise fallback to productId
-                                const productIdentifier = item.productSlug || item.productId || item.id
-                                const product = await getProductDetail(productIdentifier)
-
-                                setEditingItem({
-                                  productId: product.productId,
-                                  variantId: item.variantId || null,
-                                  product,
-                                })
-                              } catch (error) {
-                                console.error('Failed to load product:', error)
-                              } finally {
-                                setIsLoadingProduct(false)
-                              }
-                            }}
-                            disabled={isLoadingProduct || isUpdatingItem(item.productId || item.id, item.variantId || null)}
-                            className="h-6 sm:h-7 text-xs shrink-0"
-                          >
-                            <Edit className="w-3 h-3 mr-1" />
-                            <span className="hidden sm:inline">Düzenle</span>
-                          </Button>
-                        </div>
-                        <div className="overflow-hidden w-full">
-                        <PersonalizationSummary personalization={item.personalization} readOnly />
-                        </div>
-                      </div>
+                      <p className="mt-3 sm:mt-4 text-xs text-muted-foreground">Kişiselleştirmeli ürün</p>
                     )}
                     <div className="flex items-center justify-between mt-3 sm:mt-4 gap-2">
                       <div className="flex items-center gap-1.5 sm:gap-2">
@@ -521,13 +482,13 @@ export function CartContent() {
                   )}
                 </div>
 
+                {/* Satın Al: sıradaki adım (ödeme) sayfasına yönlendirir */}
                 <button
                   type="button"
                   onClick={(e) => {
                     if (!kvkkAccepted || !mesafeliSatisAccepted) {
                       e.preventDefault()
                       setShowValidationErrors(true)
-                      // Scroll to first error
                       setTimeout(() => {
                         const firstError = document.querySelector('.bg-red-50, .dark\\:bg-red-950\\/20')
                         if (firstError) {
@@ -543,11 +504,18 @@ export function CartContent() {
                     : "bg-muted text-muted-foreground cursor-pointer hover:bg-muted/80"
                     }`}
                 >
-                  Ödemeye Geç
+                  Satın Al
                 </button>
+                {/* Teklif Al: teklif talebi sayfasına yönlendirir */}
+                <Link
+                  href="/teklif-al"
+                  className="block w-full mt-2 sm:mt-3 py-3 sm:py-4 border border-foreground text-foreground font-medium text-xs sm:text-sm uppercase tracking-wider hover:bg-foreground hover:text-background transition-colors text-center"
+                >
+                  Teklif Al
+                </Link>
                 <Link
                   href="/urunler"
-                  className="block w-full mt-2 sm:mt-3 py-3 sm:py-4 border border-foreground text-foreground font-medium text-xs sm:text-sm uppercase tracking-wider hover:bg-foreground hover:text-background transition-colors text-center"
+                  className="block w-full mt-2 sm:mt-3 py-3 sm:py-4 border border-muted-foreground text-muted-foreground font-medium text-xs sm:text-sm uppercase tracking-wider hover:bg-muted hover:text-foreground transition-colors text-center"
                 >
                   Alışverişe Devam Et
                 </Link>
@@ -556,297 +524,6 @@ export function CartContent() {
           </div>
         </motion.div>
       </div>
-
-      {/* Personalization Edit Dialog */}
-      <Dialog open={!!editingItem} onOpenChange={(open) => !open && setEditingItem(null)}>
-        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto overflow-x-hidden">
-          <DialogHeader>
-            <DialogTitle>Kişiselleştirmeyi Düzenle</DialogTitle>
-            <DialogDescription>
-              Kişiselleştirme formunu düzenleyin. Değişiklikler sepetteki ürün fiyatını etkileyebilir.
-            </DialogDescription>
-          </DialogHeader>
-
-          {editingItem && editingItem.product.personalizationForm && (
-            <div className="mt-4 overflow-x-hidden">
-              <PersonalizationFormRenderer
-                formData={editingItem.product.personalizationForm}
-                productId={editingItem.productId}
-                variantId={editingItem.variantId || undefined}
-                initialValues={(() => {
-                  // Find the cart item to get existing personalization values
-                  const cartItem = items.find(
-                    (i) => i.productId === editingItem.productId && i.variantId === editingItem.variantId
-                  )
-                  return cartItem?.personalization?.userValues || {}
-                })()}
-                initialFileIds={(() => {
-                  // Extract file IDs from personalization snapshot
-                  const cartItem = items.find(
-                    (i) => i.productId === editingItem.productId && i.variantId === editingItem.variantId
-                  )
-                  if (!cartItem?.personalization?.userValues) return undefined
-
-                  const fileIdsByField: Record<string, string[]> = {}
-                  const schema = editingItem.product.personalizationForm.schemaSnapshot
-
-                  schema.fields.forEach((field: any) => {
-                    const value = cartItem.personalization.userValues[field.key]
-                    if (!value) return
-
-                    const isFileField =
-                      field.type === 'IMAGE_PICKER_SINGLE' ||
-                      field.type === 'IMAGE_PICKER_MULTI' ||
-                      field.type === 'FILE_UPLOAD_SINGLE' ||
-                      field.type === 'FILE_UPLOAD_MULTI'
-
-                    if (isFileField) {
-                      const ids = Array.isArray(value) ? value : [value]
-                      const validIds = ids.filter(
-                        (id) => typeof id === 'string' && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id)
-                      )
-                      if (validIds.length > 0) {
-                        fileIdsByField[field.key] = validIds
-                      }
-                    }
-                  })
-
-                  return Object.keys(fileIdsByField).length > 0 ? fileIdsByField : undefined
-                })()}
-              />
-            </div>
-          )}
-
-          <DialogFooter>
-            <Button
-              variant="outline"
-              onClick={() => setEditingItem(null)}
-              disabled={isSavingPersonalization}
-            >
-              İptal
-            </Button>
-            <Button
-              onClick={async () => {
-                if (!editingItem) return
-
-                setIsSavingPersonalization(true)
-                try {
-                  // Get personalization data from form
-                  const formData = (window as any).__personalizationFormData
-
-                  if (!formData) {
-                    setIsSavingPersonalization(false)
-                    return
-                  }
-
-                  // 1. Validate form
-                  if (formData.validate) {
-                    const isValid = await formData.validate()
-                    if (!isValid) {
-                      setIsSavingPersonalization(false)
-                      return
-                    }
-                  }
-
-                  // 2. Delete files marked for deletion (before uploading new ones)
-                  const deletedFileIds = formData.deletedFileIds as string[] | undefined
-                  if (deletedFileIds && deletedFileIds.length > 0) {
-                    console.log('[CartContent] Deleting files marked for deletion', {
-                      deletedFileIds,
-                      count: deletedFileIds.length,
-                    })
-                    try {
-                      const { uploadService } = await import('@/services/upload.service')
-                      // Delete files in parallel
-                      await Promise.all(
-                        deletedFileIds.map(async (fileId) => {
-                          try {
-                            await uploadService.deleteUpload(fileId)
-                            console.log('[CartContent] File deleted successfully', { fileId })
-                          } catch (error: any) {
-                            // If file is already deleted (404), that's fine - just log and continue
-                            if (error.message?.includes('404') || error.message?.includes('bulunamadı') || error.message?.includes('not found')) {
-                              console.log('[CartContent] File already deleted, continuing', { fileId })
-                            } else {
-                              console.error('[CartContent] Failed to delete file', {
-                                fileId,
-                                error: error.message,
-                              })
-                            }
-                            // Continue with other files even if one fails
-                          }
-                        })
-                      )
-                      console.log('[CartContent] File deletion process completed')
-                    } catch (error) {
-                      console.error('[CartContent] Error during file deletion', error)
-                      // Continue with the rest of the process even if deletion fails
-                    }
-                  }
-
-                  // 3. Upload new files if they exist
-                  let finalFormValues = { ...formData.formValues }
-                  let allFileIds: string[] = []
-
-                  const selectedFiles = formData.selectedFiles as Record<string, File[]> | undefined
-
-                  // Extract existing file IDs from cart item (mevcut dosyalar)
-                  // Bu, initialFileIds'den alınmalı çünkü formValues içinde File objeleri olabilir
-                  const cartItem = items.find(
-                    (i) => i.productId === editingItem.productId && i.variantId === editingItem.variantId
-                  )
-
-                  const existingFileIds: Record<string, string[]> = {}
-                  if (cartItem?.personalization?.userValues) {
-                    const schema = editingItem.product.personalizationForm.schemaSnapshot
-                    schema.fields.forEach((field: any) => {
-                      const value = cartItem.personalization.userValues[field.key]
-                      if (!value) return
-
-                      const isFileField =
-                        field.type === 'IMAGE_PICKER_SINGLE' ||
-                        field.type === 'IMAGE_PICKER_MULTI' ||
-                        field.type === 'FILE_UPLOAD_SINGLE' ||
-                        field.type === 'FILE_UPLOAD_MULTI'
-
-                      if (isFileField) {
-                        const ids = Array.isArray(value) ? value : [value]
-                        const validIds = ids.filter(
-                          (id) => typeof id === 'string' && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id)
-                        )
-                        if (validIds.length > 0) {
-                          existingFileIds[field.key] = validIds
-                        }
-                      }
-                    })
-                  }
-
-                  // Also check formValues for any file IDs that might be there
-                  Object.entries(finalFormValues).forEach(([key, value]) => {
-                    if (value && !existingFileIds[key]) {
-                      const field = editingItem.product.personalizationForm.schemaSnapshot.fields.find(
-                        (f: any) => f.key === key
-                      )
-                      if (field) {
-                        const isFileField =
-                          field.type === 'IMAGE_PICKER_SINGLE' ||
-                          field.type === 'IMAGE_PICKER_MULTI' ||
-                          field.type === 'FILE_UPLOAD_SINGLE' ||
-                          field.type === 'FILE_UPLOAD_MULTI'
-
-                        if (isFileField) {
-                          const ids = Array.isArray(value) ? value : [value]
-                          const validIds = ids.filter(
-                            (id) => typeof id === 'string' && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id)
-                          )
-                          if (validIds.length > 0) {
-                            existingFileIds[key] = validIds
-                          }
-                        }
-                      }
-                    }
-                  })
-
-                  if (selectedFiles && Object.keys(selectedFiles).length > 0) {
-                    try {
-                      // Get cart ID for organizing files
-                      const { getCartId } = await import('@/lib/cart-storage')
-                      const cartId = getCartId()
-
-                      console.log('[CartContent] Uploading files with cart ID', {
-                        cartId,
-                        hasCartId: !!cartId,
-                        cartIdType: typeof cartId,
-                        selectedFilesCount: Object.keys(selectedFiles).length,
-                        selectedFilesKeys: Object.keys(selectedFiles),
-                      })
-
-                      // Upload new files (with cart ID for folder organization)
-                      const uploadedFileIds = await uploadPersonalizationFiles(selectedFiles, cartId || undefined)
-
-                      // Prepare personalization data (combines existing + new files)
-                      const prepared = preparePersonalizationData(
-                        finalFormValues,
-                        selectedFiles,
-                        uploadedFileIds,
-                        existingFileIds // Mevcut dosyaları da geçir
-                      )
-
-                      finalFormValues = prepared.formValues
-                      allFileIds = prepared.fileIds
-
-                      // Debug: Log final form values to verify file counts
-                      console.log('[CartContent] Final form values after prepare:', finalFormValues)
-                      console.log('[CartContent] Existing file IDs:', existingFileIds)
-                      console.log('[CartContent] Selected files:', selectedFiles)
-                      console.log('[CartContent] Uploaded file IDs:', uploadedFileIds)
-                    } catch (uploadError: any) {
-                      console.error('[CartContent] File upload failed:', uploadError)
-                      setIsSavingPersonalization(false)
-                      return
-                    }
-                  } else {
-                    // No new files, just use existing file IDs
-                    // Make sure existing file IDs are in finalFormValues
-                    Object.entries(existingFileIds).forEach(([key, ids]) => {
-                      allFileIds.push(...ids)
-                      // Ensure existing file IDs are in finalFormValues
-                      if (ids.length === 1) {
-                        finalFormValues[key] = ids[0]
-                      } else {
-                        finalFormValues[key] = ids
-                      }
-                    })
-                  }
-
-                  // Debug: Log final values before sending to backend
-                  console.log('[CartContent] Final values before update:', {
-                    formValues: finalFormValues,
-                    fileIds: allFileIds,
-                    existingFileIds,
-                  })
-
-                  // Verify file counts for each field
-                  editingItem.product.personalizationForm.schemaSnapshot.fields.forEach((field: any) => {
-                    if (field.type.includes('MULTI') && (field.config?.minFileCount || field.config?.maxFileCount)) {
-                      const fieldValue = finalFormValues[field.key]
-                      const fileCount = fieldValue ? (Array.isArray(fieldValue) ? fieldValue.length : 1) : 0
-                      console.log(`[CartContent] Field "${field.title}": ${fileCount} files (min: ${field.config?.minFileCount || 0}, max: ${field.config?.maxFileCount || 'unlimited'})`)
-                    }
-                  })
-
-                  // 4. Update personalization with final values
-                  await updatePersonalization(
-                    editingItem.productId,
-                    editingItem.variantId,
-                    {
-                      formValues: finalFormValues,
-                      fileIds: allFileIds,
-                    }
-                  )
-
-                  // Close dialog
-                  setEditingItem(null)
-                } catch (error: any) {
-                  console.error('[CartContent] Failed to update personalization:', error)
-                } finally {
-                  setIsSavingPersonalization(false)
-                }
-              }}
-              disabled={isSavingPersonalization}
-            >
-              {isSavingPersonalization ? (
-                <>
-                  <Spinner className="w-4 h-4 mr-2" />
-                  Kaydediliyor...
-                </>
-              ) : (
-                'Kaydet'
-              )}
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
     </section>
   )
 }

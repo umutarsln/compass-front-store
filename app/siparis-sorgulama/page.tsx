@@ -3,7 +3,6 @@
 import { useState, useEffect } from "react"
 import { motion } from "framer-motion"
 import { uploadService } from "@/services/upload.service"
-import { Header } from "@/components/header"
 import { Footer } from "@/components/footer"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
@@ -298,8 +297,7 @@ export default function SiparisSorgulamaPage() {
 
   return (
     <>
-      <Header />
-      <main className="pt-26 md:pt-[108px] min-h-screen bg-background">
+      <main className="min-h-screen bg-background">
         {/* Hero Section */}
         <section className="relative py-12 bg-background overflow-hidden">
           <div className="mx-auto max-w-7xl px-6 lg:px-8">

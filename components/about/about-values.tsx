@@ -1,61 +1,42 @@
 "use client"
 
 import { motion } from "framer-motion"
-import { Heart, Sparkles, Users, Leaf } from "lucide-react"
+import { Award, Users, Target, Handshake } from "lucide-react"
 
 const values = [
-  {
-    icon: Heart,
-    title: "Anlam",
-    description: "Her üründe derin bir anlam ve duygusal değer olmasına özen gösteriyoruz.",
-  },
-  {
-    icon: Sparkles,
-    title: "Kalite",
-    description: "Premium malzemeler ve titiz el işçiliği ile uzun ömürlü ürünler sunuyoruz.",
-  },
-  {
-    icon: Users,
-    title: "Müşteri Odaklılık",
-    description: "Her müşterimizin hikayesi bizim için özel. Kişiselleştirilmiş hizmet sunuyoruz.",
-  },
-  {
-    icon: Leaf,
-    title: "Sürdürülebilirlik",
-    description: "Çevre dostu malzemeler ve enerji verimli LED teknolojisi kullanıyoruz.",
-  },
+  { icon: Award, title: "Kalite", desc: "Dünya standartlarında ürünler ve hizmetler sunuyoruz." },
+  { icon: Handshake, title: "Güvenilirlik", desc: "15 yılı aşkın sektör deneyimiyle yanınızdayız." },
+  { icon: Target, title: "Çözüm Odaklılık", desc: "İhtiyaçlarınıza özel, sonuç odaklı çözümler üretiyoruz." },
+  { icon: Users, title: "Müşteri Memnuniyeti", desc: "500+ mutlu müşterimiz en büyük referansımızdır." },
 ]
 
+/**
+ * Hakkımızda sayfası değerler bölümü - Forge About UI
+ * 4 ikonlu kart
+ */
 export function AboutValues() {
   return (
-    <section className="py-24 bg-background">
-      <div className="mx-auto max-w-7xl px-6 lg:px-8">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.6 }}
-          className="text-center mb-16"
-        >
-          <p className="text-sm font-medium text-accent uppercase tracking-wider mb-4">Değerlerimiz</p>
-          <h2 className="font-serif text-3xl sm:text-4xl lg:text-5xl text-foreground">Bizi Biz Yapan Değerler</h2>
-        </motion.div>
-
-        <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-8">
-          {values.map((value, index) => (
+    <section className="py-20 bg-muted/50">
+      <div className="container">
+        <div className="text-center mb-12">
+          <span className="text-primary font-semibold text-sm uppercase tracking-wider">Değerlerimiz</span>
+          <h2 className="font-display text-3xl md:text-4xl font-bold text-foreground mt-2">Bizi Biz Yapan Değerler</h2>
+        </div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          {values.map((v, i) => (
             <motion.div
-              key={value.title}
-              initial={{ opacity: 0, y: 20 }}
+              key={v.title}
+              initial={{ opacity: 0, y: 30 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
-              transition={{ duration: 0.6, delay: index * 0.1 }}
-              className="text-center"
+              transition={{ delay: i * 0.1 }}
+              className="bg-card rounded-lg p-6 border border-border text-center shadow-card"
             >
-              <div className="inline-flex items-center justify-center w-16 h-16 bg-secondary text-foreground mb-6">
-                <value.icon className="w-7 h-7" />
+              <div className="h-14 w-14 rounded-xl bg-primary/10 flex items-center justify-center mx-auto mb-4">
+                <v.icon className="h-7 w-7 text-primary" />
               </div>
-              <h3 className="font-serif text-xl text-foreground mb-3">{value.title}</h3>
-              <p className="text-muted-foreground leading-relaxed">{value.description}</p>
+              <h3 className="font-display font-semibold text-foreground text-lg mb-2">{v.title}</h3>
+              <p className="text-sm text-muted-foreground leading-relaxed">{v.desc}</p>
             </motion.div>
           ))}
         </div>

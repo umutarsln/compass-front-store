@@ -4,7 +4,6 @@ import { useEffect, useState, Suspense, useRef } from "react"
 import { useSearchParams, useRouter } from "next/navigation"
 import { motion } from "framer-motion"
 import Link from "next/link"
-import { Header } from "@/components/header"
 import { Footer } from "@/components/footer"
 import { CheckCircle2, Package, Home, ShoppingBag, Loader2, Clock } from "lucide-react"
 import { orderService, Order } from "@/services/order.service"
@@ -53,8 +52,7 @@ function PaymentSuccessContent() {
   if (isLoading) {
     return (
       <>
-        <Header />
-        <main className="pt-26 md:pt-[108px]">
+        <main>
           <section className="py-24 bg-background min-h-screen">
             <div className="mx-auto max-w-7xl px-6 lg:px-8">
               <div className="flex items-center justify-center py-24">
@@ -71,8 +69,7 @@ function PaymentSuccessContent() {
   if (!order) {
     return (
       <>
-        <Header />
-        <main className="pt-26 md:pt-[108px]">
+        <main>
           <section className="py-24 bg-background min-h-screen">
             <div className="mx-auto max-w-7xl px-6 lg:px-8">
               <div className="text-center">
@@ -95,8 +92,7 @@ function PaymentSuccessContent() {
 
   return (
     <>
-      <Header />
-      <main className="pt-26 md:pt-[108px]">
+      <main>
         <section className="py-24 bg-background min-h-screen">
           <div className="mx-auto max-w-7xl px-6 lg:px-8">
             <motion.div
@@ -213,8 +209,7 @@ export default function PaymentSuccessPage() {
   return (
     <Suspense fallback={
       <>
-        <Header />
-        <main className="pt-26 md:pt-[108px]">
+        <main>
           <section className="py-24 bg-background min-h-screen">
             <div className="mx-auto max-w-7xl px-6 lg:px-8">
               <div className="flex items-center justify-center py-24">

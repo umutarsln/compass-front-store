@@ -7,7 +7,6 @@ import { FavoritesProvider } from "@/contexts/favorites-context"
 import { AuthProvider } from "@/contexts/auth-context"
 import { Header } from "@/components/header"
 import { CartSidebar } from "@/components/cart-sidebar"
-import { Topbar } from "@/components/topbar"
 import { WhatsAppButton } from "@/components/whatsapp-button"
 import { AnalyticsPageView } from "@/components/analytics-page-view"
 import "./globals.css"
@@ -16,8 +15,8 @@ const inter = Inter({ subsets: ["latin"] })
 const playfair = Playfair_Display({ subsets: ["latin"] })
 
 export const metadata: Metadata = {
-  title: "Shawk | Anılarınızı Işığa Dönüştürün",
-  description: "Fotoğraflarınızdan kişiselleştirilmiş 3D baskılı LED lambalar. Sevdiklerinize anlamlı hediyeler.",
+  title: "Compass Reklam | Endüstriyel Baskı Teknolojileri",
+  description: "Endüstriyel baskı teknolojilerinde Türkiye'nin lider çözüm ortağı. UV Baskı, DTF, Lazer Kesim makineleri.",
   generator: 'v0.app',
   icons: {
     icon: '/logos/favicon-shawk.png',
@@ -50,7 +49,6 @@ gtag('config', 'G-9WTD6QPS7W');`,
           <CartProvider>
             <FavoritesProvider>
               <AnalyticsPageView />
-              <Topbar />
               <Header />
               {children}
               <CartSidebar />

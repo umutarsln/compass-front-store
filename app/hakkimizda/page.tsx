@@ -1,26 +1,24 @@
-import { Header } from "@/components/header"
 import { Footer } from "@/components/footer"
 import { AboutHero } from "@/components/about/about-hero"
 import { AboutStory } from "@/components/about/about-story"
 import { AboutValues } from "@/components/about/about-values"
-import { AboutProcess } from "@/components/about/about-process"
-// import { AboutTeam } from "@/components/about/about-team"
+import { AboutTimeline } from "@/components/about/about-timeline"
+import { AboutStats } from "@/components/about/about-stats"
 
 export const metadata = {
-  title: "Hakkımızda | Shawk",
-  description: "Shawk olarak anılarınızı ışığa dönüştürüyoruz. Hikayemizi ve değerlerimizi keşfedin.",
+  title: "Hakkımızda | Compass Reklam",
+  description: "Baskı teknolojisinde 15+ yıl tecrübe. Endüstriyel baskı çözümlerinde Türkiye'nin güvenilir iş ortağı.",
 }
 
 export default function AboutPage() {
   return (
     <>
-      <Header />
-      <main className="pt-26 md:pt-[108px]">
+      <main>
         <AboutHero />
         <AboutStory />
-        {/* <AboutTeam /> */}
         <AboutValues />
-        <AboutProcess />
+        <AboutTimeline />
+        <AboutStats />
       </main>
       <Footer />
     </>
