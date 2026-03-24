@@ -10,11 +10,6 @@ const promotions = [
     text: "Kargo Bedava",
     icon: Truck,
   },
-  {
-    id: 2,
-    text: "Sevgililer Gününe Özel İndirim",
-    icon: Tag,
-  },
 ]
 
 export function Topbar() {

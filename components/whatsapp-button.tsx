@@ -4,8 +4,8 @@ import { MessageCircle } from "lucide-react"
 
 /** Forge tarzı sabit WhatsApp iletişim butonu - sağ alt köşede */
 export function WhatsAppButton() {
-  const phoneNumber = "902125551234"
-  const message = "Merhaba, ürünleriniz hakkında bilgi almak istiyorum."
+  const phoneNumber = "905534678607"
+  const message = "Bilgi almak istiyorum"
   const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`
 
   return (

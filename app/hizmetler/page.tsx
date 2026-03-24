@@ -253,7 +253,11 @@ export default function ServicesPage() {
                     İletişime Geç <ArrowRight className="h-4 w-4" />
                   </Button>
                 </Link>
-                <a href="https://wa.me/905519770858" target="_blank" rel="noopener noreferrer">
+                <a
+                  href="https://wa.me/905534678607?text=Bilgi%20almak%20istiyorum"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
                   <Button size="lg" variant="outline" className="gap-2 bg-white/10 border-white/30 text-white hover:bg-white/20">
                     WhatsApp ile Yaz
                   </Button>

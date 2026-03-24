@@ -463,7 +463,11 @@ export function IndexSections({ featuredProducts }: IndexSectionsProps) {
                   Ücretsiz Teklif Alın
                 </Button>
               </Link>
-              <a href="https://wa.me/905519770858" target="_blank" rel="noopener noreferrer">
+              <a
+                href="https://wa.me/905534678607?text=Bilgi%20almak%20istiyorum"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
                 <Button variant="outline" size="lg" className="text-base border-secondary-foreground/30 text-secondary-foreground hover:bg-secondary-foreground/10">
                   WhatsApp ile Yazın
                 </Button>

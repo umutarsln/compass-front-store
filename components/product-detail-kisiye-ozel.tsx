@@ -101,7 +101,7 @@ export function ProductDetailKisiyeOzel() {
         price: sampleProduct.price,
         image: sampleProduct.image,
         productId: sampleProduct.id,
-      }, false) // Sidebar açılmasın, sepet sayfasına yönlendirilecek
+      } as any) // Sidebar açılmasın, sepet sayfasına yönlendirilecek
       
       setTimeout(() => {
         setIsAddingToCart(false)
@@ -707,10 +707,6 @@ export function ProductDetailKisiyeOzel() {
                         ))}
                       </div>
                     </div>
-                    <p className="text-sm text-muted-foreground leading-relaxed">
-                      Harika bir ürün! Sevgilime hediye olarak aldım ve çok beğendi. Fotoğraf kalitesi mükemmel, 
-                      lamba çok şık görünüyor. Teslimat da hızlıydı, 3 günde geldi. Kesinlikle tavsiye ederim!
-                    </p>
                   </div>
 
                   {/* Yorum 2 */}
