@@ -89,9 +89,9 @@ export function Header() {
       <div className="bg-secondary">
         <div className="container flex items-center justify-between py-2 text-xs text-secondary-foreground">
           <div className="flex items-center gap-4">
-            <a href="tel:+902125551234" className="flex items-center gap-1 hover:text-primary transition-colors">
+            <a href="tel:+905534678607" className="flex items-center gap-1 hover:text-primary transition-colors">
               <Phone className="h-3 w-3" />
-              +90 212 555 12 34
+              0553 467 86 07
             </a>
             <span className="hidden sm:inline text-muted-foreground">|</span>
             <span className="hidden sm:inline text-muted-foreground">Pazartesi - Cumartesi: 09:00 - 18:00</span>

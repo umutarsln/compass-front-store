@@ -57,9 +57,9 @@ export function Footer() {
                 İstanbul, Türkiye
               </li>
               <li>
-                <a href="tel:+902125551234" className="flex items-center gap-2 text-muted-foreground hover:text-primary transition-colors">
+                <a href="tel:+905534678607" className="flex items-center gap-2 text-muted-foreground hover:text-primary transition-colors">
                   <Phone className="h-4 w-4 text-primary" />
-                  +90 212 555 12 34
+                  0553 467 86 07
                 </a>
               </li>
               <li>
