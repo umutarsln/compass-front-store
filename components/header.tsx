@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react"
 import Link from "next/link"
+import Image from "next/image"
 import { usePathname } from "next/navigation"
 import { Menu, X, ShoppingCart, Phone, ChevronDown, Search } from "lucide-react"
 import { Button } from "@/components/ui/button"
@@ -23,19 +24,27 @@ import { getUser as getCookieUser, isAuthenticated as isCookieAuthenticated } fr
 const categories = [
   {
     name: "Baskı Makineleri",
-    subcategories: ["UV Flatbed", "Roll-to-Roll", "DTF Yazıcılar", "Eko-Solvent", "Lateks Yazıcılar"],
+    subcategories: [
+      { name: "UV Baskı", href: "/urunler?categorySlugs=uv-baski" },
+      { name: "Dijital Baskı", href: "/urunler?categorySlugs=dijital-baski" },
+      { name: "Süblimasyon Baskı", href: "/urunler?categorySlugs=dijital-baski" },
+    ],
   },
   {
     name: "Kesim Makineleri",
-    subcategories: ["Lazer Kesim", "CNC Router", "Plotter Kesim", "Vinil Kesim"],
-  },
-  {
-    name: "Laminasyon & Kaplama",
-    subcategories: ["Soğuk Laminasyon", "Sıcak Laminasyon", "UV Kaplama"],
+    subcategories: [
+      { name: "Plotter Folyo Kesici", href: "/urunler?categorySlugs=plotter-folyo-kesici" },
+      { name: "Etiket Kesim", href: "/urunler?categorySlugs=etiket-kesim" },
+      { name: "Fiber Markalama", href: "/urunler?categorySlugs=fiber-markalama" },
+    ],
   },
   {
     name: "Malzeme & Sarf",
-    subcategories: ["Mürekkepler", "Baskı Malzemeleri", "Yedek Parçalar"],
+    subcategories: [
+      { name: "Mürekkepler", href: "/urunler?categorySlugs=malzeme-sarf" },
+      { name: "Baskı Malzemeleri", href: "/urunler?categorySlugs=malzeme-sarf" },
+      { name: "Yedek Parçalar", href: "/urunler?categorySlugs=malzeme-sarf" },
+    ],
   },
 ]
 
@@ -103,13 +112,14 @@ export function Header() {
         <div className="container flex items-center justify-between py-3">
           {/* Logo */}
           <Link href="/" className="flex items-center gap-2">
-            <div className="h-10 w-10 rounded-lg bg-gradient-primary flex items-center justify-center">
-              <span className="font-display font-bold text-lg text-secondary-foreground">C</span>
-            </div>
-            <div>
-              <span className="font-display font-bold text-lg text-foreground leading-none block">Compass</span>
-              <span className="text-xs text-primary font-semibold tracking-wider uppercase">Reklam</span>
-            </div>
+            <Image
+              src="/compass-reklam-logo.png"
+              alt="Compass Reklam"
+              width={170}
+              height={48}
+              className="h-10 w-auto"
+              priority
+            />
           </Link>
 
           {/* Desktop nav */}
@@ -139,12 +149,12 @@ export function Header() {
                         </h4>
                         <ul className="space-y-1">
                           {cat.subcategories.map((sub) => (
-                            <li key={sub}>
+                            <li key={sub.name}>
                               <Link
-                                href="/urunler"
+                                href={sub.href}
                                 className="text-sm text-muted-foreground hover:text-primary transition-colors"
                               >
-                                {sub}
+                                {sub.name}
                               </Link>
                             </li>
                           ))}
@@ -241,6 +251,17 @@ export function Header() {
               <nav className="container py-4 flex flex-col gap-3">
                 <Link href="/" className="text-sm font-medium py-2">Ana Sayfa</Link>
                 <Link href="/urunler" className="text-sm font-medium py-2">Ürünler</Link>
+                <div className="pt-1">
+                  <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-2">Kategoriler</p>
+                  <div className="flex flex-col gap-2">
+                    <Link href="/urunler?categorySlugs=uv-baski" className="text-sm py-1">UV Baskı</Link>
+                    <Link href="/urunler?categorySlugs=dijital-baski" className="text-sm py-1">Dijital Baskı</Link>
+                    <Link href="/urunler?categorySlugs=plotter-folyo-kesici" className="text-sm py-1">Plotter Folyo Kesici</Link>
+                    <Link href="/urunler?categorySlugs=etiket-kesim" className="text-sm py-1">Etiket Kesim</Link>
+                    <Link href="/urunler?categorySlugs=fiber-markalama" className="text-sm py-1">Fiber Markalama</Link>
+                    <Link href="/urunler?categorySlugs=malzeme-sarf" className="text-sm py-1">Malzeme & Sarf</Link>
+                  </div>
+                </div>
                 <Link href="/hizmetler" className="text-sm font-medium py-2">Hizmetler</Link>
                 <Link href="/hakkimizda" className="text-sm font-medium py-2">Hakkımızda</Link>
                 <Link href="/blog" className="text-sm font-medium py-2">Blog</Link>

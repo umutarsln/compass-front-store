@@ -1,4 +1,5 @@
 import Link from "next/link"
+import Image from "next/image"
 import { Phone, Mail, MapPin } from "lucide-react"
 
 /** Forge tarzı Compass Reklam footer bileşeni - Marka, hızlı bağlantılar, ürün kategorileri, iletişim */
@@ -10,13 +11,13 @@ export function Footer() {
           {/* Brand */}
           <div>
             <div className="flex items-center gap-2 mb-4">
-              <div className="h-10 w-10 rounded-lg bg-gradient-primary flex items-center justify-center">
-                <span className="font-display font-bold text-lg text-secondary-foreground">C</span>
-              </div>
-              <div>
-                <span className="font-display font-bold text-lg leading-none block">Compass</span>
-                <span className="text-xs text-primary font-semibold tracking-wider uppercase">Reklam</span>
-              </div>
+              <Image
+                src="/compass-reklam-logo.png"
+                alt="Compass Reklam"
+                width={170}
+                height={48}
+                className="h-10 w-auto"
+              />
             </div>
             <p className="text-sm text-muted-foreground leading-relaxed">
               Endüstriyel baskı teknolojilerinde Türkiye&apos;nin lider çözüm ortağı. 15+ yıllık deneyimimizle yanınızdayız.

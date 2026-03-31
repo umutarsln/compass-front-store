@@ -19,8 +19,9 @@ export const metadata: Metadata = {
   description: "Endüstriyel baskı teknolojilerinde Türkiye'nin lider çözüm ortağı. UV Baskı, DTF, Lazer Kesim makineleri.",
   generator: 'v0.app',
   icons: {
-    icon: '/logos/favicon-compass.png',
-    apple: '/logos/favicon-compass.png',
+    icon: '/compass-reklam-logo.png',
+    shortcut: '/compass-reklam-logo.png',
+    apple: '/compass-reklam-logo.png',
   },
 }
 

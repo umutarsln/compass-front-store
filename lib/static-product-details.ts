@@ -183,8 +183,6 @@ const STATIC_DETAIL_SEEDS: StaticProductDetailSeed[] = [
     imagePaths: [
       "/urunler/folyokesim/33x40-otomatik-beslemeli-etiket-kesim-makinesi/33x40-otomatik-beslemeli-etiket-kesim-makinesi-01-2e12fba9.jpeg",
       "/urunler/folyokesim/33x40-otomatik-beslemeli-etiket-kesim-makinesi/33x40-otomatik-beslemeli-etiket-kesim-makinesi-02-65c9ad00.png",
-      "/urunler/global/33x40-otomatik-beslemeli-etiket-kesim-makinesi-2/33x40-otomatik-beslemeli-etiket-kesim-makinesi-2-global-01-b3a6cbce.jpg",
-      "/urunler/global/33x40-otomatik-beslemeli-etiket-kesim-makinesi-2/33x40-otomatik-beslemeli-etiket-kesim-makinesi-2-global-02-de329dd4.jpg",
     ],
   },
   {
@@ -204,8 +202,6 @@ const STATIC_DETAIL_SEEDS: StaticProductDetailSeed[] = [
     category: { name: "Etiket Kesim", slug: "etiket-kesim" },
     imagePaths: [
       "/urunler/folyokesim/33x40-otomatik-beslemeli-etiket-kesim-makinesi/33x40-otomatik-beslemeli-etiket-kesim-makinesi-01-62e9c175.jpeg",
-      "/urunler/global/33x40-otomatik-beslemeli-etiket-kesim-makinesi-beyaz/33x40-otomatik-beslemeli-etiket-kesim-makinesi-beyaz-global-01-fdc5cb48.jpg",
-      "/urunler/global/33x40-otomatik-beslemeli-etiket-kesim-makinesi-beyaz/33x40-otomatik-beslemeli-etiket-kesim-makinesi-beyaz-global-02-b0344083.jpg",
     ],
   },
   {
@@ -227,8 +223,6 @@ const STATIC_DETAIL_SEEDS: StaticProductDetailSeed[] = [
       "/urunler/folyokesim/folyo-kesim-makinesi-plotter-kamera-135cm-net-kesim-alani-profesyonel/folyo-kesim-makinesi-plotter-kamera-135cm-net-kesim-alani-profesyonel-01-26f9bad3.png",
       "/urunler/folyokesim/folyo-kesim-makinesi-plotter-kamera-135cm-net-kesim-alani-profesyonel/folyo-kesim-makinesi-plotter-kamera-135cm-net-kesim-alani-profesyonel-02-55885071.png",
       "/urunler/folyokesim/folyo-kesim-makinesi-plotter-kamera-135cm-net-kesim-alani-profesyonel/folyo-kesim-makinesi-plotter-kamera-135cm-net-kesim-alani-profesyonel-03-f64a9eee.png",
-      "/urunler/global/folyo-kesim-makinesi-plotter-optik-kamera-135cm-net-kesim-alani-profesyonel/folyo-kesim-makinesi-plotter-optik-kamera-135cm-net-kesim-alani-profesyonel-global-01-0beae46c.jpg",
-      "/urunler/global/folyo-kesim-makinesi-plotter-optik-kamera-135cm-net-kesim-alani-profesyonel/folyo-kesim-makinesi-plotter-optik-kamera-135cm-net-kesim-alani-profesyonel-global-02-40b12159.jpg",
     ],
   },
   {
@@ -248,8 +242,6 @@ const STATIC_DETAIL_SEEDS: StaticProductDetailSeed[] = [
     category: { name: "Plotter Folyo Kesici", slug: "plotter-folyo-kesici" },
     imagePaths: [
       "/urunler/folyokesim/plotter-folyo-kesim-makinesi/plotter-folyo-kesim-makinesi-01-49f93bc5.jpg",
-      "/urunler/global/plotter-folyo-kesici/plotter-folyo-kesici-global-01-cd012ece.jpg",
-      "/urunler/global/plotter-folyo-kesici/plotter-folyo-kesici-global-02-0beae46c.jpg",
     ],
   },
   {
@@ -290,7 +282,6 @@ const STATIC_DETAIL_SEEDS: StaticProductDetailSeed[] = [
       "/urunler/folyokesim/plotter-folyo-kesim-makinesi-kamerali-135cm-net-kesim-alani/plotter-folyo-kesim-makinesi-kamerali-135cm-net-kesim-alani-01-0926d2c4.png",
       "/urunler/folyokesim/plotter-folyo-kesim-makinesi-kamerali-135cm-net-kesim-alani/plotter-folyo-kesim-makinesi-kamerali-135cm-net-kesim-alani-02-0ea18486.png",
       "/urunler/folyokesim/plotter-folyo-kesim-makinesi-kamerali-135cm-net-kesim-alani/plotter-folyo-kesim-makinesi-kamerali-135cm-net-kesim-alani-03-14a26bf1.png",
-      "/urunler/global/plotter-folyo-kesim-makinesi-a1/plotter-folyo-kesim-makinesi-a1-global-01-fac18c5e.jpg",
     ],
   },
   {
@@ -310,7 +301,6 @@ const STATIC_DETAIL_SEEDS: StaticProductDetailSeed[] = [
     category: { name: "Plotter Folyo Kesici", slug: "plotter-folyo-kesici" },
     imagePaths: [
       "/urunler/folyokesim/plotter-folyo-kesim-makinesi-servo-motor-ultra-sessiz/plotter-folyo-kesim-makinesi-servo-motor-ultra-sessiz-01-49f93bc5.jpg",
-      "/urunler/global/urun/urun-global-01-4df36d08.jpg",
     ],
   },
   {
@@ -353,8 +343,6 @@ const STATIC_DETAIL_SEEDS: StaticProductDetailSeed[] = [
       "/urunler/folyokesim/xl-1600tx-i3200-2-baski-kafasi-ic-mekan-dis-mekan-uv-dijital-baski-makinesi/xl-1600tx-i3200-2-baski-kafasi-ic-mekan-dis-mekan-uv-dijital-baski-makinesi-01-df1a1460.png",
       "/urunler/folyokesim/xl-1600tx-i3200-2-baski-kafasi-ic-mekan-dis-mekan-uv-dijital-baski-makinesi/xl-1600tx-i3200-2-baski-kafasi-ic-mekan-dis-mekan-uv-dijital-baski-makinesi-02-2566c51d.png",
       "/urunler/folyokesim/xl-1600tx-i3200-2-baski-kafasi-ic-mekan-dis-mekan-uv-dijital-baski-makinesi/xl-1600tx-i3200-2-baski-kafasi-ic-mekan-dis-mekan-uv-dijital-baski-makinesi-03-6b42c2eb.png",
-      "/urunler/global/xl-1600tx-i3200-2-baski-kafasi-ic-mekan-dis-mekan-uv-dijital-baski-makinesi/xl-1600tx-i3200-2-baski-kafasi-ic-mekan-dis-mekan-uv-dijital-baski-makinesi-global-01-303e3e1f.jpg",
-      "/urunler/global/xl-1600tx-i3200-2-baski-kafasi-ic-mekan-dis-mekan-uv-dijital-baski-makinesi/xl-1600tx-i3200-2-baski-kafasi-ic-mekan-dis-mekan-uv-dijital-baski-makinesi-global-02-eb43d1b2.jpg",
     ],
   },
   {
@@ -376,7 +364,6 @@ const STATIC_DETAIL_SEEDS: StaticProductDetailSeed[] = [
       "/urunler/folyokesim/xl-1680q-1930q-2200q-f1080-i3200-indoor-outdoor-uv-dijital-baski-makinesi/xl-1680q-1930q-2200q-f1080-i3200-indoor-outdoor-uv-dijital-baski-makinesi-01-75e1bf56.png",
       "/urunler/folyokesim/xl-1680q-1930q-2200q-f1080-i3200-indoor-outdoor-uv-dijital-baski-makinesi/xl-1680q-1930q-2200q-f1080-i3200-indoor-outdoor-uv-dijital-baski-makinesi-02-36907c42.png",
       "/urunler/folyokesim/xl-1680q-1930q-2200q-f1080-i3200-indoor-outdoor-uv-dijital-baski-makinesi/xl-1680q-1930q-2200q-f1080-i3200-indoor-outdoor-uv-dijital-baski-makinesi-03-f313a1c5.png",
-      "/urunler/global/dijital-baski-makinesi-kahverengi/dijital-baski-makinesi-kahverengi-global-01-f1a3c572.jpg",
     ],
   },
   {
@@ -398,7 +385,6 @@ const STATIC_DETAIL_SEEDS: StaticProductDetailSeed[] = [
       "/urunler/folyokesim/xl-1680s-1850s-tek-baski-kafasi-ic-mekan-dis-mekan-uv-dijital-baski-makinesi/xl-1680s-1850s-tek-baski-kafasi-ic-mekan-dis-mekan-uv-dijital-baski-makinesi-01-895ceb81.png",
       "/urunler/folyokesim/xl-1680s-1850s-tek-baski-kafasi-ic-mekan-dis-mekan-uv-dijital-baski-makinesi/xl-1680s-1850s-tek-baski-kafasi-ic-mekan-dis-mekan-uv-dijital-baski-makinesi-02-ddb70896.png",
       "/urunler/folyokesim/xl-1680s-1850s-tek-baski-kafasi-ic-mekan-dis-mekan-uv-dijital-baski-makinesi/xl-1680s-1850s-tek-baski-kafasi-ic-mekan-dis-mekan-uv-dijital-baski-makinesi-03-20b58fd6.png",
-      "/urunler/global/xl-1680s-1850s-tek-baski-kafasi-ic-mekan-dis-mekan-uv-dijital-baski-makinesi/xl-1680s-1850s-tek-baski-kafasi-ic-mekan-dis-mekan-uv-dijital-baski-makinesi-global-01-c8f4737e.jpg",
     ],
   },
   {
@@ -420,8 +406,35 @@ const STATIC_DETAIL_SEEDS: StaticProductDetailSeed[] = [
       "/urunler/folyokesim/dijital-baski-makinesi-180-cm-genislik-yuksek-hiz-endustriyel-kalite/dijital-baski-makinesi-180-cm-genislik-yuksek-hiz-endustriyel-kalite-01-756efd81.png",
       "/urunler/folyokesim/dijital-baski-makinesi-180-cm-genislik-yuksek-hiz-endustriyel-kalite/dijital-baski-makinesi-180-cm-genislik-yuksek-hiz-endustriyel-kalite-02-aafc3f2b.jpg",
       "/urunler/folyokesim/dijital-baski-makinesi-180-cm-genislik-yuksek-hiz-endustriyel-kalite/dijital-baski-makinesi-180-cm-genislik-yuksek-hiz-endustriyel-kalite-03-9321c166.jpg",
-      "/urunler/global/dijital-baski-makinesi-my-color/dijital-baski-makinesi-my-color-global-01-db896507.jpg",
-      "/urunler/global/dijital-baski-makinesi-my-color/dijital-baski-makinesi-my-color-global-02-5ddc155c.jpg",
+
+    ],
+  },
+  {
+    id: "canva-fiber-markalama",
+    slug: "canva-fiber-lazer-markalama-makinesi",
+    name: "CANVA Fiber Lazer Markalama Makinesi",
+    subtitle: "Metal ve endustriyel parcalar icin yuksek hizli kalici markalama",
+    description:
+      `CANVA Fiber Lazer Markalama Makinesi, metal ve teknik malzemelerde net, kontrastli ve kalici markalama icin tasarlanmistir.
+
+- Paslanmaz celik, alüminyum, pirinc, bakir ve kaplamali yuzeylerde hassas markalama
+- QR/Datamatrix, seri numarasi, logo ve barkod uygulamalarinda yuksek okunabilirlik
+- Dusuk tuketim ve bakim ihtiyaci ile 7/24 endustriyel uretime uygun yapi
+- Yuzeye temas etmeden isleme yaptigi icin parca deformasyonu ve asinmayi azaltir
+- Otomotiv, elektronik, medikal cihaz, savunma ve promosyon urunlerinde yaygin kullanim`,
+    usdPrice: 6900,
+    category: { name: "Fiber Markalama", slug: "fiber-markalama" },
+    imagePaths: [
+      "/urunler/canva-fiber-markalama/MARKALAMA-MOCK-UP-YAN-WEB.gif",
+      "/urunler/canva-fiber-markalama/f.m1.png",
+      "/urunler/canva-fiber-markalama/f.b4.png",
+      "/urunler/canva-fiber-markalama/f.b5.png",
+      "/urunler/canva-fiber-markalama/f.b8.png",
+      "/urunler/canva-fiber-markalama/f.png",
+      "/urunler/canva-fiber-markalama/8e928de1-7955-44e8-a382-531884c8a2c4.jpg",
+      "/urunler/canva-fiber-markalama/ab7cb341-4e1d-4bee-b440-a9a20f61f3aa.jpg",
+      "/urunler/canva-fiber-markalama/d0a2d28f-1a29-4332-89b9-e07660ad2eed.jpg",
+      
     ],
   },
 ]

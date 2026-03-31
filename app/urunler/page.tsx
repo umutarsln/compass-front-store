@@ -14,6 +14,7 @@ const STATIC_CATEGORIES: Category[] = [
   { id: "static-2", name: "Plotter Folyo Kesici", slug: "plotter-folyo-kesici", children: [], parentId: null, parent: null, image: null, isActive: true, displayOrder: 1, createdAt: "", updatedAt: "" },
   { id: "static-3", name: "Etiket Kesim", slug: "etiket-kesim", children: [], parentId: null, parent: null, image: null, isActive: true, displayOrder: 2, createdAt: "", updatedAt: "" },
   { id: "static-4", name: "Dijital Baskı", slug: "dijital-baski", children: [], parentId: null, parent: null, image: null, isActive: true, displayOrder: 3, createdAt: "", updatedAt: "" },
+  { id: "static-5", name: "Fiber Markalama", slug: "fiber-markalama", children: [], parentId: null, parent: null, image: null, isActive: true, displayOrder: 4, createdAt: "", updatedAt: "" },
 ]
 
 // Kategoriyi slug'a göre bul (recursive)

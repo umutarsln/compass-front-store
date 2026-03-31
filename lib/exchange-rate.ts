@@ -33,6 +33,7 @@ export async function getUsdTryRate(): Promise<number> {
  * Her zaman tam sayıya yuvarlanmış TL döner.
  */
 export function usdToTry(usdPrice: number, usdTryRate: number): number {
-  return Math.round(usdPrice * usdTryRate)
+  const convertedPrice = usdPrice * usdTryRate
+  return Math.ceil(convertedPrice / 100) * 100
 }
 
