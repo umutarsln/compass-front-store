@@ -7,7 +7,8 @@ import { AboutStats } from "@/components/about/about-stats"
 
 export const metadata = {
   title: "Hakkımızda | Compass Reklam",
-  description: "Baskı teknolojisinde 15+ yıl tecrübe. Endüstriyel baskı çözümlerinde Türkiye'nin güvenilir iş ortağı.",
+  description:
+    "2018'den beri endüstriyel baskıda güvenilir çözüm ortağınız. 3000+ makine kurulumu, Akdeniz geneli teknik servis ve satış sonrası tam destek.",
 }
 
 export default function AboutPage() {

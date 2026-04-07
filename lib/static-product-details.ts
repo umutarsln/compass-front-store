@@ -1,6 +1,13 @@
 import type { FrontendProduct } from "@/lib/product-transformer"
 import type { Category, Gallery, Image, ProductDetail, Stock } from "@/services/products"
 import { usdToTry } from "@/lib/exchange-rate"
+import { PRICE_EX_VAT_LABEL } from "@/lib/vat"
+
+/**
+ * Statik ürün kaynakları: `usdPrice` USD’den TL’ye çevrilir; elde edilen TL tutarları KDV hariç kabul edilir.
+ * Ürünler grid/detayda fiyat yanında `{@link PRICE_EX_VAT_LABEL}` gösterilir.
+ */
+export { PRICE_EX_VAT_LABEL as STATIC_DETAIL_PRICE_VAT_LABEL }
 
 type StaticProductDetailSeed = {
   id: string
@@ -57,6 +64,7 @@ function makeCategories(seed: StaticProductDetailSeed): Category[] {
 /**
  * Statik seed'den ProductDetail (SIMPLE) üretir.
  * Not: Varyasyon/personalization şimdilik kapalı; amaç sadece detay sayfasını göstermek.
+ * `basePrice` / `price` TL cinsinden KDV hariçtir (kur: `usdToTry`).
  */
 function toSimpleProductDetail(seed: StaticProductDetailSeed, usdTryRate: number): ProductDetail {
   const tlPrice = usdToTry(seed.usdPrice, usdTryRate)
@@ -91,53 +99,18 @@ function toSimpleProductDetail(seed: StaticProductDetailSeed, usdTryRate: number
 /** Ürün detayları (API gelene kadar). */
 const STATIC_DETAIL_SEEDS: StaticProductDetailSeed[] = [
   {
-    id: "uv-flatbed-pro",
-    slug: "compass-uv-9060-uv-baski-makinesi",
-    name: "COMPASS UV 9060 UV BASKI MAKİNESİ",
-    subtitle: "60x90 cm endüstriyel UV baskı çözümü",
+    id: "eco-solvent-dijital",
+    slug: "eco-solvent-dijital-baski-makinesi",
+    name: "Epson i3200 Baskı Kafalı Eco Solvent Dijital Baskı Makinesi",
+    subtitle: "Vinil, branda ve iç/dış mekan uygulamaları için endüstriyel çözüm",
     description:
-      `AUDLEY UV9060 platformunda 60x90 cm baskı alanı sunan endüstriyel UV baskı makinesi.
+      `Vinil, branda, mesh ve afiş baskılarında yüksek çözünürlük sunan i3200 kafalı eco solvent dijital baskı çözümü.
 
-- TX800 / i3200 kafa konfigürasyonları
-- Metal, ahşap, deri, akrilik, cam ve seramik üzerine baskı
-- Görsel konumlama destekli tam otomatik çalışma
-- Endüstriyel kullanım odaklı gövde ve üretim kararlılığı`,
-    usdPrice: 11500,
-    category: { name: "UV Baskı", slug: "uv-baski" },
-    imagePaths: [
-      "/urunler/folyokesim/compass-uv-9060-uv-baski-makinesi/compass-uv-9060-uv-baski-makinesi-01-877b4d3e.jpeg",
-    ],
-  },
-  {
-    id: "roll-to-roll-eco",
-    slug: "compass-uv-baski-makinesi",
-    name: "COMPASS UV BASKI MAKİNESİ",
-    subtitle: "İstenilen ölçülerde üretilebilen UV baskı",
-    description:
-      `Firma adına yerli üretim yaklaşımıyla konumlandırılan UV baskı makinesi.
-
-- 60x90 cm baskı alanı
-- İstenilen ölçülerde üretim/konfigürasyon seçeneği
-- Çoklu yüzeyde baskı (metal, ahşap, deri, akrilik, cam, seramik)
-- Tam otomatik, endüstriyel çalışma modeli`,
-    usdPrice: 12000,
-    category: { name: "UV Baskı", slug: "uv-baski" },
-    imagePaths: [
-      "/urunler/folyokesim/compass-uv-baski-makinesi/compass-uv-baski-makinesi-01-2ec39392.png",
-    ],
-  },
-  {
-    id: "sublimasyon-dijital",
-    slug: "sublimasyon-dijital-baski-makinesi",
-    name: "Epson i3200 Baskı Kafalı Süblimasyon Dijital Baskı Makinesi",
-    subtitle: "Kumaş, bayrak ve afiş için endüstriyel çözüm",
-    description:
-      `Kumaş, bayrak ve afiş üretimlerinde yüksek kalite için i3200 kafalı süblimasyon dijital baskı çözümü.
-
-- Çift taraflı bayrak ve farklı kumaş tipleriyle uyum
+- Araç kaplama, tabela ve geniş format reklam işleri için uygun
+- İç ve dış mekanda solmaya dayanıklı eco solvent mürekkep uyumu
 - Kırışıklık önleyici sürme sistemi
-- Otomatik senkron toplama ile sürekli baskı
-- Solmaya dayanıklı süblimasyon mürekkep uyumu`,
+- Otomatik senkron toplama ile sürekli rulo baskı
+- Düşük VOC’lu eco solvent mürekkeplerle çalışmaya uygun yapı`,
     usdPrice: 11500,
     category: { name: "Dijital Baskı", slug: "dijital-baski" },
     imagePaths: [
@@ -147,19 +120,41 @@ const STATIC_DETAIL_SEEDS: StaticProductDetailSeed[] = [
     ],
   },
   {
-    id: "plotter-175-ppf",
-    slug: "175-cm-ppf-folyo-kesim-makinesi-plotter",
-    name: "175 CM PPF/FOLYO KESİM MAKİNESİ PLOTTER",
-    subtitle: "175 cm net kesim alanı, optik kameralı",
+    id: "plotter-175-ppf-step",
+    slug: "175-cm-ppf-folyo-kesim-makinesi-plotter-step-motor",
+    name: "175 CM PPF/FOLYO KESİM MAKİNESİ PLOTTER (Step Motor)",
+    subtitle: "175 cm net kesim alanı, optik kameralı — açık döngü step sürücü",
     description:
-      `Yoğun PPF, folyo ve etiket uygulamaları için profesyonel kesici plotter.
+      `PPF, folyo ve etiket işlerinde uygun maliyetli profesyonel kesim için step motorlu plotter.
 
-- Step/servo motor teknolojisi
-- Geniş net kesim alanı (ürün sayfasında 150 cm sınıfı kullanım vurgusu)
+- Step motor: açık döngü sürüş; yüksek hızlarda tork düşüşü ve ağır malzemede adım kaçırma riski servoya göre daha yüksektir
+- Küçük puntolu detay ve çok ince çizgilerde servo modellere kıyasla sınır daha belirgindir; geniş grafik ve günlük folyo işleri için yeterli performans
+- 175 cm sınıfı net kesim alanı (ürün kullanımında 150 cm bandı vurgusu)
 - Kamera destekli optik okuma (Bas-Kes)
-- 800 mm/sn kesim hızı ve 20-1000 gr baskı ayarı
+- 800 mm/sn kesim hızı ve 20–1000 gr baskı kuvveti ayarı
 - Corel Draw entegrasyonu ve Sign Master yazılım desteği`,
     usdPrice: 2750,
+    category: { name: "Plotter Folyo Kesici", slug: "plotter-folyo-kesici" },
+    imagePaths: [
+      "/urunler/folyokesim/175-cm-ppf-folyo-kesim-makinesi-plotter/175-cm-ppf-folyo-kesim-makinesi-plotter-01-48d0a713.png",
+    ],
+  },
+  {
+    id: "plotter-175-ppf-servo",
+    slug: "175-cm-ppf-folyo-kesim-makinesi-plotter-servo-motor",
+    name: "175 CM PPF/FOLYO KESİM MAKİNESİ PLOTTER (Servo Motor)",
+    subtitle: "175 cm net kesim alanı, optik kameralı — kapalı döngü servo sürücü",
+    description:
+      `Yoğun PPF, ince detaylı folyo ve profesyonel atölye üretimi için servo motorlu plotter.
+
+- Servo motor: enkoder ile kapalı döngü konum geri beslemesi; hedeflenen yol ile gerçek konum sürekli düzeltilir, “adım kaçırma” servo sistemde tipik değildir
+- Yüksek hızda daha tutarlı tork ve genelde daha sessiz, daha akıcı hareket; küçük font ve karmaşık konturlarda daha net kesim
+- İzleme (tracking) ve uzun baskılarda servo sürücüler genellikle step motorlu makinelere göre daha stabil kabul edilir
+- 175 cm sınıfı net kesim alanı (ürün kullanımında 150 cm bandı vurgusu)
+- Kamera destekli optik okuma (Bas-Kes)
+- 800 mm/sn kesim hızı ve 20–1000 gr baskı kuvveti ayarı
+- Corel Draw entegrasyonu ve Sign Master yazılım desteği`,
+    usdPrice: 3300,
     category: { name: "Plotter Folyo Kesici", slug: "plotter-folyo-kesici" },
     imagePaths: [
       "/urunler/folyokesim/175-cm-ppf-folyo-kesim-makinesi-plotter/175-cm-ppf-folyo-kesim-makinesi-plotter-01-48d0a713.png",
@@ -285,25 +280,6 @@ const STATIC_DETAIL_SEEDS: StaticProductDetailSeed[] = [
     ],
   },
   {
-    id: "plotter-servo",
-    slug: "urun",
-    name: "PLOTTER FOLYO KESİM MAKİNESİ Servo Motor (Ultra Sessiz)",
-    subtitle: "Servo motorlu ultra sessiz çalışma",
-    description:
-      `Servo motorlu, ultra sessiz çalışma karakteri sunan profesyonel plotter folyo kesici.
-
-- 122 cm net kesim alanı
-- 6 teker sistemli pinç roller
-- ARM camera optik kesim özelliği
-- 800 mm/sn kesim hızı ve 20-1000 gr basınç
-- Corel Draw direkt kesim`,
-    usdPrice: 1350,
-    category: { name: "Plotter Folyo Kesici", slug: "plotter-folyo-kesici" },
-    imagePaths: [
-      "/urunler/folyokesim/plotter-folyo-kesim-makinesi-servo-motor-ultra-sessiz/plotter-folyo-kesim-makinesi-servo-motor-ultra-sessiz-01-49f93bc5.jpg",
-    ],
-  },
-  {
     id: "plotter-160-ppf",
     slug: "plotter-folyo-kesim-makinesi-optik-kamerali-160cm-net-kesim-alani",
     name: "Plotter PPF Folyo Kesim Makinesi Kameralı – 160Cm",
@@ -322,69 +298,6 @@ const STATIC_DETAIL_SEEDS: StaticProductDetailSeed[] = [
       "/urunler/folyokesim/plotter-ppf-folyo-kesim-makinesi-kamerali-160cm-net-kesim-alani/plotter-ppf-folyo-kesim-makinesi-kamerali-160cm-net-kesim-alani-01-0926d2c4.png",
       "/urunler/folyokesim/plotter-ppf-folyo-kesim-makinesi-kamerali-160cm-net-kesim-alani/plotter-ppf-folyo-kesim-makinesi-kamerali-160cm-net-kesim-alani-02-0ea18486.png",
       "/urunler/folyokesim/plotter-ppf-folyo-kesim-makinesi-kamerali-160cm-net-kesim-alani/plotter-ppf-folyo-kesim-makinesi-kamerali-160cm-net-kesim-alani-03-14a26bf1.png",
-    ],
-  },
-  {
-    id: "xl-1600tx",
-    slug: "xl-1600tx-i3200-2-baski-kafasi-ic-mekan-dis-mekan-uv-dijital-baski-makinesi",
-    name: "XL-1600TX I3200 2 BASKI KAFASI",
-    subtitle: "Indoor/Outdoor/UV uyumlu dijital baskı",
-    description:
-      `Çift i3200 baskı kafalı, indoor/outdoor/UV işlere uygun endüstriyel dijital baskı makinesi.
-
-- Hoson Gigabit ağ bağlantısı
-- Leadshine çift servo motor
-- Akıllı kurutma + harici üçlü kurutucu
-- Otomatik kafa temizleme ve medya eksikliği uyarısı
-- Çarpışma önleyici kafa koruma sistemi`,
-    usdPrice: 11500,
-    category: { name: "Dijital Baskı", slug: "dijital-baski" },
-    imagePaths: [
-      "/urunler/folyokesim/xl-1600tx-i3200-2-baski-kafasi-ic-mekan-dis-mekan-uv-dijital-baski-makinesi/xl-1600tx-i3200-2-baski-kafasi-ic-mekan-dis-mekan-uv-dijital-baski-makinesi-01-df1a1460.png",
-      "/urunler/folyokesim/xl-1600tx-i3200-2-baski-kafasi-ic-mekan-dis-mekan-uv-dijital-baski-makinesi/xl-1600tx-i3200-2-baski-kafasi-ic-mekan-dis-mekan-uv-dijital-baski-makinesi-02-2566c51d.png",
-      "/urunler/folyokesim/xl-1600tx-i3200-2-baski-kafasi-ic-mekan-dis-mekan-uv-dijital-baski-makinesi/xl-1600tx-i3200-2-baski-kafasi-ic-mekan-dis-mekan-uv-dijital-baski-makinesi-03-6b42c2eb.png",
-    ],
-  },
-  {
-    id: "xl-1680q",
-    slug: "dijital-baski-makinesi-kahverengi",
-    name: "XL-1680Q/1930Q/2200Q/F1080/I3200 Dijital Baskı Makinesi",
-    subtitle: "Geniş baskı kapasitesi, yeni nesil platform",
-    description:
-      `Geniş baskı kapasitesi ve ileri seviye mekanik altyapı ile profesyonel üretim için konumlandırılan model.
-
-- Akıllı ısıtma sistemi ve bağımsız sıcaklık kontrolü
-- Çift motorlu iletim
-- Hansen kart altyapısı
-- Yükseltilebilir bakım istasyonu
-- Tabela, araç kaplama, etiket ve transfer baskı kullanım alanları`,
-    usdPrice: 11500,
-    category: { name: "Dijital Baskı", slug: "dijital-baski" },
-    imagePaths: [
-      "/urunler/folyokesim/xl-1680q-1930q-2200q-f1080-i3200-indoor-outdoor-uv-dijital-baski-makinesi/xl-1680q-1930q-2200q-f1080-i3200-indoor-outdoor-uv-dijital-baski-makinesi-01-75e1bf56.png",
-      "/urunler/folyokesim/xl-1680q-1930q-2200q-f1080-i3200-indoor-outdoor-uv-dijital-baski-makinesi/xl-1680q-1930q-2200q-f1080-i3200-indoor-outdoor-uv-dijital-baski-makinesi-02-36907c42.png",
-      "/urunler/folyokesim/xl-1680q-1930q-2200q-f1080-i3200-indoor-outdoor-uv-dijital-baski-makinesi/xl-1680q-1930q-2200q-f1080-i3200-indoor-outdoor-uv-dijital-baski-makinesi-03-f313a1c5.png",
-    ],
-  },
-  {
-    id: "xl-1680s",
-    slug: "xl-1680s-1850s-tek-baski-kafasi-ic-mekan-dis-mekan-uv-dijital-baski-makinesi",
-    name: "XL-1680S / 1850S TEK BASKI KAFASI",
-    subtitle: "VSDT teknolojili tek kafa dijital baskı",
-    description:
-      `VSDT değişken damla teknolojili, tek baskı kafalı dijital baskı makinesi.
-
-- 3.5 pl - 12 pl damla aralığı
-- Panelden feathering (tüylenme) ayarı
-- Otomatik sönümleme besleme sistemi
-- Kesinti noktası devam ettirme
-- Düşük mürekkep tüketimi ve yüksek çözünürlük`,
-    usdPrice: 11500,
-    category: { name: "Dijital Baskı", slug: "dijital-baski" },
-    imagePaths: [
-      "/urunler/folyokesim/xl-1680s-1850s-tek-baski-kafasi-ic-mekan-dis-mekan-uv-dijital-baski-makinesi/xl-1680s-1850s-tek-baski-kafasi-ic-mekan-dis-mekan-uv-dijital-baski-makinesi-01-895ceb81.png",
-      "/urunler/folyokesim/xl-1680s-1850s-tek-baski-kafasi-ic-mekan-dis-mekan-uv-dijital-baski-makinesi/xl-1680s-1850s-tek-baski-kafasi-ic-mekan-dis-mekan-uv-dijital-baski-makinesi-02-ddb70896.png",
-      "/urunler/folyokesim/xl-1680s-1850s-tek-baski-kafasi-ic-mekan-dis-mekan-uv-dijital-baski-makinesi/xl-1680s-1850s-tek-baski-kafasi-ic-mekan-dis-mekan-uv-dijital-baski-makinesi-03-20b58fd6.png",
     ],
   },
   {
@@ -447,10 +360,25 @@ function buildStaticDetailIndex(usdTryRate: number): Record<string, ProductDetai
     index[seed.id] = detail
     index[seed.slug] = detail
   }
+  // Eco solvent ürünü eski süblimasyon id/slug ile sepet ve yer imi uyumluluğu
+  const ecoSolvent = index["eco-solvent-dijital"]
+  if (ecoSolvent) {
+    index["sublimasyon-dijital"] = ecoSolvent
+    index["sublimasyon-dijital-baski-makinesi"] = ecoSolvent
+  }
+  // 175 cm plotter tek üründen ikiye ayrıldı; eski id/slug Step varyantına yönlendirilir
+  const plotter175Step = index["plotter-175-ppf-step"]
+  if (plotter175Step) {
+    index["plotter-175-ppf"] = plotter175Step
+    index["175-cm-ppf-folyo-kesim-makinesi-plotter"] = plotter175Step
+  }
   return index
 }
 
-/** Statik ürünleri FrontendProduct listesine çevirir (ürünler sayfası fallback'ı). */
+/**
+ * Statik ürünleri FrontendProduct listesine çevirir (`/urunler` API yokken).
+ * Fiyatlar KDV hariç TL; ProductCard üzerinde + KDV etiketi gösterilir.
+ */
 export function getStaticFrontendProducts(usdTryRate: number): FrontendProduct[] {
   const stock = { availableQuantity: 1, reservedQuantity: 0, usableQuantity: 1 }
   return STATIC_DETAIL_SEEDS.map((seed) => {

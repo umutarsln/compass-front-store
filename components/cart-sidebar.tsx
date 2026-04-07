@@ -10,6 +10,7 @@ import { useCart } from "@/contexts/cart-context"
 import { useAuth } from "@/contexts/auth-context"
 import { Spinner } from "@/components/ui/spinner"
 import { uploadService } from "@/services/upload.service"
+import { grossInclVatFromCartLines, lineTotalWithVat, sumCartLinesExVat, vatAmountFromExAndIncl } from "@/lib/vat"
 
 // Kişiselleştirme Önizleme Bileşeni
 function PersonalizationPreview({ personalization }: { personalization: any }) {
@@ -159,7 +160,24 @@ function PersonalizationPreview({ personalization }: { personalization: any }) {
 
 export function CartSidebar() {
   const pathname = usePathname()
-  const { items, isSidebarOpen, openSidebar, closeSidebar, removeFromCart, updateQuantity, getTotalPrice, getTotalItems, isUpdatingItem, isRemovingItem } = useCart()
+  const {
+    items,
+    cartTotals,
+    isSidebarOpen,
+    openSidebar,
+    closeSidebar,
+    removeFromCart,
+    updateQuantity,
+    getTotalPrice,
+    getTotalItems,
+    isUpdatingItem,
+    isRemovingItem,
+  } = useCart()
+
+  const sidebarExVat = sumCartLinesExVat(items)
+  const sidebarGrossIncl = grossInclVatFromCartLines(sidebarExVat)
+  const sidebarKdv = vatAmountFromExAndIncl(sidebarExVat, sidebarGrossIncl)
+  const sidebarDiscount = cartTotals?.discountAmount ?? 0
   const { isAuthenticated, logout } = useAuth()
 
   // Sepet sayfasında sidebar'ı gösterme
@@ -306,7 +324,10 @@ export function CartSidebar() {
                           {/* Kişiselleştirme Önizlemesi */}
                           {item.personalization && <PersonalizationPreview personalization={item.personalization} />}
                           <p className="text-xs md:text-sm font-medium text-foreground mt-1">
-                            {item.price.toLocaleString("tr-TR")} ₺
+                            {lineTotalWithVat(
+                              Number(item.discountedPrice ?? item.basePrice ?? item.price),
+                              item.quantity,
+                            ).toLocaleString("tr-TR")} ₺
                           </p>
                           <div className="flex items-center gap-1.5 md:gap-2 mt-2">
                             <button
@@ -357,9 +378,29 @@ export function CartSidebar() {
               {/* Footer */}
               {items.length > 0 && (
                 <div className="border-t border-border p-3 md:p-4 space-y-3 md:space-y-4">
-                  <div className="flex items-center justify-between">
-                    <span className="text-base md:text-lg font-semibold">Toplam:</span>
-                    <span className="text-base md:text-lg font-bold">{getTotalPrice().toLocaleString("tr-TR")} ₺</span>
+                  <div className="space-y-2 text-xs md:text-sm">
+                    <div className="flex justify-between text-muted-foreground">
+                      <span>Ara (KDV hariç)</span>
+                      <span className="text-foreground">{sidebarExVat.toLocaleString("tr-TR")} ₺</span>
+                    </div>
+                    <div className="flex justify-between text-muted-foreground">
+                      <span>KDV (%20)</span>
+                      <span className="text-foreground">{sidebarKdv.toLocaleString("tr-TR")} ₺</span>
+                    </div>
+                    <div className="flex justify-between border-b border-border pb-2 text-muted-foreground">
+                      <span>Ara (KDV dahil)</span>
+                      <span className="text-foreground">{sidebarGrossIncl.toLocaleString("tr-TR")} ₺</span>
+                    </div>
+                    {sidebarDiscount > 0 && (
+                      <div className="flex justify-between text-green-600">
+                        <span>İndirim</span>
+                        <span>-{sidebarDiscount.toLocaleString("tr-TR")} ₺</span>
+                      </div>
+                    )}
+                    <div className="flex items-center justify-between pt-1">
+                      <span className="text-base md:text-lg font-semibold text-foreground">Toplam (KDV dahil)</span>
+                      <span className="text-base md:text-lg font-bold">{getTotalPrice().toLocaleString("tr-TR")} ₺</span>
+                    </div>
                   </div>
                   <Link
                     href="/sepet"

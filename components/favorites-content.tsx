@@ -9,6 +9,7 @@ import { useFavorites } from "@/contexts/favorites-context"
 import { useCart } from "@/contexts/cart-context"
 import { useAuth } from "@/contexts/auth-context"
 import { mergeFavoritesOnPageLoad } from "@/lib/favorites-sync"
+import { PRICE_EX_VAT_LABEL } from "@/lib/vat"
 
 const marketingMessages = [
   {
@@ -197,7 +198,10 @@ export function FavoritesContent() {
                     {item.name}
                   </h3>
                 </Link>
-                <p className="mt-1 text-sm text-foreground font-medium">{item.price.toLocaleString("tr-TR")} ₺</p>
+                <p className="mt-1 text-sm text-foreground font-medium">
+                  {item.price.toLocaleString("tr-TR")} ₺{" "}
+                  <span className="text-xs text-muted-foreground font-normal">{PRICE_EX_VAT_LABEL}</span>
+                </p>
               </div>
             </motion.div>
           ))}

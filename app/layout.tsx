@@ -8,6 +8,7 @@ import { AuthProvider } from "@/contexts/auth-context"
 import { Header } from "@/components/header"
 import { CartSidebar } from "@/components/cart-sidebar"
 import { WhatsAppButton } from "@/components/whatsapp-button"
+import { PhoneCallButton } from "@/components/phone-call-button"
 import { AnalyticsPageView } from "@/components/analytics-page-view"
 import "./globals.css"
 
@@ -53,6 +54,7 @@ gtag('config', 'G-9WTD6QPS7W');`,
               <Header />
               {children}
               <CartSidebar />
+              <PhoneCallButton />
               <WhatsAppButton />
             </FavoritesProvider>
           </CartProvider>

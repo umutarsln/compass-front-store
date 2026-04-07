@@ -34,7 +34,9 @@ export function AboutHero() {
           transition={{ delay: 0.1 }}
           className="font-display text-4xl md:text-5xl font-bold text-background mt-3 mb-4"
         >
-          Baskı Teknolojisinde <span className="text-gradient">15+ Yıl</span>
+          <span className="text-gradient">2018&apos;den Beri</span>
+          <br />
+          Baskı Teknolojisinde Güvenilir Ortağınız
         </motion.h1>
         <motion.p
           initial={{ opacity: 0, y: 20 }}
@@ -42,7 +44,8 @@ export function AboutHero() {
           transition={{ delay: 0.2 }}
           className="text-background/80 max-w-2xl mx-auto text-lg"
         >
-          Endüstriyel baskı çözümlerinde Türkiye&apos;nin güvenilir iş ortağı olarak, sektöre değer katmaya devam ediyoruz.
+          3000&apos;ü aşkın makine kurulumu; Akdeniz geneli teknik servis ile kurulumdan eğitime, yedek parçaya kadar satış
+          sonrası tam destek.
         </motion.p>
       </div>
     </section>

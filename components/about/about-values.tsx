@@ -5,7 +5,7 @@ import { Award, Users, Target, Handshake } from "lucide-react"
 
 const values = [
   { icon: Award, title: "Kalite", desc: "Dünya standartlarında ürünler ve hizmetler sunuyoruz." },
-  { icon: Handshake, title: "Güvenilirlik", desc: "15 yılı aşkın sektör deneyimiyle yanınızdayız." },
+  { icon: Handshake, title: "Güvenilirlik", desc: "2018'den beri biriken saha tecrübesiyle yanınızdayız." },
   { icon: Target, title: "Çözüm Odaklılık", desc: "İhtiyaçlarınıza özel, sonuç odaklı çözümler üretiyoruz." },
   { icon: Users, title: "Müşteri Memnuniyeti", desc: "500+ mutlu müşterimiz en büyük referansımızdır." },
 ]

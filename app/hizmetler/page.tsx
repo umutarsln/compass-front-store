@@ -76,9 +76,8 @@ const services = [
 
 const stats = [
   { value: "500+", label: "Tamamlanan Servis" },
-  { value: "98%", label: "Müşteri Memnuniyeti" },
-  { value: "< 4 saat", label: "Ort. Müdahale Süresi" },
-  { value: "50+", label: "Uzman Teknisyen" },
+  { value: "3000+", label: "Teslim Edilen Makine" },
+  { value: "8 yıl", label: "Tecrübe" },
 ]
 
 /**
@@ -161,7 +160,7 @@ export default function ServicesPage() {
         {/* Stats */}
         <section className="py-16 bg-secondary">
           <div className="container">
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-8">
               {stats.map((stat, i) => (
                 <motion.div
                   key={stat.label}

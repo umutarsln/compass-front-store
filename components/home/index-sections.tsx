@@ -22,6 +22,7 @@ import {
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { ProductCard } from "@/components/product-card"
+import { HeroBackgroundCarousel } from "@/components/home/hero-background-carousel"
 import type { FrontendProduct } from "@/lib/product-transformer"
 
 const fadeUp = {
@@ -42,8 +43,8 @@ const categories = [
 
 const stats = [
   { value: "500+", label: "Mutlu Müşteri" },
-  { value: "15+", label: "Yıl Tecrübe" },
-  { value: "1000+", label: "Kurulu Makine" },
+  { value: "8+", label: "Yıl Tecrübe" },
+  { value: "3000+", label: "Kurulu Makine" },
   { value: "7/24", label: "Teknik Destek" },
 ]
 
@@ -75,14 +76,8 @@ export function IndexSections({ featuredProducts }: IndexSectionsProps) {
       {/* Hero */}
       <section className="relative min-h-[85vh] flex items-center overflow-hidden">
         <div className="absolute inset-0">
-          <Image
-            src="/images/forge/hero-printer.jpg"
-            alt="Endüstriyel baskı makinesi"
-            fill
-            className="object-cover"
-            priority
-          />
-          <div className="absolute inset-0 bg-gradient-to-r from-foreground/95 via-foreground/70 to-transparent" />
+          <HeroBackgroundCarousel />
+          <div className="pointer-events-none absolute inset-0 z-[1] bg-gradient-to-r from-foreground/95 via-foreground/70 to-transparent" />
         </div>
         <div className="container relative z-10 py-20">
           <motion.div initial="hidden" animate="visible" className="max-w-2xl" variants={fadeUp}>
@@ -290,7 +285,7 @@ export function IndexSections({ featuredProducts }: IndexSectionsProps) {
                     <Settings className="h-6 w-6 text-primary" />
                   </div>
                   <div>
-                    <p className="font-display font-bold text-lg text-foreground">1000+</p>
+                    <p className="font-display font-bold text-lg text-foreground">3000+</p>
                     <p className="text-xs text-muted-foreground">Başarılı kurulum</p>
                   </div>
                 </div>

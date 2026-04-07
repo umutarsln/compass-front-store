@@ -3,10 +3,10 @@
 import { motion } from "framer-motion"
 
 const stats = [
-  { value: "15+", label: "Yıl Tecrübe" },
-  { value: "500+", label: "Mutlu Müşteri" },
-  { value: "1000+", label: "Kurulu Makine" },
-  { value: "50+", label: "Uzman Kadro" },
+  { value: "2018", label: "Kuruluş" },
+  { value: "3000+", label: "Kurulu Makine" },
+  { value: "8+", label: "Yıl Tecrübe" },
+  { value: "500+", label: "Tamamlanan Servis" },
 ]
 
 /**

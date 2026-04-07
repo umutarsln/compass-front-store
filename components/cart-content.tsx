@@ -10,9 +10,16 @@ import { useAuth } from "@/contexts/auth-context"
 import { Spinner } from "@/components/ui/spinner"
 import { Skeleton } from "@/components/ui/skeleton"
 import { Button } from "@/components/ui/button"
+import {
+  grossInclVatFromCartLines,
+  lineTotalWithVat,
+  resolveCartFinalTotalInclVat,
+  sumCartLinesExVat,
+  vatAmountFromExAndIncl,
+} from "@/lib/vat"
 
 export function CartContent() {
-  const { items, cartTotals, isLoading, removeFromCart, updateQuantity, getTotalPrice, getTotalItems, applyCoupon: applyCouponToCart, removeCoupon: removeCouponFromCart, applyingCoupon, isUpdatingItem, isRemovingItem } = useCart()
+  const { items, cartTotals, isLoading, removeFromCart, updateQuantity, getTotalItems, applyCoupon: applyCouponToCart, removeCoupon: removeCouponFromCart, applyingCoupon, isUpdatingItem, isRemovingItem } = useCart()
   const { isAuthenticated } = useAuth()
   const [isCouponInputOpen, setIsCouponInputOpen] = useState(false)
   const [couponCode, setCouponCode] = useState("")
@@ -88,9 +95,15 @@ export function CartContent() {
     }
   }
 
-  const subtotal = cartTotals?.subtotal ?? getTotalPrice()
   const discountAmount = cartTotals?.discountAmount ?? 0
-  const finalTotal = cartTotals?.total != null ? cartTotals.total : Math.max(0, getTotalPrice() - discountAmount)
+
+  /** İndirim öncesi KDV hariç brüt (satır birim fiyatları KDV hariç). */
+  const cartSubtotalExVat = sumCartLinesExVat(items)
+  /** Ara toplam KDV dahil: her zaman satırlardan hesaplanır (API KDV hariç dönse bile). */
+  const grossInclVat = grossInclVatFromCartLines(cartSubtotalExVat)
+  const kdvTutari = vatAmountFromExAndIncl(cartSubtotalExVat, grossInclVat)
+  /** Ödenecek toplam (KDV dahil); API formatı otomatik ayıklanır. */
+  const finalTotal = resolveCartFinalTotalInclVat(cartSubtotalExVat, cartTotals ?? undefined)
 
   // Loading state - show skeleton
   if (isLoading) {
@@ -271,15 +284,15 @@ export function CartContent() {
                           {item.discountedPrice && item.basePrice && item.discountedPrice < item.basePrice ? (
                             <>
                               <p className="text-xs sm:text-sm font-medium text-foreground">
-                                {(item.discountedPrice * item.quantity).toLocaleString("tr-TR")} ₺
+                                {lineTotalWithVat(item.discountedPrice, item.quantity).toLocaleString("tr-TR")} ₺
                               </p>
                               <p className="text-xs text-muted-foreground line-through">
-                                {(item.basePrice * item.quantity).toLocaleString("tr-TR")} ₺
+                                {lineTotalWithVat(item.basePrice, item.quantity).toLocaleString("tr-TR")} ₺
                               </p>
                             </>
                           ) : (
                             <p className="text-xs sm:text-sm font-medium text-foreground">
-                              {((item.basePrice || item.price) * item.quantity).toLocaleString("tr-TR")} ₺
+                              {lineTotalWithVat(item.basePrice ?? item.price, item.quantity).toLocaleString("tr-TR")} ₺
                             </p>
                           )}
                         </div>
@@ -305,19 +318,30 @@ export function CartContent() {
             {/* Sipariş Özeti */}
             <div className="lg:col-span-1 w-full min-w-0">
               <div className="lg:sticky lg:top-24 p-4 sm:p-6 border border-border bg-background w-full max-w-full overflow-hidden">
-                <h2 className="font-serif text-lg sm:text-xl text-foreground mb-4 sm:mb-6">Sipariş Özeti</h2>
+                <h2 className="font-serif text-lg sm:text-xl text-foreground mb-2 sm:mb-3">Sipariş Özeti</h2>
+                <p className="text-xs text-muted-foreground mb-4 sm:mb-6">
+                  Özet: KDV hariç ara toplam, %20 KDV tutarı ve KDV dahil ara toplam.
+                </p>
                 <div className="space-y-3 sm:space-y-4 mb-4 sm:mb-6">
                   <div className="flex justify-between text-xs sm:text-sm">
                     <span className="text-muted-foreground">Toplam Ürün</span>
                     <span className="text-foreground">{getTotalItems()} adet</span>
                   </div>
                   <div className="flex justify-between text-xs sm:text-sm">
-                    <span className="text-muted-foreground">Ara Toplam</span>
-                    <span className="text-foreground">{subtotal.toLocaleString("tr-TR")} ₺</span>
+                    <span className="text-muted-foreground">Ara Toplam (KDV hariç)</span>
+                    <span className="text-foreground">{cartSubtotalExVat.toLocaleString("tr-TR")} ₺</span>
+                  </div>
+                  <div className="flex justify-between text-xs sm:text-sm">
+                    <span className="text-muted-foreground">KDV (%20)</span>
+                    <span className="text-foreground">{kdvTutari.toLocaleString("tr-TR")} ₺</span>
+                  </div>
+                  <div className="flex justify-between text-xs sm:text-sm">
+                    <span className="text-muted-foreground">Ara Toplam (KDV dahil)</span>
+                    <span className="text-foreground">{grossInclVat.toLocaleString("tr-TR")} ₺</span>
                   </div>
                   {appliedCoupon && discountAmount > 0 && (
                     <div className="flex justify-between text-xs sm:text-sm">
-                      <span className="text-muted-foreground">İndirim ({appliedCoupon.code})</span>
+                      <span className="text-muted-foreground">İndirim ({appliedCoupon.code}, KDV dahil)</span>
                       <span className="text-green-600 font-medium">-{discountAmount.toLocaleString("tr-TR")} ₺</span>
                     </div>
                   )}
@@ -327,11 +351,11 @@ export function CartContent() {
                   </div>
                   <div className="border-t border-border pt-3 sm:pt-4">
                     <div className="flex justify-between">
-                      <span className="font-medium text-sm sm:text-base text-foreground">Toplam</span>
+                      <span className="font-medium text-sm sm:text-base text-foreground">Toplam (KDV dahil)</span>
                       <div className="flex flex-col items-end">
                         {appliedCoupon && discountAmount > 0 && (
                           <span className="text-xs text-muted-foreground line-through mb-0.5 sm:mb-1">
-                            {subtotal.toLocaleString("tr-TR")} ₺
+                            {grossInclVat.toLocaleString("tr-TR")} ₺
                           </span>
                         )}
                         <span className="font-medium text-foreground text-base sm:text-lg">

@@ -1,8 +1,8 @@
-"use client"
-
 import { MessageCircle } from "lucide-react"
 
-/** Forge tarzı sabit WhatsApp iletişim butonu - sağ alt köşede */
+/**
+ * Sabit WhatsApp FAB; “Bize ulaşın” metni tüm ekran boyutlarında sürekli görünür.
+ */
 export function WhatsAppButton() {
   const phoneNumber = "905534678607"
   const message = "Bilgi almak istiyorum"
@@ -13,10 +13,18 @@ export function WhatsAppButton() {
       href={whatsappUrl}
       target="_blank"
       rel="noopener noreferrer"
-      className="fixed bottom-6 right-6 z-50 bg-[hsl(142,70%,45%)] text-secondary-foreground p-4 rounded-full shadow-elevated hover:scale-110 transition-transform duration-300"
-      aria-label="WhatsApp ile iletişime geç"
+      aria-label="Bize ulaşın — WhatsApp ile yazın"
+      className="fixed bottom-6 right-6 z-50 flex max-w-[calc(100vw-3rem)] items-stretch overflow-hidden rounded-full bg-[hsl(142,70%,45%)] text-white shadow-elevated ring-2 ring-white/25 transition-[box-shadow,transform] duration-300 hover:shadow-[0_8px_30px_rgba(34,197,94,0.45)] hover:ring-white/40 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white active:scale-[0.98] motion-safe:hover:-translate-y-0.5"
     >
-      <MessageCircle className="h-6 w-6" />
+      <span
+        className="flex items-center pl-4 pr-1 text-sm font-semibold tracking-tight whitespace-nowrap"
+        aria-hidden
+      >
+        Bize ulaşın
+      </span>
+      <span className="flex h-14 w-14 shrink-0 items-center justify-center" aria-hidden>
+        <MessageCircle className="h-7 w-7" strokeWidth={2} />
+      </span>
     </a>
   )
 }

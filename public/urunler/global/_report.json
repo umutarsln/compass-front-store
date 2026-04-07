@@ -1,21 +1,16 @@
 {
-  "compass-uv-9060-uv-baski-makinesi": {
-    "query": "uv flatbed printer machine",
+  "eco-solvent-dijital-baski-makinesi": {
+    "query": "eco solvent wide format printer epson i3200",
     "count": 0,
     "files": []
   },
-  "compass-uv-baski-makinesi": {
-    "query": "uv printing machine",
+  "175-cm-ppf-folyo-kesim-makinesi-plotter-step-motor": {
+    "query": "stepper motor vinyl cutter plotter wide format",
     "count": 0,
     "files": []
   },
-  "sublimasyon-dijital-baski-makinesi": {
-    "query": "dye sublimation printer industrial",
-    "count": 0,
-    "files": []
-  },
-  "175-cm-ppf-folyo-kesim-makinesi-plotter": {
-    "query": "vinyl cutter plotter machine",
+  "175-cm-ppf-folyo-kesim-makinesi-plotter-servo-motor": {
+    "query": "servo motor vinyl cutter plotter precision",
     "count": 0,
     "files": []
   },
@@ -63,39 +58,10 @@
       "plotter-folyo-kesim-makinesi-a1/plotter-folyo-kesim-makinesi-a1-global-01-fac18c5e.jpg"
     ]
   },
-  "urun": {
-    "query": "cutting plotter machine",
-    "count": 1,
-    "files": [
-      "urun/urun-global-01-4df36d08.jpg"
-    ]
-  },
   "plotter-folyo-kesim-makinesi-optik-kamerali-160cm-net-kesim-alani": {
     "query": "ppf cutter plotter",
     "count": 0,
     "files": []
-  },
-  "xl-1600tx-i3200-2-baski-kafasi-ic-mekan-dis-mekan-uv-dijital-baski-makinesi": {
-    "query": "large format inkjet printer",
-    "count": 2,
-    "files": [
-      "xl-1600tx-i3200-2-baski-kafasi-ic-mekan-dis-mekan-uv-dijital-baski-makinesi/xl-1600tx-i3200-2-baski-kafasi-ic-mekan-dis-mekan-uv-dijital-baski-makinesi-global-01-303e3e1f.jpg",
-      "xl-1600tx-i3200-2-baski-kafasi-ic-mekan-dis-mekan-uv-dijital-baski-makinesi/xl-1600tx-i3200-2-baski-kafasi-ic-mekan-dis-mekan-uv-dijital-baski-makinesi-global-02-eb43d1b2.jpg"
-    ]
-  },
-  "dijital-baski-makinesi-kahverengi": {
-    "query": "wide format printer",
-    "count": 1,
-    "files": [
-      "dijital-baski-makinesi-kahverengi/dijital-baski-makinesi-kahverengi-global-01-f1a3c572.jpg"
-    ]
-  },
-  "xl-1680s-1850s-tek-baski-kafasi-ic-mekan-dis-mekan-uv-dijital-baski-makinesi": {
-    "query": "industrial inkjet printer",
-    "count": 1,
-    "files": [
-      "xl-1680s-1850s-tek-baski-kafasi-ic-mekan-dis-mekan-uv-dijital-baski-makinesi/xl-1680s-1850s-tek-baski-kafasi-ic-mekan-dis-mekan-uv-dijital-baski-makinesi-global-01-c8f4737e.jpg"
-    ]
   },
   "dijital-baski-makinesi-my-color": {
     "query": "industrial digital printing machine",

@@ -13,6 +13,8 @@ import { paymentService, PaymentProvider } from "@/services/payment.service"
 import { getCartId } from "@/lib/cart-storage"
 import { cartService } from "@/services/cart.service"
 import { useToast } from "@/hooks/use-toast"
+import { lineTotalWithVat } from "@/lib/vat"
+import { mergeIbanEftInfo, toCompactIban, type IbanEftInfoPayload } from "@/lib/iban-eft-defaults"
 
 export function CheckoutForm() {
   const router = useRouter()
@@ -24,12 +26,7 @@ export function CheckoutForm() {
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [paymentMethod, setPaymentMethod] = useState<'credit-card' | 'iban-eft' | null>(null)
   const [copiedField, setCopiedField] = useState<string | null>(null)
-  const [ibanInfo, setIbanInfo] = useState<{
-    iban: string;
-    accountName: string;
-    bankName: string;
-    whatsappNumber: string | null;
-  } | null>(null)
+  const [ibanInfo, setIbanInfo] = useState<IbanEftInfoPayload | null>(null)
   const [loadingIbanInfo, setLoadingIbanInfo] = useState(false)
   const [paymentSettings, setPaymentSettings] = useState<{
     iyzicoEnabled: boolean;
@@ -46,14 +43,14 @@ export function CheckoutForm() {
     // Step 3'e geçildiğinde ve IBAN EFT aktifse, IBAN bilgilerini çek
     if (newStep === 3 && paymentSettings?.ibanEftEnabled && !ibanInfo && !loadingIbanInfo) {
       setLoadingIbanInfo(true)
-      paymentService.getIbanInfo()
+      paymentService
+        .getIbanInfo()
         .then((info) => {
-          if (info) {
-            setIbanInfo(info)
-          }
+          setIbanInfo(mergeIbanEftInfo(info))
         })
         .catch((error: any) => {
           console.error('[CHECKOUT] IBAN bilgileri yüklenirken hata:', error)
+          setIbanInfo(mergeIbanEftInfo(null))
         })
         .finally(() => {
           setLoadingIbanInfo(false)
@@ -185,7 +182,7 @@ export function CheckoutForm() {
 
     let whatsappMessage = `Merhaba, IBAN ile ödeme yaptım. Dekontumu gönderiyorum.
 
-Sipariş Bilgileri:
+Sipariş Bilgileri (tutarlar KDV dahil %20):
 • Ara Toplam: ${msgSubtotal.toLocaleString("tr-TR")} ₺`
 
     if (msgDiscount > 0 && appliedCoupon) {
@@ -223,7 +220,7 @@ Teslimat Adresi:`
     whatsappMessage += `
 
 IBAN Bilgileri:
-• IBAN: ${ibanInfo.iban}
+• IBAN: ${toCompactIban(ibanInfo.iban)}
 • Hesap İsmi: ${ibanInfo.accountName}
 • Banka: ${ibanInfo.bankName}
 
@@ -495,11 +492,10 @@ IBAN Bilgileri:
           setLoadingIbanInfo(true)
           try {
             const info = await paymentService.getIbanInfo()
-            if (info) {
-              setIbanInfo(info)
-            }
+            setIbanInfo(mergeIbanEftInfo(info))
           } catch (error: any) {
             console.error('[CHECKOUT] IBAN bilgileri yüklenirken hata:', error)
+            setIbanInfo(mergeIbanEftInfo(null))
           } finally {
             setLoadingIbanInfo(false)
           }
@@ -1012,21 +1008,10 @@ IBAN Bilgileri:
                             setLoadingIbanInfo(true)
                             try {
                               const info = await paymentService.getIbanInfo()
-                              if (info) {
-                                setIbanInfo(info)
-                              } else {
-                                toast({
-                                  variant: "destructive",
-                                  title: "Hata",
-                                  description: "IBAN bilgileri alınamadı. Lütfen daha sonra tekrar deneyin.",
-                                })
-                              }
+                              setIbanInfo(mergeIbanEftInfo(info))
                             } catch (error: any) {
-                              toast({
-                                variant: "destructive",
-                                title: "Hata",
-                                description: error?.response?.data?.message || "IBAN bilgileri yüklenirken bir hata oluştu.",
-                              })
+                              console.error("[CHECKOUT] IBAN bilgileri yüklenirken hata:", error)
+                              setIbanInfo(mergeIbanEftInfo(null))
                             } finally {
                               setLoadingIbanInfo(false)
                             }
@@ -1140,7 +1125,7 @@ IBAN Bilgileri:
                               <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
                                 <p className="text-xs sm:text-sm text-foreground font-mono break-all sm:flex-1">{ibanInfo.iban}</p>
                                 <button
-                                  onClick={() => handleCopy(ibanInfo.iban, "iban")}
+                                  onClick={() => handleCopy(toCompactIban(ibanInfo.iban), "iban")}
                                   className="flex items-center justify-center gap-1 px-3 py-1.5 text-xs border border-border hover:bg-secondary transition-colors rounded shrink-0"
                                 >
                                   {copiedField === "iban" ? (
@@ -1215,7 +1200,10 @@ IBAN Bilgileri:
                         {/* Fiyat */}
                         <div className="pt-2 sm:pt-3 border-t border-border">
                           <div className="flex justify-between items-center">
-                            <p className="text-xs sm:text-sm text-muted-foreground">Ödenecek Tutar</p>
+                            <div>
+                              <p className="text-xs sm:text-sm text-muted-foreground">Ödenecek Tutar (KDV dahil)</p>
+                              <p className="text-[10px] text-muted-foreground/90 mt-0.5">%20 KDV uygulanmıştır.</p>
+                            </div>
                             <div className="flex flex-col items-end">
                               {appliedCoupon && discount > 0 && (
                                 <p className="text-xs text-muted-foreground line-through mb-0.5 sm:mb-1">
@@ -1316,7 +1304,8 @@ IBAN Bilgileri:
 
             <div className="lg:col-span-1 w-full min-w-0">
               <div className="bg-secondary p-4 sm:p-6 lg:sticky lg:top-28 w-full max-w-full overflow-hidden">
-                <h3 className="font-serif text-base sm:text-lg text-foreground mb-4 sm:mb-6">Sipariş Özeti</h3>
+                <h3 className="font-serif text-base sm:text-lg text-foreground mb-2 sm:mb-3">Sipariş Özeti</h3>
+                <p className="text-xs text-muted-foreground mb-4 sm:mb-6">Tutarlar KDV dahildir (%20).</p>
 
                 {/* Sepet Öğeleri - Her zaman gösterilir */}
                 {items.map((item) => (
@@ -1341,15 +1330,15 @@ IBAN Bilgileri:
                         {item.discountedPrice && item.basePrice && item.discountedPrice < item.basePrice ? (
                           <>
                             <p className="text-xs sm:text-sm font-medium text-foreground">
-                              {(item.discountedPrice * item.quantity).toLocaleString("tr-TR")} ₺
+                              {lineTotalWithVat(item.discountedPrice, item.quantity).toLocaleString("tr-TR")} ₺
                             </p>
                             <p className="text-xs text-muted-foreground line-through">
-                              {(item.basePrice * item.quantity).toLocaleString("tr-TR")} ₺
+                              {lineTotalWithVat(item.basePrice, item.quantity).toLocaleString("tr-TR")} ₺
                             </p>
                           </>
                         ) : (
                           <p className="text-xs sm:text-sm font-medium text-foreground">
-                            {((item.basePrice || item.price) * item.quantity).toLocaleString("tr-TR")} ₺
+                            {lineTotalWithVat(item.basePrice ?? item.price, item.quantity).toLocaleString("tr-TR")} ₺
                           </p>
                         )}
                       </div>
@@ -1359,13 +1348,13 @@ IBAN Bilgileri:
 
                 <div className="space-y-2 sm:space-y-3 py-4 sm:py-6 border-b border-border">
                   <div className="flex justify-between text-xs sm:text-sm">
-                    <span className="text-muted-foreground">Ara Toplam</span>
+                    <span className="text-muted-foreground">Ara Toplam (KDV dahil)</span>
                     <span className="text-foreground">{subtotal.toLocaleString("tr-TR")} ₺</span>
                   </div>
                   {appliedCoupon && discount > 0 && (
                     <div className="flex justify-between text-xs sm:text-sm">
                       <span className="text-muted-foreground">
-                        İndirim ({appliedCoupon.code})
+                        İndirim ({appliedCoupon.code}, KDV dahil)
                       </span>
                       <span className="text-green-600 font-medium">-{discount.toLocaleString("tr-TR")} ₺</span>
                     </div>
@@ -1377,7 +1366,7 @@ IBAN Bilgileri:
                 </div>
 
                 <div className="flex justify-between pt-4 sm:pt-6 pb-4 sm:pb-6 border-b border-border">
-                  <span className="font-medium text-sm sm:text-base text-foreground">Toplam</span>
+                  <span className="font-medium text-sm sm:text-base text-foreground">Toplam (KDV dahil)</span>
                   <div className="flex flex-col items-end">
                     {appliedCoupon && discount > 0 && (
                       <span className="text-xs text-muted-foreground line-through mb-0.5 sm:mb-1">

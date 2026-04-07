@@ -13,13 +13,12 @@ import { trackEvent, flushAnalytics } from "@/lib/analytics"
 import { Badge } from "@/components/ui/badge"
 import { MarkdownContent } from "@/components/markdown-content"
 import { cn } from "@/lib/utils"
+import { PRICE_EX_VAT_LABEL } from "@/lib/vat"
+import { buildWhatsAppTeklifOpenUrl } from "@/lib/whatsapp-teklif"
 
 interface ProductDetailProps {
   product: ProductDetailType
 }
-
-/** Teklif için kullanılan WhatsApp iş hattı (ülke kodu + numara, başında + yok). */
-const WHATSAPP_TEKLIF_PHONE = "905519770858"
 
 /**
  * Ürün sayfası URL'si ve sabit teklif metniyle wa.me bağlantısı üretir.
@@ -27,7 +26,7 @@ const WHATSAPP_TEKLIF_PHONE = "905519770858"
  */
 function buildWhatsAppTeklifHref(productPageUrl: string): string {
   const text = `Merhabalar, bu ürünün fiyatı için teklif alabilir miyim\n${productPageUrl}`
-  return `https://wa.me/${WHATSAPP_TEKLIF_PHONE}?text=${encodeURIComponent(text)}`
+  return buildWhatsAppTeklifOpenUrl(text)
 }
 
 /**
@@ -578,7 +577,7 @@ export function ProductDetail({ product }: ProductDetailProps) {
             )}
           </div>
 
-          <div className="flex items-center gap-3 lg:gap-4">
+          <div className="flex items-center gap-2 lg:gap-3 flex-wrap">
             {(() => {
               // SIMPLE ürünler için
               if (product.type === 'SIMPLE') {
@@ -631,6 +630,7 @@ export function ProductDetail({ product }: ProductDetailProps) {
                 </span>
               )
             })()}
+            <span className="text-sm text-muted-foreground font-medium">{PRICE_EX_VAT_LABEL}</span>
           </div>
 
           {/* Varyasyon Seçimi */}

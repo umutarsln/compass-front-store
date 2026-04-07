@@ -1,10 +1,15 @@
 import { Clock, Mail, MapPin, Phone } from "lucide-react"
 
+/** Genel iş telefonu; sabit arama FAB ve iletişim kartı aynı numarayı kullanır. */
+export const SITE_PHONE_TEL_HREF = "tel:+905534678607" as const
+/** Ekranda gösterilen telefon metni (boşluklu). */
+export const SITE_PHONE_DISPLAY = "0553 467 86 07"
+
 /**
  * İletişim sayfası için tek merkezden yönetilen kart bilgileri.
  */
 export const contactInfoCards = [
-  { icon: Phone, label: "Telefon", value: "0553 467 86 07", href: "tel:+905534678607" },
+  { icon: Phone, label: "Telefon", value: SITE_PHONE_DISPLAY, href: SITE_PHONE_TEL_HREF },
   { icon: Mail, label: "E-posta", value: "demo@compassreklam.com", href: "mailto:demo@compassreklam.com" },
   {
     icon: MapPin,

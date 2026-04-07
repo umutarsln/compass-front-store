@@ -2,6 +2,7 @@
 
 import { useState, useRef } from "react"
 import { motion } from "framer-motion"
+import { PRICE_EX_VAT_LABEL } from "@/lib/vat"
 import Image from "next/image"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
@@ -184,8 +185,9 @@ export function ProductDetailPage() {
             )}
 
             {/* Fiyat */}
-            <div className="mt-4 flex items-center gap-4">
+            <div className="mt-4 flex items-center gap-2 flex-wrap">
               <p className="text-2xl font-medium text-foreground">{sampleProduct.price.toLocaleString("tr-TR")} ₺</p>
+              <span className="text-sm text-muted-foreground">{PRICE_EX_VAT_LABEL}</span>
             </div>
 
             <div className="mt-8 space-y-6">

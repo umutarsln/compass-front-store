@@ -4,7 +4,7 @@ import { useState } from "react"
 import Link from "next/link"
 import Image from "next/image"
 import { motion } from "framer-motion"
-import { Send, CheckCircle, ArrowLeft, Phone, Mail, Building2 } from "lucide-react"
+import { MessageCircle, CheckCircle, ArrowLeft, Phone, Mail, Building2 } from "lucide-react"
 import { Footer } from "@/components/footer"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -12,10 +12,10 @@ import { Textarea } from "@/components/ui/textarea"
 import { useToast } from "@/hooks/use-toast"
 import { useCart } from "@/contexts/cart-context"
 import { contactInfoCards } from "@/lib/contact-content"
+import { buildQuoteRequestWhatsAppBody, buildWhatsAppTeklifOpenUrl } from "@/lib/whatsapp-teklif"
 
 /**
- * Teklif Al sayfası - Forge QuoteRequest UI
- * Store useCart ve useToast kullanılıyor
+ * Teklif Al sayfası: form alanları ve sepet özeti WhatsApp üzerinden iletilir (`lib/whatsapp-teklif`).
  */
 export default function TeklifAlPage() {
   const { items, getTotalItems } = useCart()
@@ -50,6 +50,9 @@ export default function TeklifAlPage() {
     return null
   }
 
+  /**
+   * Formu doğrular, teklif metnini oluşturur ve WhatsApp’ı yeni sekmede açar.
+   */
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
     const error = validate()
@@ -57,8 +60,23 @@ export default function TeklifAlPage() {
       toast({ title: "Hata", description: error, variant: "destructive" })
       return
     }
+    const body = buildQuoteRequestWhatsAppBody(
+      {
+        fullName: form.name,
+        company: form.company,
+        email: form.email,
+        phone: form.phone,
+        message: form.message,
+      },
+      items.map((item) => ({ name: item.name, quantity: item.quantity })),
+    )
+    const url = buildWhatsAppTeklifOpenUrl(body)
+    window.open(url, "_blank", "noopener,noreferrer")
     setSubmitted(true)
-    toast({ title: "Teklif talebiniz alındı!", description: "En kısa sürede size dönüş yapacağız." })
+    toast({
+      title: "WhatsApp açıldı",
+      description: "Mesajınız hazır; gönder tuşuna basarak teklif talebinizi iletebilirsiniz.",
+    })
   }
 
   if (submitted) {
@@ -69,9 +87,10 @@ export default function TeklifAlPage() {
             <div className="h-20 w-20 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-6">
               <CheckCircle className="h-10 w-10 text-primary" />
             </div>
-            <h1 className="font-display text-3xl font-bold text-foreground mb-3">Talebiniz Alındı!</h1>
+            <h1 className="font-display text-3xl font-bold text-foreground mb-3">WhatsApp Hazır</h1>
             <p className="text-muted-foreground max-w-md mx-auto mb-8">
-              Teklif talebiniz başarıyla iletildi. Ekibimiz en kısa sürede sizinle iletişime geçecektir.
+              Teklif bilgileriniz WhatsApp sohbetine aktarıldı. Mesajı gönderdiyseniz ekibimiz en kısa sürede size
+              dönüş yapacaktır.
             </p>
             <div className="flex gap-3 justify-center">
               <Link href="/">
@@ -100,7 +119,9 @@ export default function TeklifAlPage() {
           </Link>
 
           <h1 className="font-display text-3xl md:text-4xl font-bold text-foreground mb-2">Teklif Al</h1>
-          <p className="text-muted-foreground mb-10">Bilgilerinizi doldurun, size en uygun teklifi hazırlayalım.</p>
+          <p className="text-muted-foreground mb-10">
+            Bilgilerinizi doldurun; gönder dediğinizde aynı metin WhatsApp’ta açılacak, tek tıkla iletebileceksiniz.
+          </p>
 
           <div className="grid md:grid-cols-5 gap-10">
             <form onSubmit={handleSubmit} className="md:col-span-3 space-y-5">
@@ -177,7 +198,7 @@ export default function TeklifAlPage() {
                 />
               </div>
               <Button type="submit" size="lg" className="w-full gap-2">
-                <Send className="h-4 w-4" /> Teklif Talebini Gönder
+                <MessageCircle className="h-4 w-4" /> WhatsApp ile Teklif Gönder
               </Button>
             </form>
 
@@ -204,7 +225,9 @@ export default function TeklifAlPage() {
                     ))}
                   </ul>
                 ) : (
-                  <p className="text-sm text-muted-foreground">Sepetinizde ürün yok. Formu ürünsüz de gönderebilirsiniz.</p>
+                  <p className="text-sm text-muted-foreground">
+                    Sepetinizde ürün yok. Yine de formu doldurup WhatsApp üzerinden genel teklif isteyebilirsiniz.
+                  </p>
                 )}
                 <div className="mt-6 pt-4 border-t border-border">
                   <div className="flex items-center gap-2 text-sm text-muted-foreground mb-2">

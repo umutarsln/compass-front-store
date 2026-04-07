@@ -4,8 +4,7 @@ import { motion } from "framer-motion"
 import Image from "next/image"
 
 /**
- * Hakkımızda sayfası hikaye bölümü - Forge About UI
- * 2 kolon: metin sol, görsel sağ
+ * Hakkımızda metin bölümü — kuruluş 2018 ve 3000+ makine kurulumu vurgusu; iki kolon düzen.
  */
 export function AboutStory() {
   return (
@@ -19,21 +18,25 @@ export function AboutStory() {
           >
             <span className="text-primary font-semibold text-sm uppercase tracking-wider">Hikayemiz</span>
             <h2 className="font-display text-3xl md:text-4xl font-bold text-foreground mt-2 mb-6">
-              Tutkuyla Başladık, Güvenle Büyüdük
+              2018&apos;den Beri Üretimin Yanındayız
             </h2>
             <div className="space-y-4 text-muted-foreground leading-relaxed">
               <p>
-                2010 yılında İstanbul&apos;da küçük bir ofisten yola çıkan Compass Reklam, bugün Türkiye&apos;nin dört bir yanındaki
-                baskı atölyeleri, reklam ajansları ve üretim şirketlerine hizmet veren lider bir çözüm ortağı haline gelmiştir.
+                Compass Reklam, 2018 yılında endüstriyel baskı teknolojilerine odaklanarak yola çıktı. Akdeniz bölgesi ve
+                çevre illerdeki baskı atölyeleri, reklam firmaları ve üretim tesisleriyle kurduğumuz iş birlikleriyle
+                güvenilir bir çözüm ortağı haline geldik.
               </p>
               <p>
-                Dünya markası üreticilerin yetkili distribütörü olarak, UV flatbed, roll-to-roll, DTF, lazer kesim ve laminasyon
-                makinelerinde geniş bir ürün yelpazesi sunuyoruz. Her makineyi sadece satmıyor; kurulum, eğitim ve satış
-                sonrası teknik destekle müşterilerimizin yanında yer alıyoruz.
+                Dünya markası üreticilerin yetkili distribütörü olarak UV flatbed, roll-to-roll, DTF, lazer kesim ve
+                laminasyon makinelerinde geniş bir ürün yelpazesi sunuyoruz. Bugüne dek{" "}
+                <strong className="text-foreground font-medium">toplam 3000&apos;den fazla makine kurulumu</strong>{" "}
+                gerçekleştirdik; kurulum, eğitim ve{" "}
+                <strong className="text-foreground font-medium">Akdeniz geneli teknik servis</strong> ile satış sonrası
+                desteği eksiksiz sunuyoruz.
               </p>
               <p>
-                Misyonumuz, Türkiye&apos;deki baskı sektörünün teknolojik dönüşümüne öncülük etmek ve müşterilerimizin rekabet
-                gücünü artırmaktır.
+                Misyonumuz, baskı sektörünün teknolojik dönüşümüne katkı sağlamak ve müşterilerimizin üretim kapasitesini
+                sürdürülebilir biçimde artırmaktır.
               </p>
             </div>
           </motion.div>
@@ -45,7 +48,7 @@ export function AboutStory() {
             <div className="relative aspect-[4/3] w-full rounded-lg shadow-elevated overflow-hidden">
               <Image
                 src="/images/forge/product-flatbed.jpg"
-                alt="Compass Reklam ekibi"
+                alt="Compass Reklam endüstriyel baskı çözümleri"
                 fill
                 className="object-cover"
               />

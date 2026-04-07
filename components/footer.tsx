@@ -20,7 +20,7 @@ export function Footer() {
               />
             </div>
             <p className="text-sm text-muted-foreground leading-relaxed">
-              Endüstriyel baskı teknolojilerinde Türkiye&apos;nin lider çözüm ortağı. 15+ yıllık deneyimimizle yanınızdayız.
+              Endüstriyel baskı teknolojilerinde Türkiye&apos;nin lider çözüm ortağı. 8+ yıllık deneyimimizle yanınızdayız.
             </p>
           </div>
 

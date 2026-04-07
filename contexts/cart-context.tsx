@@ -9,6 +9,7 @@ import {
   setCartData,
   clearCartData,
 } from "@/lib/cart-storage"
+import { resolveCartFinalTotalInclVat, sumCartLinesExVat } from "@/lib/vat"
 import { trackEvent } from "@/lib/analytics"
 
 // Legacy interface for backward compatibility
@@ -527,9 +528,13 @@ export function CartProvider({ children }: { children: ReactNode }) {
     return items.reduce((total, item) => total + item.quantity, 0)
   }
 
+  /**
+   * Sepet tutarı (KDV dahil). API ara toplamı KDV hariç döndüğünde de satır fiyatlarından doğru KDV eklenir.
+   */
   const getTotalPrice = () => {
-    if (cartTotals != null && cartTotals.total >= 0) return cartTotals.total
-    return items.reduce((total, item) => total + item.price * item.quantity, 0)
+    if (items.length === 0) return 0
+    const linesExVat = sumCartLinesExVat(items)
+    return resolveCartFinalTotalInclVat(linesExVat, cartTotals ?? undefined)
   }
 
   const getCartIdFromContext = (): string | null => {

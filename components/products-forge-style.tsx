@@ -5,6 +5,7 @@ import { motion } from "framer-motion"
 import { Filter } from "lucide-react"
 import { ProductCard } from "@/components/product-card"
 import type { FrontendProduct } from "@/lib/product-transformer"
+import { STATIC_PRODUCT_PRICE_VAT_LABEL } from "@/lib/products"
 import type { Category } from "@/services/categories"
 
 /** Kategori ağacını düz liste yapar (pill'lerde göstermek için) */
@@ -56,6 +57,11 @@ export function ProductsForgeStyle({
           </h1>
           <p className="text-muted-foreground mt-2">
             Endüstriyel baskı teknolojilerinde geniş ürün yelpazemizi keşfedin.
+          </p>
+          <p className="text-xs sm:text-sm text-muted-foreground mt-2 border-l-2 border-primary/40 pl-3">
+            Liste fiyatları <span className="text-foreground font-medium">KDV hariç</span> gösterilir; her ürün kartında
+            tutarın yanında <span className="text-foreground font-medium">{STATIC_PRODUCT_PRICE_VAT_LABEL}</span>{" "}
+            ibaresi yer alır.
           </p>
         </div>
 

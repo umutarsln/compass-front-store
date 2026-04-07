@@ -27,7 +27,7 @@ const categories = [
     subcategories: [
       { name: "UV Baskı", href: "/urunler?categorySlugs=uv-baski" },
       { name: "Dijital Baskı", href: "/urunler?categorySlugs=dijital-baski" },
-      { name: "Süblimasyon Baskı", href: "/urunler?categorySlugs=dijital-baski" },
+      { name: "Eco Solvent Baskı", href: "/urunler?categorySlugs=dijital-baski" },
     ],
   },
   {
@@ -113,11 +113,11 @@ export function Header() {
           {/* Logo */}
           <Link href="/" className="flex items-center gap-2">
             <Image
-              src="/compass-reklam-logo.png"
+              src="/logos/LOGO.png"
               alt="Compass Reklam"
               width={170}
               height={48}
-              className="h-10 w-auto"
+              className="h-15 w-16"
               priority
             />
           </Link>

@@ -11,6 +11,7 @@ import { useCart } from "@/contexts/cart-context"
 import { SimilarProducts } from "@/components/similar-products"
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
 import { MarkdownContent } from "@/components/markdown-content"
+import { PRICE_EX_VAT_LABEL } from "@/lib/vat"
 
 // Örnek ürün verisi - tasarım için
 const sampleProduct = {
@@ -222,8 +223,9 @@ export function ProductDetailKisiyeOzel() {
             )}
 
             {/* Fiyat */}
-            <div className="mt-4 flex items-center gap-4">
+            <div className="mt-4 flex items-center gap-2 flex-wrap">
               <p className="text-2xl font-medium text-foreground">{sampleProduct.price.toLocaleString("tr-TR")} ₺</p>
+              <span className="text-sm text-muted-foreground">{PRICE_EX_VAT_LABEL}</span>
             </div>
 
             <div className="mt-8 space-y-6">
