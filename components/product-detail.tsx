@@ -167,7 +167,7 @@ export function ProductDetail({ product }: ProductDetailProps) {
 
   // Geçerli kombinasyonları filtrele (isActive: true ve isDisabled: false)
   const validCombinations = useMemo(() => {
-    if (product.type === 'SIMPLE' || !product.variantCombinations) return []
+    if (product.type !== 'VARIANT' || !product.variantCombinations) return []
     return product.variantCombinations.filter(
       (combination) => combination.isActive && !combination.isDisabled
     )
@@ -176,7 +176,7 @@ export function ProductDetail({ product }: ProductDetailProps) {
   // Bir varyasyon değerinin seçilebilir olup olmadığını kontrol et
   const isVariantValueSelectable = useCallback(
     (optionId: string, valueId: string): boolean => {
-      if (product.type === 'SIMPLE' || !validCombinations.length) return false
+      if (product.type !== 'VARIANT' || !validCombinations.length) return false
 
       // Bu değeri içeren geçerli kombinasyonları bul
       const combinationsWithThisValue = validCombinations.filter((combination) =>
@@ -208,7 +208,7 @@ export function ProductDetail({ product }: ProductDetailProps) {
 
   // Seçili kombinasyonu bul
   const currentCombination = useMemo(() => {
-    if (product.type === 'SIMPLE' || !validCombinations.length) return null
+    if (product.type !== 'VARIANT' || !validCombinations.length) return null
 
     const selectedValueIds = Object.values(selectedVariantValues)
     if (selectedValueIds.length === 0) return null
@@ -225,7 +225,7 @@ export function ProductDetail({ product }: ProductDetailProps) {
 
   // Fiyat hesapla
   const displayPrice = useMemo(() => {
-    if (product.type === 'SIMPLE') {
+    if (product.type !== 'VARIANT') {
       return product.discountedPrice || product.basePrice
     } else {
       if (currentCombination) {
@@ -365,7 +365,7 @@ export function ProductDetail({ product }: ProductDetailProps) {
       }
 
       const cartItem = {
-        id: product.type === 'SIMPLE' ? product.productId : (currentCombination?.id || product.productId),
+        id: product.type !== 'VARIANT' ? product.productId : (currentCombination?.id || product.productId),
         name: product.name,
         price: displayPrice,
         image: images[0],
@@ -579,8 +579,8 @@ export function ProductDetail({ product }: ProductDetailProps) {
 
           <div className="flex items-center gap-2 lg:gap-3 flex-wrap">
             {(() => {
-              // SIMPLE ürünler için
-              if (product.type === 'SIMPLE') {
+              // Basit ve paket ürünler için
+              if (product.type !== 'VARIANT') {
                 if (product.discountedPrice) {
                   return (
                     <>
@@ -681,7 +681,7 @@ export function ProductDetail({ product }: ProductDetailProps) {
 
           {/* Desktop'ta: Satın Al ve Sepete Ekle Butonları */}
           {(() => {
-            const canAddToCart = product.type === 'SIMPLE' || currentCombination
+            const canAddToCart = product.type !== 'VARIANT' || currentCombination
             return (
               <div className="hidden lg:block space-y-2">
                 <div className="grid grid-cols-2 gap-2">
@@ -782,7 +782,7 @@ export function ProductDetail({ product }: ProductDetailProps) {
 
       {/* Mobilde: Sticky Sepete Ekle Butonu ve Ürün Özellikleri */}
       {(() => {
-        const canAddToCart = product.type === 'SIMPLE' || currentCombination
+        const canAddToCart = product.type !== 'VARIANT' || currentCombination
         return (
           <div className="lg:hidden fixed bottom-0 left-0 right-0 z-50 bg-background border-t border-border shadow-lg">
             <div className="container mx-auto px-4 py-3">

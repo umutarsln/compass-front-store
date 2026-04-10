@@ -16,6 +16,11 @@ import { useToast } from "@/hooks/use-toast"
 import { lineTotalWithVat } from "@/lib/vat"
 import { mergeIbanEftInfo, toCompactIban, type IbanEftInfoPayload } from "@/lib/iban-eft-defaults"
 
+/** IBAN satırı Kopyala: açık zeminde sürekli görünür primary çerçeve ve hafif amber dolgu. */
+const IBAN_COPY_BUTTON_BASE =
+  "inline-flex items-center justify-center gap-1.5 px-3 py-2 text-xs font-semibold rounded-md shrink-0 min-w-[5.25rem] border-2 border-primary/65 bg-primary/14 text-foreground shadow-sm hover:bg-primary/26 hover:border-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/45 transition-colors [&_svg]:shrink-0 [&_svg]:text-primary"
+
+/** Sepet ödemesi: iletişim, adres, iyzico veya IBAN/EFT akışı ve sipariş özeti. */
 export function CheckoutForm() {
   const router = useRouter()
   const { toast } = useToast()
@@ -818,10 +823,10 @@ IBAN Bilgileri:
                   </div>
 
                   {formData.useBillingAddress && (
-                    <div className="space-y-3 sm:space-y-4 p-3 sm:p-4 border border-border bg-secondary">
-                      <h3 className="font-medium text-sm sm:text-base text-foreground">Fatura Adresi</h3>
+                    <div className="space-y-3 sm:space-y-4 p-3 sm:p-4 border border-checkout-panel-border bg-checkout-panel-accent text-foreground rounded-lg">
+                      <h3 className="font-medium text-sm sm:text-base">Fatura Adresi</h3>
                       <div>
-                        <label htmlFor="billingAddress" className="block text-sm font-medium text-foreground mb-1.5 sm:mb-2">
+                        <label htmlFor="billingAddress" className="block text-sm font-medium mb-1.5 sm:mb-2">
                           Adres
                         </label>
                         <input
@@ -836,7 +841,7 @@ IBAN Bilgileri:
                       </div>
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div>
-                          <label htmlFor="billingCity" className="block text-sm font-medium text-foreground mb-1.5 sm:mb-2">
+                          <label htmlFor="billingCity" className="block text-sm font-medium mb-1.5 sm:mb-2">
                             İl
                           </label>
                           <input
@@ -850,7 +855,7 @@ IBAN Bilgileri:
                           />
                         </div>
                         <div>
-                          <label htmlFor="billingDistrict" className="block text-sm font-medium text-foreground mb-1.5 sm:mb-2">
+                          <label htmlFor="billingDistrict" className="block text-sm font-medium mb-1.5 sm:mb-2">
                             İlçe
                           </label>
                           <input
@@ -865,7 +870,7 @@ IBAN Bilgileri:
                         </div>
                       </div>
                       <div>
-                        <label htmlFor="billingPostalCode" className="block text-sm font-medium text-foreground mb-1.5 sm:mb-2">
+                        <label htmlFor="billingPostalCode" className="block text-sm font-medium mb-1.5 sm:mb-2">
                           Posta Kodu
                         </label>
                         <input
@@ -880,7 +885,7 @@ IBAN Bilgileri:
                       </div>
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div>
-                          <label htmlFor="billingTaxNumber" className="block text-sm font-medium text-foreground mb-1.5 sm:mb-2">
+                          <label htmlFor="billingTaxNumber" className="block text-sm font-medium mb-1.5 sm:mb-2">
                             Vergi Numarası
                           </label>
                           <input
@@ -894,7 +899,7 @@ IBAN Bilgileri:
                           />
                         </div>
                         <div>
-                          <label htmlFor="billingTaxOffice" className="block text-sm font-medium text-foreground mb-1.5 sm:mb-2">
+                          <label htmlFor="billingTaxOffice" className="block text-sm font-medium mb-1.5 sm:mb-2">
                             Vergi Dairesi
                           </label>
                           <input
@@ -963,8 +968,8 @@ IBAN Bilgileri:
                       className={`relative p-4 sm:p-6 border-2 rounded-lg transition-all w-full max-w-full overflow-hidden ${paymentSettings?.iyzicoEnabled
                         ? paymentMethod === 'credit-card'
                           ? 'border-primary bg-primary/5 cursor-pointer'
-                          : 'border-border bg-secondary hover:border-foreground/50 cursor-pointer'
-                        : 'border-border bg-secondary opacity-60 cursor-not-allowed'
+                          : 'border-checkout-panel-border bg-checkout-panel hover:border-primary/45 cursor-pointer'
+                        : 'border-checkout-panel-border bg-checkout-panel/70 opacity-60 cursor-not-allowed'
                         }`}
                     >
                       <div className="flex items-center gap-3 sm:gap-4">
@@ -1021,8 +1026,8 @@ IBAN Bilgileri:
                       className={`relative p-4 sm:p-6 border-2 rounded-lg transition-all w-full max-w-full overflow-hidden ${paymentSettings?.ibanEftEnabled
                         ? paymentMethod === 'iban-eft'
                           ? 'border-primary bg-primary/5 cursor-pointer'
-                          : 'border-border bg-secondary hover:border-foreground/50 cursor-pointer'
-                        : 'border-border bg-secondary opacity-60 cursor-not-allowed'
+                          : 'border-checkout-panel-border bg-checkout-panel hover:border-primary/45 cursor-pointer'
+                        : 'border-checkout-panel-border bg-checkout-panel/70 opacity-60 cursor-not-allowed'
                         }`}
                     >
                       <div className="flex items-start gap-3 sm:gap-4">
@@ -1060,10 +1065,10 @@ IBAN Bilgileri:
                       className="space-y-4"
                     >
                       {/* Dekont Gönderme Adımları */}
-                      <div className="p-4 sm:p-6 border border-border bg-secondary w-full max-w-full overflow-hidden">
+                      <div className="p-4 sm:p-6 border border-checkout-panel-border bg-checkout-panel-accent text-foreground w-full max-w-full overflow-hidden rounded-lg shadow-sm">
                         <div className="flex items-center gap-2 mb-3 sm:mb-4">
-                          <FileText className="w-4 h-4 sm:w-5 sm:h-5 text-muted-foreground shrink-0" />
-                          <h3 className="font-medium text-sm sm:text-base text-foreground">Dekont Gönderme Adımları</h3>
+                          <FileText className="w-4 h-4 sm:w-5 sm:h-5 text-primary shrink-0" />
+                          <h3 className="font-medium text-sm sm:text-base">Dekont Gönderme Adımları</h3>
                         </div>
                         <div className="space-y-2.5 sm:space-y-3">
                           <div className="flex items-start gap-2 sm:gap-3">
@@ -1071,7 +1076,7 @@ IBAN Bilgileri:
                               1
                             </div>
                             <div className="flex-1 min-w-0">
-                              <p className="text-foreground font-medium text-xs sm:text-sm">Aşağıda belirtilen IBAN'a ödeme yapınız.</p>
+                              <p className="font-medium text-xs sm:text-sm">Aşağıda belirtilen IBAN'a ödeme yapınız.</p>
                               <p className="text-muted-foreground text-xs mt-0.5">Belirtilen IBAN'a belirtilen tutarı havale/EFT yapın</p>
                             </div>
                           </div>
@@ -1080,7 +1085,7 @@ IBAN Bilgileri:
                               2
                             </div>
                             <div className="flex-1 min-w-0">
-                              <p className="text-foreground font-medium text-xs sm:text-sm">Ödemeyi yapıp tekrar siteye döndükten sonra "Ödeme Yaptım" seçeneğini işaretleyin.</p>
+                              <p className="font-medium text-xs sm:text-sm">Ödemeyi yapıp tekrar siteye döndükten sonra "Ödeme Yaptım" seçeneğini işaretleyin.</p>
                               <p className="text-muted-foreground text-xs mt-0.5">Ödeme işleminizi tamamladıktan sonra siteye dönerek "Ödeme Yaptım" seçeneğini işaretleyin</p>
                             </div>
                           </div>
@@ -1089,7 +1094,7 @@ IBAN Bilgileri:
                               3
                             </div>
                             <div className="flex-1 min-w-0">
-                              <p className="text-foreground font-medium text-xs sm:text-sm">WhatsApp için gelen butona tıklayın ve dekontu bize gönderin.</p>
+                              <p className="font-medium text-xs sm:text-sm">WhatsApp için gelen butona tıklayın ve dekontu bize gönderin.</p>
                               <p className="text-muted-foreground text-xs mt-0.5">Ödeme dekontunuzu WhatsApp üzerinden bizimle paylaşın</p>
                             </div>
                           </div>
@@ -1098,7 +1103,7 @@ IBAN Bilgileri:
                               4
                             </div>
                             <div className="flex-1 min-w-0">
-                              <p className="text-foreground font-medium text-xs sm:text-sm">Siparişinizi takip edin.</p>
+                              <p className="font-medium text-xs sm:text-sm">Siparişinizi takip edin.</p>
                               <p className="text-muted-foreground text-xs mt-0.5">WhatsApp ile dekont gönderdikten sonra size ekibimiz tarafından verilen sipariş numarası ile siparişinizi sitemizden sipariş sorgula ekranından takip edebilirsiniz</p>
                             </div>
                           </div>
@@ -1106,8 +1111,8 @@ IBAN Bilgileri:
                       </div>
 
                       {/* IBAN Bilgileri */}
-                      <div className="p-4 sm:p-6 border border-border bg-secondary space-y-3 sm:space-y-4 w-full max-w-full overflow-hidden">
-                        <p className="text-xs sm:text-sm text-foreground mb-3 sm:mb-4">
+                      <div className="p-4 sm:p-6 border border-checkout-panel-border bg-checkout-panel text-foreground space-y-3 sm:space-y-4 w-full max-w-full overflow-hidden rounded-lg shadow-sm">
+                        <p className="text-xs sm:text-sm mb-3 sm:mb-4 text-muted-foreground">
                           IBAN ile ödeme yaptıktan sonra Whatsapp'dan bize alttaki butondan ulaşıp dekontunuzu paylaşınız.
                         </p>
 
@@ -1125,8 +1130,9 @@ IBAN Bilgileri:
                               <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
                                 <p className="text-xs sm:text-sm text-foreground font-mono break-all sm:flex-1">{ibanInfo.iban}</p>
                                 <button
+                                  type="button"
                                   onClick={() => handleCopy(toCompactIban(ibanInfo.iban), "iban")}
-                                  className="flex items-center justify-center gap-1 px-3 py-1.5 text-xs border border-border hover:bg-secondary transition-colors rounded shrink-0"
+                                  className={`${IBAN_COPY_BUTTON_BASE} ${copiedField === "iban" ? "border-emerald-600/55 bg-emerald-500/12" : ""}`}
                                 >
                                   {copiedField === "iban" ? (
                                     <>
@@ -1149,8 +1155,9 @@ IBAN Bilgileri:
                               <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
                                 <p className="text-xs sm:text-sm text-foreground break-words sm:flex-1">{ibanInfo.accountName}</p>
                                 <button
+                                  type="button"
                                   onClick={() => handleCopy(ibanInfo.accountName, "accountName")}
-                                  className="flex items-center justify-center gap-1 px-3 py-1.5 text-xs border border-border hover:bg-secondary transition-colors rounded shrink-0"
+                                  className={`${IBAN_COPY_BUTTON_BASE} ${copiedField === "accountName" ? "border-emerald-600/55 bg-emerald-500/12" : ""}`}
                                 >
                                   {copiedField === "accountName" ? (
                                     <>
@@ -1173,8 +1180,9 @@ IBAN Bilgileri:
                               <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
                                 <p className="text-xs sm:text-sm text-foreground break-words sm:flex-1">{ibanInfo.bankName}</p>
                                 <button
+                                  type="button"
                                   onClick={() => handleCopy(ibanInfo.bankName, "bankName")}
-                                  className="flex items-center justify-center gap-1 px-3 py-1.5 text-xs border border-border hover:bg-secondary transition-colors rounded shrink-0"
+                                  className={`${IBAN_COPY_BUTTON_BASE} ${copiedField === "bankName" ? "border-emerald-600/55 bg-emerald-500/12" : ""}`}
                                 >
                                   {copiedField === "bankName" ? (
                                     <>
@@ -1198,19 +1206,19 @@ IBAN Bilgileri:
                         )}
 
                         {/* Fiyat */}
-                        <div className="pt-2 sm:pt-3 border-t border-border">
-                          <div className="flex justify-between items-center">
+                        <div className="pt-3 sm:pt-4 mt-1 border-t border-checkout-panel-border bg-checkout-panel-accent/50 -mx-3 sm:-mx-4 px-3 sm:px-4 py-3 rounded-b-lg">
+                          <div className="flex justify-between items-center gap-3">
                             <div>
-                              <p className="text-xs sm:text-sm text-muted-foreground">Ödenecek Tutar (KDV dahil)</p>
-                              <p className="text-[10px] text-muted-foreground/90 mt-0.5">%20 KDV uygulanmıştır.</p>
+                              <p className="text-xs sm:text-sm font-medium text-foreground">Ödenecek Tutar (KDV dahil)</p>
+                              <p className="text-[10px] text-muted-foreground mt-0.5">%20 KDV uygulanmıştır.</p>
                             </div>
                             <div className="flex flex-col items-end">
                               {appliedCoupon && discount > 0 && (
-                                <p className="text-xs text-muted-foreground line-through mb-0.5 sm:mb-1">
+                                <p className="text-xs text-muted-foreground line-through mb-0.5 sm:mb-1 tabular-nums">
                                   {subtotal.toLocaleString("tr-TR")} ₺
                                 </p>
                               )}
-                              <p className="text-base sm:text-lg font-semibold text-green-600">{total.toLocaleString("tr-TR")} ₺</p>
+                              <p className="text-base sm:text-lg font-semibold text-primary tabular-nums">{total.toLocaleString("tr-TR")} ₺</p>
                             </div>
                           </div>
                         </div>
@@ -1248,8 +1256,8 @@ IBAN Bilgileri:
                     </motion.div>
                   )}
 
-                  <div className="flex items-start gap-2 sm:gap-3 p-3 sm:p-4 bg-secondary w-full max-w-full overflow-hidden">
-                    <Lock className="w-4 h-4 sm:w-5 sm:h-5 text-muted-foreground shrink-0 mt-0.5" />
+                  <div className="flex items-start gap-2 sm:gap-3 p-3 sm:p-4 bg-checkout-panel-accent border border-checkout-panel-border text-foreground w-full max-w-full overflow-hidden rounded-lg">
+                    <Lock className="w-4 h-4 sm:w-5 sm:h-5 text-primary shrink-0 mt-0.5" />
                     <p className="text-xs sm:text-sm text-muted-foreground">
                       Ödeme bilgileriniz güvenli bir şekilde işlenmektedir.
                     </p>
@@ -1303,14 +1311,14 @@ IBAN Bilgileri:
             </div>
 
             <div className="lg:col-span-1 w-full min-w-0">
-              <div className="bg-secondary p-4 sm:p-6 lg:sticky lg:top-28 w-full max-w-full overflow-hidden">
-                <h3 className="font-serif text-base sm:text-lg text-foreground mb-2 sm:mb-3">Sipariş Özeti</h3>
+              <div className="bg-checkout-panel text-foreground p-4 sm:p-6 lg:sticky lg:top-28 w-full max-w-full overflow-hidden border border-checkout-panel-border rounded-lg shadow-sm">
+                <h3 className="font-serif text-base sm:text-lg mb-2 sm:mb-3">Sipariş Özeti</h3>
                 <p className="text-xs text-muted-foreground mb-4 sm:mb-6">Tutarlar KDV dahildir (%20).</p>
 
                 {/* Sepet Öğeleri - Her zaman gösterilir */}
                 {items.map((item) => (
-                  <div key={item.id} className="flex gap-3 sm:gap-4 pb-4 sm:pb-6 border-b border-border mb-4 sm:mb-6 w-full max-w-full overflow-hidden">
-                    <div className="relative w-16 h-16 sm:w-20 sm:h-20 bg-background shrink-0">
+                  <div key={item.id} className="flex gap-3 sm:gap-4 pb-4 sm:pb-6 border-b border-checkout-panel-border mb-4 sm:mb-6 w-full max-w-full overflow-hidden">
+                    <div className="relative w-16 h-16 sm:w-20 sm:h-20 bg-card shrink-0 rounded-md overflow-hidden ring-1 ring-border">
                       <Image
                         src={item.image || "/placeholders/placeholder.svg"}
                         alt={item.name}
@@ -1319,7 +1327,7 @@ IBAN Bilgileri:
                       />
                     </div>
                     <div className="flex-1 min-w-0">
-                      <h4 className="text-xs sm:text-sm font-medium text-foreground break-words">{item.name}</h4>
+                      <h4 className="text-xs sm:text-sm font-medium break-words">{item.name}</h4>
                       {item.variantValues && item.variantValues.length > 0 && (
                         <p className="text-xs text-muted-foreground mt-0.5 sm:mt-1">
                           {item.variantValues.map((vv) => vv.value).join(" / ")}
@@ -1329,15 +1337,15 @@ IBAN Bilgileri:
                       <div className="mt-1.5 sm:mt-2">
                         {item.discountedPrice && item.basePrice && item.discountedPrice < item.basePrice ? (
                           <>
-                            <p className="text-xs sm:text-sm font-medium text-foreground">
+                            <p className="text-xs sm:text-sm font-medium tabular-nums">
                               {lineTotalWithVat(item.discountedPrice, item.quantity).toLocaleString("tr-TR")} ₺
                             </p>
-                            <p className="text-xs text-muted-foreground line-through">
+                            <p className="text-xs text-muted-foreground line-through tabular-nums">
                               {lineTotalWithVat(item.basePrice, item.quantity).toLocaleString("tr-TR")} ₺
                             </p>
                           </>
                         ) : (
-                          <p className="text-xs sm:text-sm font-medium text-foreground">
+                          <p className="text-xs sm:text-sm font-medium tabular-nums">
                             {lineTotalWithVat(item.basePrice ?? item.price, item.quantity).toLocaleString("tr-TR")} ₺
                           </p>
                         )}
@@ -1346,34 +1354,34 @@ IBAN Bilgileri:
                   </div>
                 ))}
 
-                <div className="space-y-2 sm:space-y-3 py-4 sm:py-6 border-b border-border">
-                  <div className="flex justify-between text-xs sm:text-sm">
-                    <span className="text-muted-foreground">Ara Toplam (KDV dahil)</span>
-                    <span className="text-foreground">{subtotal.toLocaleString("tr-TR")} ₺</span>
+                <div className="space-y-2 sm:space-y-3 py-4 sm:py-6 border-b border-checkout-panel-border">
+                  <div className="flex justify-between gap-3 text-xs sm:text-sm">
+                    <span className="text-muted-foreground shrink-0">Ara Toplam (KDV dahil)</span>
+                    <span className="font-medium tabular-nums text-right">{subtotal.toLocaleString("tr-TR")} ₺</span>
                   </div>
                   {appliedCoupon && discount > 0 && (
-                    <div className="flex justify-between text-xs sm:text-sm">
-                      <span className="text-muted-foreground">
+                    <div className="flex justify-between gap-3 text-xs sm:text-sm">
+                      <span className="text-muted-foreground shrink-0">
                         İndirim ({appliedCoupon.code}, KDV dahil)
                       </span>
-                      <span className="text-green-600 font-medium">-{discount.toLocaleString("tr-TR")} ₺</span>
+                      <span className="text-primary font-medium tabular-nums text-right">-{discount.toLocaleString("tr-TR")} ₺</span>
                     </div>
                   )}
-                  <div className="flex justify-between text-xs sm:text-sm">
+                  <div className="flex justify-between gap-3 text-xs sm:text-sm">
                     <span className="text-muted-foreground">Kargo</span>
-                    <span className="text-accent">Ücretsiz</span>
+                    <span className="text-accent font-medium">Ücretsiz</span>
                   </div>
                 </div>
 
-                <div className="flex justify-between pt-4 sm:pt-6 pb-4 sm:pb-6 border-b border-border">
-                  <span className="font-medium text-sm sm:text-base text-foreground">Toplam (KDV dahil)</span>
-                  <div className="flex flex-col items-end">
+                <div className="flex justify-between gap-3 pt-4 sm:pt-6 pb-4 sm:pb-6 border-b border-checkout-panel-border">
+                  <span className="font-medium text-sm sm:text-base shrink-0">Toplam (KDV dahil)</span>
+                  <div className="flex flex-col items-end min-w-0">
                     {appliedCoupon && discount > 0 && (
-                      <span className="text-xs text-muted-foreground line-through mb-0.5 sm:mb-1">
+                      <span className="text-xs text-muted-foreground line-through mb-0.5 sm:mb-1 tabular-nums">
                         {subtotal.toLocaleString("tr-TR")} ₺
                       </span>
                     )}
-                    <span className="font-serif text-lg sm:text-xl text-green-600 font-semibold">{total.toLocaleString("tr-TR")} ₺</span>
+                    <span className="font-serif text-lg sm:text-xl text-primary font-semibold tabular-nums">{total.toLocaleString("tr-TR")} ₺</span>
                   </div>
                 </div>
 
@@ -1381,25 +1389,25 @@ IBAN Bilgileri:
                 {step === 1 && (
                   <div className="mt-4 sm:mt-6 space-y-3 sm:space-y-4">
                     <div className="flex items-center gap-2 mb-3 sm:mb-4">
-                      <User className="w-4 h-4 sm:w-5 sm:h-5 text-muted-foreground shrink-0" />
-                      <h4 className="font-medium text-sm sm:text-base text-foreground">İletişim Bilgileri</h4>
+                      <User className="w-4 h-4 sm:w-5 sm:h-5 text-primary shrink-0" />
+                      <h4 className="font-medium text-sm sm:text-base">İletişim Bilgileri</h4>
                     </div>
                     {formData.email && (
                       <div className="text-xs sm:text-sm">
                         <p className="text-muted-foreground">E-posta</p>
-                        <p className="text-foreground break-words">{formData.email}</p>
+                        <p className="break-words">{formData.email}</p>
                       </div>
                     )}
                     {(formData.firstName || formData.lastName) && (
                       <div className="text-xs sm:text-sm">
                         <p className="text-muted-foreground">Ad Soyad</p>
-                        <p className="text-foreground">{formData.firstName} {formData.lastName}</p>
+                        <p>{formData.firstName} {formData.lastName}</p>
                       </div>
                     )}
                     {formData.phone && (
                       <div className="text-xs sm:text-sm">
                         <p className="text-muted-foreground">Telefon</p>
-                        <p className="text-foreground">{formData.phone}</p>
+                        <p>{formData.phone}</p>
                       </div>
                     )}
                   </div>
@@ -1409,25 +1417,25 @@ IBAN Bilgileri:
                 {step === 2 && (
                   <div className="mt-4 sm:mt-6 space-y-3 sm:space-y-4">
                     <div className="flex items-center gap-2 mb-3 sm:mb-4">
-                      <MapPin className="w-4 h-4 sm:w-5 sm:h-5 text-muted-foreground shrink-0" />
-                      <h4 className="font-medium text-sm sm:text-base text-foreground">Teslimat Adresi</h4>
+                      <MapPin className="w-4 h-4 sm:w-5 sm:h-5 text-primary shrink-0" />
+                      <h4 className="font-medium text-sm sm:text-base">Teslimat Adresi</h4>
                     </div>
                     {formData.address && (
                       <div className="text-xs sm:text-sm">
                         <p className="text-muted-foreground">Adres</p>
-                        <p className="text-foreground break-words">{formData.address}</p>
+                        <p className="break-words">{formData.address}</p>
                       </div>
                     )}
                     {(formData.district || formData.city) && (
                       <div className="text-xs sm:text-sm">
                         <p className="text-muted-foreground">İlçe / İl</p>
-                        <p className="text-foreground">{formData.district} / {formData.city}</p>
+                        <p>{formData.district} / {formData.city}</p>
                       </div>
                     )}
                     {formData.postalCode && (
                       <div className="text-xs sm:text-sm">
                         <p className="text-muted-foreground">Posta Kodu</p>
-                        <p className="text-foreground">{formData.postalCode}</p>
+                        <p>{formData.postalCode}</p>
                       </div>
                     )}
                   </div>
@@ -1439,18 +1447,18 @@ IBAN Bilgileri:
                     {/* İletişim Bilgileri */}
                     <div>
                       <div className="flex items-center gap-2 mb-2 sm:mb-3">
-                        <User className="w-3 h-3 sm:w-4 sm:h-4 text-muted-foreground shrink-0" />
-                        <h4 className="font-medium text-xs sm:text-sm text-foreground">İletişim Bilgileri</h4>
+                        <User className="w-3 h-3 sm:w-4 sm:h-4 text-primary shrink-0" />
+                        <h4 className="font-medium text-xs sm:text-sm">İletişim Bilgileri</h4>
                       </div>
                       <div className="space-y-1 sm:space-y-2 text-xs sm:text-sm pl-5 sm:pl-6">
                         {formData.email && (
-                          <p className="text-foreground break-words">{formData.email}</p>
+                          <p className="break-words">{formData.email}</p>
                         )}
                         {(formData.firstName || formData.lastName) && (
-                          <p className="text-foreground">{formData.firstName} {formData.lastName}</p>
+                          <p>{formData.firstName} {formData.lastName}</p>
                         )}
                         {formData.phone && (
-                          <p className="text-foreground">{formData.phone}</p>
+                          <p>{formData.phone}</p>
                         )}
                       </div>
                     </div>
@@ -1458,18 +1466,18 @@ IBAN Bilgileri:
                     {/* Adres Bilgileri */}
                     <div>
                       <div className="flex items-center gap-2 mb-2 sm:mb-3">
-                        <MapPin className="w-3 h-3 sm:w-4 sm:h-4 text-muted-foreground shrink-0" />
-                        <h4 className="font-medium text-xs sm:text-sm text-foreground">Teslimat Adresi</h4>
+                        <MapPin className="w-3 h-3 sm:w-4 sm:h-4 text-primary shrink-0" />
+                        <h4 className="font-medium text-xs sm:text-sm">Teslimat Adresi</h4>
                       </div>
                       <div className="space-y-1 text-xs sm:text-sm pl-5 sm:pl-6">
                         {formData.address && (
-                          <p className="text-foreground break-words">{formData.address}</p>
+                          <p className="break-words">{formData.address}</p>
                         )}
                         {(formData.district || formData.city) && (
-                          <p className="text-foreground">{formData.district} / {formData.city}</p>
+                          <p>{formData.district} / {formData.city}</p>
                         )}
                         {formData.postalCode && (
-                          <p className="text-foreground">{formData.postalCode}</p>
+                          <p>{formData.postalCode}</p>
                         )}
                       </div>
                     </div>
@@ -1479,11 +1487,11 @@ IBAN Bilgileri:
                 {/* Güvenlik Bilgileri - Her zaman gösterilir */}
                 <div className="mt-6 sm:mt-8 space-y-2 sm:space-y-3">
                   <div className="flex items-center gap-2 sm:gap-3 text-xs sm:text-sm text-muted-foreground">
-                    <Shield className="w-3 h-3 sm:w-4 sm:h-4 shrink-0" />
+                    <Shield className="w-3 h-3 sm:w-4 sm:h-4 shrink-0 text-primary" />
                     <span>Güvenli Ödeme</span>
                   </div>
                   <div className="flex items-center gap-2 sm:gap-3 text-xs sm:text-sm text-muted-foreground">
-                    <Truck className="w-3 h-3 sm:w-4 sm:h-4 shrink-0" />
+                    <Truck className="w-3 h-3 sm:w-4 sm:h-4 shrink-0 text-accent" />
                     <span>Ücretsiz Kargo</span>
                   </div>
                 </div>

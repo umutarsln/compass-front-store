@@ -72,14 +72,14 @@ export function HeroBackgroundCarousel() {
           {HERO_PRODUCT_SLIDES.map((slide, index) => (
             <div
               key={slide.src}
-              className="relative h-full min-w-0 shrink-0 grow-0 basis-full"
+              className="relative h-full min-w-0 shrink-0 grow-0 basis-full bg-white md:bg-transparent"
             >
               <Image
                 src={slide.src}
                 alt={slide.alt}
                 fill
-                className="object-cover object-center"
-                sizes="100vw"
+                className="object-contain object-center p-3 sm:p-4 md:object-contain md:object-right md:p-0 lg:pr-8 xl:pr-12"
+                sizes="(max-width: 767px) 100vw, 55vw"
                 priority={index === 0}
                 quality={85}
               />
@@ -89,7 +89,7 @@ export function HeroBackgroundCarousel() {
       </div>
 
       <div
-        className="pointer-events-none absolute inset-0 z-[2] flex items-center justify-between px-2 sm:px-4"
+        className="pointer-events-none absolute inset-0 z-[20] flex items-center justify-between px-2 sm:px-4"
         aria-hidden
       >
         <button
@@ -111,7 +111,7 @@ export function HeroBackgroundCarousel() {
       </div>
 
       <div
-        className="pointer-events-none absolute bottom-6 left-1/2 z-[2] flex -translate-x-1/2 gap-2 sm:bottom-10"
+        className="pointer-events-none absolute bottom-6 left-1/2 z-[20] flex -translate-x-1/2 gap-2 sm:bottom-10"
         role="group"
         aria-label="Hero görselleri"
       >

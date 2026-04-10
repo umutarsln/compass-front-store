@@ -1,24 +1,29 @@
 "use client"
 
 import { useState, useEffect } from "react"
+import dynamic from "next/dynamic"
 import Link from "next/link"
 import Image from "next/image"
 import { usePathname } from "next/navigation"
-import { Menu, X, ShoppingCart, Phone, ChevronDown, Search } from "lucide-react"
+import { Menu, X, ShoppingCart, Phone, ChevronDown, Search, LogOut } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { motion, AnimatePresence } from "framer-motion"
 import { useCart } from "@/contexts/cart-context"
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
-import { User, LogOut } from "lucide-react"
 import { useAuth } from "@/contexts/auth-context"
 import { getUser as getCookieUser, isAuthenticated as isCookieAuthenticated } from "@/lib/auth-client"
+
+/** Kullanıcı menüsü yüklenirken ikon butonu ile aynı boyutta yer tutar (layout kayması olmasın). */
+function HeaderUserMenuLoading() {
+  return <div className="hidden md:block size-9 shrink-0" aria-hidden />
+}
+
+/**
+ * Radix Dropdown SSR/hydration id uyumsuzluğunu önlemek için menü yalnızca istemcide yüklenir.
+ */
+const HeaderUserMenu = dynamic(
+  () => import("@/components/header-user-menu").then((m) => m.HeaderUserMenu),
+  { ssr: false, loading: HeaderUserMenuLoading },
+)
 
 /** Forge tarzı Compass Reklam header bileşeni - Top bar + Ana navigasyon + Mega menü */
 const categories = [
@@ -48,6 +53,7 @@ const categories = [
   },
 ]
 
+/** Forge tarzı Compass Reklam header: üst bar, ana navigasyon, mega menü ve aksiyonlar. */
 export function Header() {
   const [isScrolled, setIsScrolled] = useState(false)
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
@@ -189,47 +195,7 @@ export function Header() {
                 Teklif Al
               </Button>
             </Link>
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="icon" className="hidden md:flex">
-                  <User className="h-5 w-5" />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-56">
-                {isAuthenticated && user ? (
-                  <>
-                    <DropdownMenuLabel>
-                      <div className="flex flex-col space-y-1">
-                        <p className="text-sm font-medium leading-none">
-                          {(user as { firstname?: string; lastname?: string }).firstname} {(user as { firstname?: string; lastname?: string }).lastname}
-                        </p>
-                        <p className="text-xs leading-none text-muted-foreground">
-                          {(user as { email?: string }).email}
-                        </p>
-                      </div>
-                    </DropdownMenuLabel>
-                    <DropdownMenuSeparator />
-                    <DropdownMenuItem onClick={logout} className="cursor-pointer">
-                      <LogOut className="w-4 h-4 mr-2" />
-                      Çıkış Yap
-                    </DropdownMenuItem>
-                  </>
-                ) : (
-                  <>
-                    <DropdownMenuItem asChild>
-                      <Link href="/giris" className="cursor-pointer w-full">
-                        Giriş Yap
-                      </Link>
-                    </DropdownMenuItem>
-                    <DropdownMenuItem asChild>
-                      <Link href="/kayit" className="cursor-pointer w-full">
-                        Üye Ol
-                      </Link>
-                    </DropdownMenuItem>
-                  </>
-                )}
-              </DropdownMenuContent>
-            </DropdownMenu>
+            <HeaderUserMenu />
             <button
               className="lg:hidden p-2"
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}

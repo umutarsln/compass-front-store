@@ -35,10 +35,34 @@ const fadeUp = {
 }
 
 const categories = [
-  { name: "Baskı Makineleri", icon: Printer, count: 24, image: "/images/forge/product-flatbed.jpg" },
-  { name: "Kesim Makineleri", icon: Scissors, count: 18, image: "/images/forge/product-laser.jpg" },
-  { name: "Laminasyon", icon: Layers, count: 12, image: "/images/forge/product-laminator.jpg" },
-  { name: "Sarf Malzemeleri", icon: Package, count: 45, image: "/images/forge/product-rolltoroll.jpg" },
+  {
+    name: "Baskı Makineleri",
+    icon: Printer,
+    count: 24,
+    image: "/images/forge/product-flatbed.jpg",
+    href: "/urunler?categorySlugs=dijital-baski,uv-baski",
+  },
+  {
+    name: "Kesim Makineleri",
+    icon: Scissors,
+    count: 18,
+    image: "/images/forge/product-laser.jpg",
+    href: "/urunler?categorySlugs=plotter-folyo-kesici,etiket-kesim",
+  },
+  {
+    name: "Laminasyon",
+    icon: Layers,
+    count: 12,
+    image: "/images/forge/product-laminator.jpg",
+    href: "/urunler?search=laminasyon",
+  },
+  {
+    name: "Sarf Malzemeleri",
+    icon: Package,
+    count: 45,
+    image: "/images/forge/product-rolltoroll.jpg",
+    href: "/urunler?search=sarf",
+  },
 ]
 
 const stats = [
@@ -74,12 +98,12 @@ export function IndexSections({ featuredProducts }: IndexSectionsProps) {
   return (
     <div className="min-h-screen">
       {/* Hero */}
-      <section className="relative min-h-[85vh] flex items-center overflow-hidden">
+      <section className="relative min-h-[68vh] sm:min-h-[78vh] md:min-h-[min(72vh,640px)] lg:min-h-[min(78vh,720px)] flex items-center overflow-hidden">
         <div className="absolute inset-0">
           <HeroBackgroundCarousel />
-          <div className="pointer-events-none absolute inset-0 z-[1] bg-gradient-to-r from-foreground/95 via-foreground/70 to-transparent" />
+          <div className="pointer-events-none absolute inset-0 z-[1] bg-gradient-to-t from-foreground/90 via-foreground/65 to-foreground/20 md:bg-gradient-to-r md:from-foreground/95 md:via-foreground/70 md:to-transparent" />
         </div>
-        <div className="container relative z-10 py-20">
+        <div className="container relative z-10 py-14 sm:py-16 md:py-20">
           <motion.div initial="hidden" animate="visible" className="max-w-2xl" variants={fadeUp}>
             <motion.span
               custom={0}
@@ -167,7 +191,7 @@ export function IndexSections({ featuredProducts }: IndexSectionsProps) {
                 viewport={{ once: true }}
                 transition={{ delay: i * 0.1 }}
               >
-                <Link href="/urunler" className="group relative overflow-hidden rounded-lg aspect-[4/3] block">
+                <Link href={cat.href} className="group relative overflow-hidden rounded-lg aspect-[4/3] block">
                   <Image
                     src={cat.image}
                     alt={cat.name}

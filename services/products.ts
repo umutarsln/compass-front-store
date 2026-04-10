@@ -138,7 +138,7 @@ export interface SimpleProductDetail {
   description: string;
   basePrice: number;
   discountedPrice: number | null;
-  type: 'SIMPLE';
+  type: 'SIMPLE' | 'BUNDLE';
   price: number;
   sku: string;
   stock: Stock;

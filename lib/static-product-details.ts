@@ -96,7 +96,11 @@ function toSimpleProductDetail(seed: StaticProductDetailSeed, usdTryRate: number
   }
 }
 
-/** Ürün detayları (API gelene kadar). */
+/**
+ * Ürün detayları (API gelene kadar).
+ * Veritabanına aktarmak için: shawk-ecommerce-backend içinde `npm run seed:store-static`
+ * — veri kaynağı `scripts/seed-store-static-catalog-data.mjs` ile senkron tutulmalıdır.
+ */
 const STATIC_DETAIL_SEEDS: StaticProductDetailSeed[] = [
   {
     id: "eco-solvent-dijital",
