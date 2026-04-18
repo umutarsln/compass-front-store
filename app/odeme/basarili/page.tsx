@@ -8,6 +8,7 @@ import { Footer } from "@/components/footer"
 import { CheckCircle2, Package, Home, ShoppingBag, Loader2, Clock } from "lucide-react"
 import { orderService, Order } from "@/services/order.service"
 import { useCart } from "@/contexts/cart-context"
+import { gtmPurchase } from "@/lib/gtm"
 
 function PaymentSuccessContent() {
   const searchParams = useSearchParams()
@@ -35,6 +36,22 @@ function PaymentSuccessContent() {
         hasFetched.current = true
         const orderData = await orderService.getOrderById(orderId)
         setOrder(orderData)
+        // GTM dataLayer — purchase (satın alma tamamlandı)
+        if (orderData) {
+          gtmPurchase({
+            transaction_id: orderData.orderNo || orderData.id,
+            value: orderData.total,
+            currency: orderData.currency || 'TRY',
+            items: (orderData.items || []).map((item: any, index: number) => ({
+              item_id: item.productId || item.id,
+              item_name: item.productName || item.name || 'Ürün',
+              item_variant: item.variantId || undefined,
+              price: item.unitPrice ?? item.price ?? 0,
+              quantity: item.quantity ?? 1,
+              index,
+            })),
+          })
+        }
         // Sepeti temizle
         clearCart()
       } catch (error) {

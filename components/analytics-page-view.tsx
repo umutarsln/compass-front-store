@@ -3,6 +3,7 @@
 import { useEffect, useRef } from "react"
 import { usePathname } from "next/navigation"
 import { trackEvent } from "@/lib/analytics"
+import { gtmPageView } from "@/lib/gtm"
 
 /**
  * Maps app pathname to analytics page slug (plan: home, category/:slug, product/:slug, cart, checkout).
@@ -36,6 +37,11 @@ export function AnalyticsPageView() {
       console.log('[Analytics][AnalyticsPageView] PAGE_VIEW', { pathname, page })
     }
     trackEvent({ type: "PAGE_VIEW", page })
+    // GTM dataLayer — sanal sayfa görüntüleme (SPA route değişikliği)
+    gtmPageView({
+      page_path: pathname,
+      page_location: typeof window !== 'undefined' ? window.location.href : pathname,
+    })
   }, [pathname])
 
   return null

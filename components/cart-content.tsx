@@ -17,6 +17,7 @@ import {
   sumCartLinesExVat,
   vatAmountFromExAndIncl,
 } from "@/lib/vat"
+import { gtmViewCart, gtmBeginCheckout } from "@/lib/gtm"
 
 export function CartContent() {
   const { items, cartTotals, isLoading, removeFromCart, updateQuantity, getTotalItems, applyCoupon: applyCouponToCart, removeCoupon: removeCouponFromCart, applyingCoupon, isUpdatingItem, isRemovingItem } = useCart()
@@ -64,6 +65,25 @@ export function CartContent() {
       }
     }
   }, [])
+
+  // GTM dataLayer — view_cart (sepet sayfası yüklendiğinde, ürünler hazır olduğunda)
+  useEffect(() => {
+    if (isLoading || items.length === 0) return
+    const cartSubEx = sumCartLinesExVat(items)
+    const total = resolveCartFinalTotalInclVat(cartSubEx, cartTotals ?? undefined)
+    gtmViewCart({
+      items: items.map((item, index) => ({
+        item_id: item.productId || item.id,
+        item_name: item.name,
+        item_variant: item.variantId || undefined,
+        price: item.price,
+        quantity: item.quantity,
+        index,
+      })),
+      value: total,
+    })
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isLoading])
 
   const handleKvkkChange = (accepted: boolean) => {
     setKvkkAccepted(accepted)
@@ -520,6 +540,21 @@ export function CartContent() {
                         }
                       }, 100)
                     } else {
+                      // GTM dataLayer — begin_checkout
+                      const cartSubEx = sumCartLinesExVat(items)
+                      const total = resolveCartFinalTotalInclVat(cartSubEx, cartTotals ?? undefined)
+                      gtmBeginCheckout({
+                        items: items.map((item, index) => ({
+                          item_id: item.productId || item.id,
+                          item_name: item.name,
+                          item_variant: item.variantId || undefined,
+                          price: item.price,
+                          quantity: item.quantity,
+                          index,
+                        })),
+                        value: total,
+                        coupon: cartTotals?.appliedCoupon?.code,
+                      })
                       window.location.href = isAuthenticated ? "/odeme" : "/odeme-auth"
                     }
                   }}

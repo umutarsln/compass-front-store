@@ -11,6 +11,7 @@ import {
 } from "@/lib/cart-storage"
 import { resolveCartFinalTotalInclVat, sumCartLinesExVat } from "@/lib/vat"
 import { trackEvent } from "@/lib/analytics"
+import { gtmAddToCart, gtmRemoveFromCart } from "@/lib/gtm"
 
 // Legacy interface for backward compatibility
 export interface CartItem {
@@ -320,6 +321,17 @@ export function CartProvider({ children }: { children: ReactNode }) {
         variantId: variantId || undefined,
         quantity: 1,
       })
+      // GTM dataLayer — add_to_cart
+      gtmAddToCart({
+        item: {
+          item_id: productId,
+          item_name: item.name,
+          item_variant: variantId || undefined,
+          price: item.price,
+          quantity: 1,
+        },
+        value: item.price,
+      })
 
       // Sync cart to get updated state
       await syncCart()
@@ -365,6 +377,23 @@ export function CartProvider({ children }: { children: ReactNode }) {
   const removeFromCart = async (productId: string, variantId: string | null) => {
     const key = `${productId}-${variantId || 'null'}`
     setRemovingItems((prev) => new Set(prev).add(key))
+
+    // GTM dataLayer — remove_from_cart (items state'inden ürün bilgisini al)
+    const removedItem = items.find(
+      (i) => i.productId === productId && i.variantId === variantId
+    )
+    if (removedItem) {
+      gtmRemoveFromCart({
+        item: {
+          item_id: productId,
+          item_name: removedItem.name,
+          item_variant: variantId || undefined,
+          price: removedItem.price,
+          quantity: removedItem.quantity,
+        },
+        value: removedItem.price * removedItem.quantity,
+      })
+    }
 
     try {
       const cartId = getCartId()
