@@ -134,7 +134,7 @@ function PersonalizationPreview({ personalization }: { personalization: any }) {
       {images.length > 0 && (
         <div className="flex gap-1.5 flex-wrap">
           {images.map((url, idx) => (
-            <div key={idx} className="relative w-8 h-8 md:w-10 md:h-10 rounded border border-border overflow-hidden bg-secondary shrink-0">
+            <div key={idx} className="relative w-8 h-8 md:w-10 md:h-10 rounded border border-border overflow-hidden bg-white dark:bg-white shrink-0">
               <img
                 src={url}
                 alt={`Kişiselleştirme ${idx + 1}`}
@@ -291,12 +291,12 @@ export function CartSidebar() {
                   <div className="space-y-3 md:space-y-4">
                     {items.map((item) => (
                       <div key={item.id} className="flex gap-2 md:gap-3 pb-3 md:pb-4 border-b border-border last:border-0">
-                        <div className="relative w-14 h-14 md:w-16 md:h-16 flex-shrink-0 bg-secondary rounded overflow-hidden">
+                        <div className="relative w-14 h-14 md:w-16 md:h-16 flex-shrink-0 bg-white dark:bg-white rounded overflow-hidden border border-border">
                           <Image
                             src={item.image || "/placeholders/placeholder.svg"}
                             alt={item.name}
                             fill
-                            className="object-cover"
+                            className="object-contain"
                           />
                         </div>
                         <div className="flex-1 min-w-0">

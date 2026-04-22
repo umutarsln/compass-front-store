@@ -160,16 +160,16 @@ export function FavoritesContent() {
               transition={{ duration: 0.5, delay: index * 0.1 }}
               className="group"
             >
-              <div className="relative aspect-[4/5] overflow-hidden bg-secondary rounded-lg">
+              <div className="relative aspect-[4/5] overflow-hidden bg-white dark:bg-white rounded-lg">
                 <Link href={detailUrl(item.category)}>
                   <Image
                     src={item.image || "/placeholders/placeholder.svg"}
                     alt={item.name}
                     fill
-                    className="object-cover transition-transform duration-500 group-hover:scale-105"
+                    className="object-contain transition-transform duration-500 group-hover:scale-105"
                   />
                 </Link>
-                <div className="absolute inset-0 bg-foreground/0 group-hover:bg-foreground/5 transition-colors duration-300" />
+                <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors duration-300" />
                 
                 {/* Favorilerden Çıkar Butonu */}
                 <button

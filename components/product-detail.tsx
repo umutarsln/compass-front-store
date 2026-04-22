@@ -467,12 +467,12 @@ export function ProductDetail({ product }: ProductDetailProps) {
 
       {/* Mobilde: Image en üstte */}
       <div className="lg:hidden space-y-3 mb-4">
-        <div className="relative w-full bg-card rounded-lg overflow-hidden border border-border shadow-card" style={{ aspectRatio: '1' }}>
+        <div className="relative w-full bg-white rounded-lg overflow-hidden border border-border shadow-card" style={{ aspectRatio: '1' }}>
           <Image
             src={images[selectedImage]}
             alt={product.name}
             fill
-            className="object-cover"
+            className="object-contain"
             priority
           />
           {images.length > 1 && (
@@ -529,12 +529,12 @@ export function ProductDetail({ product }: ProductDetailProps) {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 lg:gap-8">
         {/* Desktop'ta: Görseller sol tarafta */}
         <div className="hidden lg:block lg:order-1 space-y-4">
-          <div className="relative aspect-square bg-card rounded-lg overflow-hidden border border-border shadow-card">
+          <div className="relative aspect-square bg-white rounded-lg overflow-hidden border border-border shadow-card">
             <Image
               src={images[selectedImage]}
               alt={product.name}
               fill
-              className="object-cover"
+              className="object-contain"
               priority
             />
             {images.length > 1 && (
@@ -562,14 +562,14 @@ export function ProductDetail({ product }: ProductDetailProps) {
                 <button
                   key={index}
                   onClick={() => setSelectedImage(index)}
-                  className={`relative aspect-square rounded-lg overflow-hidden border-2 transition-colors ${selectedImage === index ? 'border-primary' : 'border-transparent'
+                  className={`relative aspect-square rounded-lg overflow-hidden border-2 bg-white transition-colors ${selectedImage === index ? 'border-primary' : 'border-transparent'
                     }`}
                 >
                   <Image
                     src={img}
                     alt={`${product.name} - Resim ${index + 1}`}
                     fill
-                    className="object-cover"
+                    className="object-contain"
                   />
                 </button>
               ))}

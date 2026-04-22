@@ -240,12 +240,12 @@ export function CartContent() {
                   animate={{ opacity: 1, y: 0 }}
                   className="flex gap-3 sm:gap-4 p-3 sm:p-4 border border-border bg-background w-full max-w-full overflow-hidden"
                 >
-                  <div className="relative w-20 h-20 sm:w-24 sm:h-24 flex-shrink-0">
+                  <div className="relative w-20 h-20 sm:w-24 sm:h-24 flex-shrink-0 overflow-hidden rounded border border-border bg-white dark:bg-white">
                     <Image
                       src={item.image || "/placeholders/placeholder.svg"}
                       alt={item.name}
                       fill
-                      className="object-cover"
+                      className="object-contain"
                     />
                   </div>
                   <div className="flex-1 min-w-0">

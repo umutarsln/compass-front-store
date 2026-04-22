@@ -68,7 +68,9 @@ export function ProductCard({
       className={`group/card bg-card rounded-lg overflow-hidden shadow-card hover:shadow-elevated transition-all duration-300 border border-border ${!isInStock ? "opacity-60" : ""}`}
     >
       {/* Görsel: sadece resim <Link> içinde; hover butonları kardeş katmanda (iç içe <a> yok). */}
-      <div className={`relative aspect-[4/3] overflow-hidden bg-secondary ${!isInStock ? "opacity-80 grayscale-[0.25]" : ""}`}>
+      <div
+        className={`relative aspect-[4/3] overflow-hidden bg-white dark:bg-white ${!isInStock ? "opacity-80 grayscale-[0.25]" : ""}`}
+      >
         <Link
           href={detailUrl}
           className={`absolute inset-0 z-[1] block ${isInStock ? "group-hover/card:[&_img]:scale-105" : ""}`}
@@ -79,11 +81,11 @@ export function ProductCard({
             alt={name}
             fill
             loading="eager"
-            className="object-cover transition-transform duration-500"
+            className="object-contain transition-transform duration-500"
           />
         </Link>
         {isInStock && (
-          <div className="absolute inset-0 z-[2] flex items-center justify-center gap-2 bg-foreground/0 opacity-0 transition-colors duration-300 pointer-events-none group-hover/card:bg-foreground/20 group-hover/card:opacity-100 group-hover/card:pointer-events-auto">
+          <div className="absolute inset-0 z-[2] flex items-center justify-center gap-2 bg-black/0 opacity-0 transition-colors duration-300 pointer-events-none group-hover/card:bg-black/25 group-hover/card:opacity-100 group-hover/card:pointer-events-auto">
             <button
               type="button"
               onClick={(e) => {

@@ -5,7 +5,10 @@ import { SimilarProducts } from "@/components/similar-products"
 import { getProductDetail } from "@/services/products"
 import { getProducts } from "@/services/products"
 import { getUsdTryRate } from "@/lib/exchange-rate"
-import { getStaticProductDetailBySlugOrId } from "@/lib/static-product-details"
+import {
+  alignApiProductGalleryWithStaticCatalog,
+  getStaticProductDetailBySlugOrId,
+} from "@/lib/static-product-details"
 
 interface ProductPageProps {
   params: Promise<{ slug: string }>
@@ -43,6 +46,9 @@ export default async function ProductPage({ params }: ProductPageProps) {
       notFound()
     }
 
+    const usdTryRate = await getUsdTryRate()
+    const productForView = alignApiProductGalleryWithStaticCatalog(product, usdTryRate)
+
     // Benzer ürünleri getir (aynı kategoriden)
     const categorySlug = product.categories[0]?.slug
     const similarProducts = categorySlug
@@ -54,7 +60,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
     return (
       <>
         <main>
-          <ProductDetail product={product} />
+          <ProductDetail product={productForView} />
           {similarProducts.length > 0 && <SimilarProducts products={similarProducts} />}
         </main>
         <Footer />

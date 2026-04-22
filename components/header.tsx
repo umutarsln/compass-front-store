@@ -119,11 +119,11 @@ export function Header() {
           {/* Logo */}
           <Link href="/" className="flex items-center gap-2">
             <Image
-              src="/logos/LOGO.png"
+              src="/logos/compass-logo.jpg"
               alt="Compass Reklam"
-              width={170}
+              width={200}
               height={48}
-              className="h-15 w-16"
+              className="h-16 w-32"
               priority
             />
           </Link>

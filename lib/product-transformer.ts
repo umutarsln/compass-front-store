@@ -1,4 +1,5 @@
 import { ProductListItem } from '@/services/products';
+import { getStaticCatalogCoverImageBySlug } from '@/lib/static-product-details';
 
 // Frontend ProductCard için gerekli format
 export interface FrontendProduct {
@@ -33,8 +34,10 @@ export interface FrontendProduct {
  * Backend'den gelen ProductListItem formatını frontend ProductCard formatına dönüştürür
  */
 export function transformProductListItem(product: ProductListItem): FrontendProduct {
-  // Görsel URL'ini belirle: önce mainImage, yoksa thumbnailImage, yoksa placeholder
+  // Statik katalogda tanımlı ürünlerde kapak, detayla aynı `imagePaths[0]` olsun; yoksa API görselleri
+  const staticCover = getStaticCatalogCoverImageBySlug(product.slug)
   const imageUrl =
+    staticCover ||
     product.gallery?.mainImage?.s3Url ||
     product.gallery?.thumbnailImage?.s3Url ||
     '/placeholders/placeholder.svg';
