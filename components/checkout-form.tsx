@@ -20,6 +20,60 @@ import { mergeIbanEftInfo, toCompactIban, type IbanEftInfoPayload } from "@/lib/
 const IBAN_COPY_BUTTON_BASE =
   "inline-flex items-center justify-center gap-1.5 px-3 py-2 text-xs font-semibold rounded-md shrink-0 min-w-[5.25rem] border-2 border-primary/65 bg-primary/14 text-foreground shadow-sm hover:bg-primary/26 hover:border-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/45 transition-colors [&_svg]:shrink-0 [&_svg]:text-primary"
 
+type StorePaymentSettings = {
+  iyzicoEnabled: boolean
+  ibanEftEnabled: boolean
+  qnbpayEnabled?: boolean
+  qnbpayCheckoutMode?: string
+}
+
+/** Ödeme adımında seçilen yöntem (Iyzico ve QNBpay ayrı kutularda). */
+type CheckoutPaymentMethod = "iyzico" | "qnbpay" | "iban-eft" | null
+
+/**
+ * Seçim Iyzico veya QNBpay kart ödemesi mi kontrol eder.
+ */
+function isCardCheckoutMethod(m: CheckoutPaymentMethod): m is "iyzico" | "qnbpay" {
+  return m === "iyzico" || m === "qnbpay"
+}
+
+/**
+ * Backend ayarına göre adım 3 varsayılan ödeme seçimini döndürür.
+ */
+function getDefaultCheckoutPaymentMethod(settings: StorePaymentSettings): CheckoutPaymentMethod {
+  const hasIyzico = settings.iyzicoEnabled
+  const hasQnb = !!settings.qnbpayEnabled
+  const hasIban = settings.ibanEftEnabled
+  const anyCard = hasIyzico || hasQnb
+  if (hasIban && !anyCard) return "iban-eft"
+  if (anyCard && !hasIban) {
+    if (hasQnb && !hasIyzico) return "qnbpay"
+    return "iyzico"
+  }
+  if (hasIban) return "iban-eft"
+  if (hasIyzico) return "iyzico"
+  if (hasQnb) return "qnbpay"
+  return null
+}
+
+/**
+ * QNBpay paySmart3D: tarayıcı form POST (fetch yok).
+ */
+function submitQnbPayBrowserForm(action: string, fields: Record<string, string>) {
+  const form = document.createElement("form")
+  form.method = "POST"
+  form.action = action
+  Object.entries(fields).forEach(([name, value]) => {
+    const input = document.createElement("input")
+    input.type = "hidden"
+    input.name = name
+    input.value = value
+    form.appendChild(input)
+  })
+  document.body.appendChild(form)
+  form.submit()
+}
+
 /** Sepet ödemesi: iletişim, adres, iyzico veya IBAN/EFT akışı ve sipariş özeti. */
 export function CheckoutForm() {
   const router = useRouter()
@@ -29,14 +83,18 @@ export function CheckoutForm() {
   const [step, setStep] = useState(1)
   const [visitedSteps, setVisitedSteps] = useState<Set<number>>(new Set([1])) // İlk adım her zaman ziyaret edilmiş
   const [isSubmitting, setIsSubmitting] = useState(false)
-  const [paymentMethod, setPaymentMethod] = useState<'credit-card' | 'iban-eft' | null>(null)
+  const [paymentMethod, setPaymentMethod] = useState<CheckoutPaymentMethod>(null)
   const [copiedField, setCopiedField] = useState<string | null>(null)
   const [ibanInfo, setIbanInfo] = useState<IbanEftInfoPayload | null>(null)
   const [loadingIbanInfo, setLoadingIbanInfo] = useState(false)
-  const [paymentSettings, setPaymentSettings] = useState<{
-    iyzicoEnabled: boolean;
-    ibanEftEnabled: boolean;
-  } | null>(null)
+  const [paymentSettings, setPaymentSettings] = useState<StorePaymentSettings | null>(null)
+  const [qnbCard, setQnbCard] = useState({
+    holder: "",
+    number: "",
+    month: "",
+    year: "",
+    cvv: "",
+  })
   const [loadingPaymentSettings, setLoadingPaymentSettings] = useState(false)
   const [createdOrder, setCreatedOrder] = useState<{ id: string; orderNo: string } | null>(null)
 
@@ -103,24 +161,23 @@ export function CheckoutForm() {
     const loadPaymentSettings = async () => {
       try {
         setLoadingPaymentSettings(true)
-        const settings = await paymentService.getPaymentSettings()
-        setPaymentSettings(settings)
-
-        // Varsayılan ödeme yöntemini ayarla
-        if (settings.ibanEftEnabled && !settings.iyzicoEnabled) {
-          setPaymentMethod('iban-eft')
-        } else if (settings.iyzicoEnabled && !settings.ibanEftEnabled) {
-          setPaymentMethod('credit-card')
-        } else if (settings.ibanEftEnabled) {
-          // Her ikisi de aktifse IBAN EFT'yi varsayılan yap
-          setPaymentMethod('iban-eft')
+        const raw = await paymentService.getPaymentSettings()
+        const settings: StorePaymentSettings = {
+          iyzicoEnabled: !!raw.iyzicoEnabled,
+          ibanEftEnabled: !!raw.ibanEftEnabled,
+          qnbpayEnabled: !!raw.qnbpayEnabled,
+          qnbpayCheckoutMode: raw.qnbpayCheckoutMode || "hosted_link",
         }
+        setPaymentSettings(settings)
+        setPaymentMethod(getDefaultCheckoutPaymentMethod(settings))
       } catch (error: any) {
         console.error('[CHECKOUT] Payment settings yüklenirken hata:', error)
         // Hata durumunda varsayılan değerler
         setPaymentSettings({
           iyzicoEnabled: false,
-          ibanEftEnabled: true, // Varsayılan olarak IBAN EFT aktif
+          ibanEftEnabled: true,
+          qnbpayEnabled: false,
+          qnbpayCheckoutMode: 'hosted_link',
         })
         setPaymentMethod('iban-eft')
       } finally {
@@ -314,13 +371,7 @@ IBAN Bilgileri:
     if (validateStep2()) {
       // Payment settings yüklendiyse varsayılan ödeme yöntemini ayarla
       if (paymentSettings) {
-        if (paymentSettings.ibanEftEnabled && !paymentSettings.iyzicoEnabled) {
-          setPaymentMethod('iban-eft')
-        } else if (paymentSettings.iyzicoEnabled && !paymentSettings.ibanEftEnabled) {
-          setPaymentMethod('credit-card')
-        } else if (paymentSettings.ibanEftEnabled) {
-          setPaymentMethod('iban-eft')
-        }
+        setPaymentMethod(getDefaultCheckoutPaymentMethod(paymentSettings))
       }
       handleStepChange(3)
     }
@@ -359,6 +410,21 @@ IBAN Bilgileri:
     if (!step1Valid || !step2Valid) {
       console.log('[CHECKOUT] Validation başarısız, işlem durduruldu')
       return
+    }
+
+    if (
+      paymentMethod === "qnbpay" &&
+      paymentSettings?.qnbpayCheckoutMode === "pay_smart_3d"
+    ) {
+      const { holder, number, month, year, cvv } = qnbCard
+      if (!holder?.trim() || !number?.trim() || !month?.trim() || !year?.trim() || !cvv?.trim()) {
+        toast({
+          title: "Eksik kart bilgisi",
+          description: "QNBpay 3D ödeme için tüm kart alanlarını doldurun.",
+          variant: "destructive",
+        })
+        return
+      }
     }
 
     setIsSubmitting(true)
@@ -510,36 +576,43 @@ IBAN Bilgileri:
         return
       }
 
-      // Kredi kartı akışı (Iyzico) - şu an devre dışı ama gelecekte kullanılabilir
-      if (paymentMethod === 'credit-card') {
-        console.log('[CHECKOUT] Payment checkout başlatılıyor...')
-        console.log('[CHECKOUT] Checkout request:', {
-          orderId: order.id,
-          provider: PaymentProvider.IYZICO,
-        })
+      if (isCardCheckoutMethod(paymentMethod)) {
+        if (!paymentSettings) {
+          throw new Error("Ödeme ayarları yüklenemedi.")
+        }
+        const cardProvider =
+          paymentMethod === "qnbpay" ? PaymentProvider.QNBPAY : PaymentProvider.IYZICO
+        console.log("[CHECKOUT] Payment checkout başlatılıyor...", cardProvider)
 
         const checkoutResponse = await paymentService.createCheckout({
           orderId: order.id,
-          provider: PaymentProvider.IYZICO,
+          provider: cardProvider,
         })
 
         console.log('[CHECKOUT] Checkout response alındı:', checkoutResponse)
-        console.log('[CHECKOUT] Redirect URL:', checkoutResponse.redirectUrl, 'paymentNotRequired:', checkoutResponse.paymentNotRequired)
 
         if (checkoutResponse.paymentNotRequired) {
           router.push(`/odeme/basarili?orderId=${order.id}`)
           return
         }
 
-        // Iyzico payment sayfasına yönlendir
+        if (checkoutResponse.formAction && checkoutResponse.formFields) {
+          const merged: Record<string, string> = { ...checkoutResponse.formFields }
+          merged.cc_holder_name = qnbCard.holder.trim()
+          merged.cc_no = qnbCard.number.replace(/\s/g, "")
+          merged.expiry_month = qnbCard.month.padStart(2, "0")
+          merged.expiry_year =
+            qnbCard.year.length === 2 ? `20${qnbCard.year}` : qnbCard.year.trim()
+          merged.cvv = qnbCard.cvv.trim()
+          submitQnbPayBrowserForm(checkoutResponse.formAction, merged)
+          return
+        }
+
         if (!checkoutResponse.redirectUrl) {
           console.error('[CHECKOUT] Redirect URL bulunamadı!')
           throw new Error("Ödeme sayfası URL'i alınamadı. Lütfen tekrar deneyin.")
         }
 
-        console.log('[CHECKOUT] Iyzico payment sayfasına yönlendiriliyor:', checkoutResponse.redirectUrl)
-
-        // Iyzico ödeme sayfasına yönlendir
         window.location.href = checkoutResponse.redirectUrl
         return
       }
@@ -957,51 +1030,72 @@ IBAN Bilgileri:
                 >
                   <h2 className="font-serif text-lg sm:text-xl text-foreground mb-4 sm:mb-6">Ödeme Yöntemi</h2>
 
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 mb-4 sm:mb-6 w-full">
-                    {/* Kredi Kartı Seçeneği - iyzico */}
-                    <div
-                      onClick={() => {
-                        if (paymentSettings?.iyzicoEnabled) {
-                          setPaymentMethod('credit-card')
-                        }
-                      }}
-                      className={`relative p-4 sm:p-6 border-2 rounded-lg transition-all w-full max-w-full overflow-hidden ${paymentSettings?.iyzicoEnabled
-                        ? paymentMethod === 'credit-card'
-                          ? 'border-primary bg-primary/5 cursor-pointer'
-                          : 'border-checkout-panel-border bg-checkout-panel hover:border-primary/45 cursor-pointer'
-                        : 'border-checkout-panel-border bg-checkout-panel/70 opacity-60 cursor-not-allowed'
-                        }`}
-                    >
-                      <div className="flex items-center gap-3 sm:gap-4">
-                        <div className="flex items-center justify-center shrink-0">
-                          <Image
-                            src="/iyzico/iyzico_ile_ode_colored.svg"
-                            alt="iyzico ile öde"
-                            width={210}
-                            height={72}
-                            className="h-8 sm:h-12 w-auto"
-                          />
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          {paymentSettings?.iyzicoEnabled ? (
-                            <>
-                              <h3 className="font-medium text-sm sm:text-base text-foreground mb-0.5 sm:mb-1">Kredi Kartı</h3>
-                              <p className="text-xs text-muted-foreground">Kredi kartı ile ödeme yapın</p>
-                            </>
-                          ) : (
-                            <>
-                              <p className="text-xs sm:text-sm text-destructive font-medium mb-0.5 sm:mb-1">Şu an seçilemez</p>
-                              <p className="text-xs text-muted-foreground">Iyzico aktif değil</p>
-                            </>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-3 sm:gap-4 mb-4 sm:mb-6 w-full">
+                    {paymentSettings?.iyzicoEnabled && (
+                      <div
+                        onClick={() => setPaymentMethod("iyzico")}
+                        className={`relative p-4 sm:p-6 border-2 rounded-lg transition-all w-full max-w-full overflow-hidden ${paymentMethod === "iyzico"
+                          ? "border-primary bg-primary/5 cursor-pointer"
+                          : "border-checkout-panel-border bg-checkout-panel hover:border-primary/45 cursor-pointer"
+                          }`}
+                      >
+                        <div className="flex items-center gap-3 sm:gap-4">
+                          <div className="flex items-center justify-center shrink-0">
+                            <Image
+                              src="/iyzico/iyzico_ile_ode_colored.svg"
+                              alt="iyzico ile öde"
+                              width={210}
+                              height={72}
+                              className="h-8 sm:h-12 w-auto"
+                            />
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <h3 className="font-medium text-sm sm:text-base text-foreground mb-0.5 sm:mb-1">Iyzico</h3>
+                            <p className="text-xs text-muted-foreground">Kredi / banka kartı ile ödeme</p>
+                          </div>
+                          {paymentMethod === "iyzico" && (
+                            <div className="w-4 h-4 sm:w-5 sm:h-5 rounded-full bg-primary flex items-center justify-center shrink-0">
+                              <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-primary-foreground" />
+                            </div>
                           )}
                         </div>
-                        {paymentSettings?.iyzicoEnabled && paymentMethod === 'credit-card' && (
-                          <div className="w-4 h-4 sm:w-5 sm:h-5 rounded-full bg-primary flex items-center justify-center shrink-0">
-                            <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-primary-foreground" />
-                          </div>
-                        )}
                       </div>
-                    </div>
+                    )}
+
+                    {paymentSettings?.qnbpayEnabled && (
+                      <div
+                        onClick={() => setPaymentMethod("qnbpay")}
+                        className={`relative p-4 sm:p-6 border-2 rounded-lg transition-all w-full max-w-full overflow-hidden ${paymentMethod === "qnbpay"
+                          ? "border-primary bg-primary/5 cursor-pointer"
+                          : "border-checkout-panel-border bg-checkout-panel hover:border-primary/45 cursor-pointer"
+                          }`}
+                      >
+                        <div className="flex items-center gap-3 sm:gap-4">
+                          <div className="h-10 sm:h-12 w-12 sm:w-16 rounded-md bg-[#870052]/12 flex items-center justify-center shrink-0 border border-[#870052]/25">
+                            <CreditCard className="w-6 h-6 sm:w-8 sm:h-8 text-[#870052]" />
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <h3 className="font-medium text-sm sm:text-base text-foreground mb-0.5 sm:mb-1">QNBpay</h3>
+                            <p className="text-xs text-muted-foreground">
+                              Güvenli ödeme sayfası veya 3D Secure (yönetimden)
+                            </p>
+                          </div>
+                          {paymentMethod === "qnbpay" && (
+                            <div className="w-4 h-4 sm:w-5 sm:h-5 rounded-full bg-primary flex items-center justify-center shrink-0">
+                              <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-primary-foreground" />
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    )}
+
+                    {!paymentSettings?.iyzicoEnabled && !paymentSettings?.qnbpayEnabled && (
+                      <div className="relative p-4 sm:p-6 border-2 rounded-lg border-checkout-panel-border bg-checkout-panel/70 opacity-80 col-span-full sm:col-span-2 xl:col-span-3">
+                        <p className="text-xs sm:text-sm text-muted-foreground">
+                          Kart ile ödeme şu an kapalı. Yönetim panelinden Iyzico veya QNBpay açabilirsiniz.
+                        </p>
+                      </div>
+                    )}
 
                     {/* IBAN EFT-Havale Seçeneği */}
                     <div
@@ -1055,6 +1149,84 @@ IBAN Bilgileri:
                       </div>
                     </div>
                   </div>
+
+                  {paymentMethod === "qnbpay" &&
+                    paymentSettings?.qnbpayCheckoutMode !== "pay_smart_3d" && (
+                      <div className="p-4 sm:p-5 border border-checkout-panel-border rounded-lg bg-checkout-panel-accent text-sm text-muted-foreground mb-4 sm:mb-6">
+                        <p>
+                          <span className="font-medium text-foreground">Güvenli ödeme sayfası:</span> Kart bilgilerinizi bu
+                          ekranda girmeyeceksiniz.{" "}
+                          <strong className="text-foreground">Ödeme Yap</strong> dedikten sonra QNB güvenli ödeme sayfasına
+                          yönlendirileceksiniz.
+                        </p>
+                      </div>
+                    )}
+
+                  {paymentMethod === "qnbpay" &&
+                    paymentSettings?.qnbpayCheckoutMode === "pay_smart_3d" && (
+                      <div className="p-4 sm:p-5 border border-checkout-panel-border rounded-lg bg-checkout-panel-accent space-y-3 mb-4 sm:mb-6">
+                        <p className="text-sm font-medium text-foreground">Kart bilgileri (QNBpay 3D)</p>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                          <div className="sm:col-span-2 space-y-1">
+                            <label className="text-xs text-muted-foreground">Kart üzerindeki isim</label>
+                            <input
+                              className="w-full px-3 py-2 border border-border bg-background text-sm"
+                              value={qnbCard.holder}
+                              onChange={(e) => setQnbCard((p) => ({ ...p, holder: e.target.value }))}
+                              autoComplete="cc-name"
+                            />
+                          </div>
+                          <div className="sm:col-span-2 space-y-1">
+                            <label className="text-xs text-muted-foreground">Kart numarası</label>
+                            <input
+                              className="w-full px-3 py-2 border border-border bg-background text-sm font-mono"
+                              value={qnbCard.number}
+                              onChange={(e) => setQnbCard((p) => ({ ...p, number: e.target.value }))}
+                              autoComplete="cc-number"
+                              inputMode="numeric"
+                            />
+                          </div>
+                          <div className="space-y-1">
+                            <label className="text-xs text-muted-foreground">Ay (AA)</label>
+                            <input
+                              className="w-full px-3 py-2 border border-border bg-background text-sm font-mono"
+                              value={qnbCard.month}
+                              onChange={(e) =>
+                                setQnbCard((p) => ({ ...p, month: e.target.value.replace(/\D/g, "").slice(0, 2) }))
+                              }
+                              autoComplete="cc-exp-month"
+                              inputMode="numeric"
+                              placeholder="01"
+                            />
+                          </div>
+                          <div className="space-y-1">
+                            <label className="text-xs text-muted-foreground">Yıl (YY veya YYYY)</label>
+                            <input
+                              className="w-full px-3 py-2 border border-border bg-background text-sm font-mono"
+                              value={qnbCard.year}
+                              onChange={(e) =>
+                                setQnbCard((p) => ({ ...p, year: e.target.value.replace(/\D/g, "").slice(0, 4) }))
+                              }
+                              autoComplete="cc-exp-year"
+                              inputMode="numeric"
+                              placeholder="30"
+                            />
+                          </div>
+                          <div className="sm:col-span-2 space-y-1 max-w-[12rem]">
+                            <label className="text-xs text-muted-foreground">CVV</label>
+                            <input
+                              className="w-full px-3 py-2 border border-border bg-background text-sm font-mono"
+                              value={qnbCard.cvv}
+                              onChange={(e) =>
+                                setQnbCard((p) => ({ ...p, cvv: e.target.value.replace(/\D/g, "").slice(0, 4) }))
+                              }
+                              autoComplete="cc-csc"
+                              inputMode="numeric"
+                            />
+                          </div>
+                        </div>
+                      </div>
+                    )}
 
                   {/* IBAN Seçildiğinde Dekont Gönderme Adımları ve IBAN Bilgileri */}
                   {paymentMethod === 'iban-eft' && (
@@ -1264,7 +1436,7 @@ IBAN Bilgileri:
                   </div>
 
                   <div className="flex gap-3 sm:gap-4">
-                    {paymentMethod !== 'iban-eft' && (
+                    {isCardCheckoutMethod(paymentMethod) && (
                       <>
                         <button
                           onClick={() => handleStepChange(2)}

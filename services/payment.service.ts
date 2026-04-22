@@ -2,6 +2,7 @@ import { api } from './api';
 
 export enum PaymentProvider {
   IYZICO = 'IYZICO',
+  QNBPAY = 'QNBPAY',
   IBAN_EFT = 'IBAN_EFT',
 }
 
@@ -17,20 +18,33 @@ export interface CheckoutResponse {
   token?: string;
   /** true ise tutar 0 (örn. %100 kupon), ödeme alınmadan sipariş ödendi; başarı sayfasına yönlendir */
   paymentNotRequired?: boolean;
+  formAction?: string;
+  formMethod?: 'POST';
+  formFields?: Record<string, string>;
+  checkoutMode?: string;
+}
+
+/** GET /payment-settings public yanıtı (sırlar yok). */
+export interface PaymentSettingsPublic {
+  iyzicoEnabled: boolean;
+  ibanEftEnabled: boolean;
+  qnbpayEnabled: boolean;
+  qnbpayCheckoutMode: string;
+  qnbpayMerchantIdMasked: string | null;
 }
 
 class PaymentService {
   private endpoint = '/payments';
 
   /**
-   * Create checkout and initialize payment
+   * Checkout başlatır (Iyzico veya QNBpay).
    */
   async createCheckout(checkoutDto: CheckoutDto): Promise<CheckoutResponse> {
     return await api.post<CheckoutResponse>(`${this.endpoint}/checkout`, checkoutDto);
   }
 
   /**
-   * Get IBAN information for IBAN EFT payment
+   * IBAN EFT bilgilerini döndürür.
    */
   async getIbanInfo(): Promise<{
     iban: string;
@@ -47,16 +61,10 @@ class PaymentService {
   }
 
   /**
-   * Get payment settings (which payment methods are enabled)
+   * Mağaza için güvenli ödeme bayrakları.
    */
-  async getPaymentSettings(): Promise<{
-    iyzicoEnabled: boolean;
-    ibanEftEnabled: boolean;
-  }> {
-    return await api.get<{
-      iyzicoEnabled: boolean;
-      ibanEftEnabled: boolean;
-    }>('/payment-settings');
+  async getPaymentSettings(): Promise<PaymentSettingsPublic> {
+    return await api.get<PaymentSettingsPublic>('/payment-settings');
   }
 }
 

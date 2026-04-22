@@ -10,6 +10,7 @@ import { useCart } from "@/contexts/cart-context"
 import { useAuth } from "@/contexts/auth-context"
 import type { ProductDetail as ProductDetailType } from "@/services/products"
 import { trackEvent, flushAnalytics } from "@/lib/analytics"
+import { gtmViewItem, gtmWhatsAppQuoteClick } from "@/lib/gtm"
 import { Badge } from "@/components/ui/badge"
 import { MarkdownContent } from "@/components/markdown-content"
 import { cn } from "@/lib/utils"
@@ -64,6 +65,21 @@ export function ProductDetail({ product }: ProductDetailProps) {
       type: 'PRODUCT_VIEW',
       productId: product.productId,
       variantId: product.selectedCombination?.id ?? null,
+    })
+    // GTM dataLayer — view_item (GA4 Enhanced Ecommerce)
+    const itemPrice = product.type === 'SIMPLE'
+      ? (product.discountedPrice ?? product.basePrice)
+      : (product.selectedCombination?.price ?? product.basePrice)
+    gtmViewItem({
+      item: {
+        item_id: product.productId,
+        item_name: product.name,
+        item_category: product.categories?.[0]?.name,
+        item_variant: product.selectedCombination?.id,
+        price: itemPrice,
+        quantity: 1,
+      },
+      value: itemPrice,
     })
   }, [product.productId, product.selectedCombination?.id])
 
@@ -721,6 +737,7 @@ export function ProductDetail({ product }: ProductDetailProps) {
                   href={whatsappTeklifHref}
                   target="_blank"
                   rel="noopener noreferrer"
+                  onClick={() => gtmWhatsAppQuoteClick({ phoneNumber: '905534678607', productId: product.productId, productName: product.name })}
                   className={cn("w-full", teklifAlButtonClass)}
                   aria-label="WhatsApp ile teklif al"
                 >
@@ -844,6 +861,7 @@ export function ProductDetail({ product }: ProductDetailProps) {
                   href={whatsappTeklifHref}
                   target="_blank"
                   rel="noopener noreferrer"
+                  onClick={() => gtmWhatsAppQuoteClick({ phoneNumber: '905534678607', productId: product.productId, productName: product.name })}
                   className={cn("w-full", teklifAlButtonClass)}
                   aria-label="WhatsApp ile teklif al"
                 >
