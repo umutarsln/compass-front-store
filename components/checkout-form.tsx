@@ -15,6 +15,7 @@ import { cartService } from "@/services/cart.service"
 import { useToast } from "@/hooks/use-toast"
 import { lineTotalWithVat } from "@/lib/vat"
 import { mergeIbanEftInfo, toCompactIban, type IbanEftInfoPayload } from "@/lib/iban-eft-defaults"
+import { SITE_PHONE_WA_E164 } from "@/lib/contact-content"
 
 /** IBAN satırı Kopyala: açık zeminde sürekli görünür primary çerçeve ve hafif amber dolgu. */
 const IBAN_COPY_BUTTON_BASE =
@@ -289,7 +290,7 @@ IBAN Bilgileri:
 Ödeme dekontumu ekte gönderiyorum.`
 
     // WhatsApp URL'i oluştur
-    const phoneNumber = ibanInfo.whatsappNumber || "905519770858"
+    const phoneNumber = ibanInfo.whatsappNumber || SITE_PHONE_WA_E164
     const cleanPhoneNumber = phoneNumber.replace(/\D/g, '')
     const whatsappUrl = `https://wa.me/${cleanPhoneNumber}?text=${encodeURIComponent(whatsappMessage)}`
 

@@ -6,6 +6,12 @@ export const SITE_PHONE_TEL_HREF = "tel:+905534678607" as const
 export const SITE_PHONE_DISPLAY = "0553 467 86 07"
 
 /**
+ * WhatsApp `wa.me` bağlantıları için E.164 (başında + yok, yalnızca rakamlar).
+ * `SITE_PHONE_TEL_HREF` ile aynı hattı ifade eder.
+ */
+export const SITE_PHONE_WA_E164 = SITE_PHONE_TEL_HREF.replace(/^tel:\+/, "")
+
+/**
  * İletişim sayfası için tek merkezden yönetilen kart bilgileri.
  */
 export const contactInfoCards = [

@@ -2,6 +2,7 @@
 
 import { motion } from "framer-motion"
 import { Footer } from "@/components/footer"
+import { SITE_PHONE_DISPLAY } from "@/lib/contact-content"
 import { FileText, User, Package, CreditCard, Truck, RotateCcw, AlertCircle, Scale } from "lucide-react"
 
 export default function MesafeliSatisSozlesmesiPage() {
@@ -53,7 +54,7 @@ export default function MesafeliSatisSozlesmesiPage() {
                       <ul className="space-y-1 text-muted-foreground text-sm">
                         <li><span className="font-medium">Firma Unvanı:</span> AMEAN BİLGİSAYAR ENERJİ TURİZM GIDA SANAYİ VE TİCARET LİMİTED ŞİRKETİ</li>
                         <li><span className="font-medium">Adres:</span>Gençlik Mah. Tevfik Işık Cad. 2.Kural Apt. No:13/B Muratpaşa/Antalya - Posta Kodu: 07100</li>
-                        <li><span className="font-medium">Telefon:</span> 0551 977 08 58</li>
+                        <li><span className="font-medium">Telefon:</span> {SITE_PHONE_DISPLAY}</li>
                         <li><span className="font-medium">E-Posta:</span> info@compass.com.tr</li>
                         <li><span className="font-medium">Web Sitesi:</span> www.compass.com.tr</li>
                       </ul>

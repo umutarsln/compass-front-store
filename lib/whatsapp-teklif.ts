@@ -1,7 +1,10 @@
+import { SITE_PHONE_WA_E164 } from "@/lib/contact-content"
+
 /**
- * Teklif talepleri için WhatsApp Business numarası (E.164, `wa.me` için başında + olmadan).
+ * Teklif talepleri için WhatsApp numarası (E.164, `wa.me` için başında + olmadan).
+ * İletişim sayfasındaki `SITE_PHONE_TEL_HREF` ile aynı kaynaktan türetilir.
  */
-export const WHATSAPP_TEKLIF_PHONE_E164 = "905519770858"
+export const WHATSAPP_TEKLIF_PHONE_E164 = SITE_PHONE_WA_E164
 
 /** Sepet satırının WhatsApp metninde kullanılan özeti. */
 export interface QuoteWhatsAppCartLine {
