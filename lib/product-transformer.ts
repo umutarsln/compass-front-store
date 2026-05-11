@@ -45,8 +45,6 @@ export function transformProductListItem(product: ProductListItem): FrontendProd
   // Kategori adını al: ilk kategori veya "Genel"
   const categoryName = product.categories[0]?.name || 'Genel';
 
-  console.log("product: ", product);
-
   return {
     id: product.id, // Keep id for display/URL purposes
     productId: product.productId, // Real product ID for API calls

@@ -6,16 +6,7 @@ import type { FrontendProduct } from "@/lib/product-transformer"
 import type { OrderBy } from "@/services/products"
 import type { Category } from "@/services/categories"
 import { getUsdTryRate } from "@/lib/exchange-rate"
-import { getStaticFrontendProducts } from "@/lib/static-product-details"
-
-/** API erişilemediğinde kullanılacak statik kategoriler */
-const STATIC_CATEGORIES: Category[] = [
-  { id: "static-1", name: "UV Baskı", slug: "uv-baski", children: [], parentId: null, parent: null, image: null, isActive: true, displayOrder: 0, createdAt: "", updatedAt: "" },
-  { id: "static-2", name: "Plotter Folyo Kesici", slug: "plotter-folyo-kesici", children: [], parentId: null, parent: null, image: null, isActive: true, displayOrder: 1, createdAt: "", updatedAt: "" },
-  { id: "static-3", name: "Etiket Kesim", slug: "etiket-kesim", children: [], parentId: null, parent: null, image: null, isActive: true, displayOrder: 2, createdAt: "", updatedAt: "" },
-  { id: "static-4", name: "Dijital Baskı", slug: "dijital-baski", children: [], parentId: null, parent: null, image: null, isActive: true, displayOrder: 3, createdAt: "", updatedAt: "" },
-  { id: "static-5", name: "Fiber Markalama", slug: "fiber-markalama", children: [], parentId: null, parent: null, image: null, isActive: true, displayOrder: 4, createdAt: "", updatedAt: "" },
-]
+import { getStaticFrontendProducts, getStaticProductCategories } from "@/lib/static-product-details"
 
 // Kategoriyi slug'a göre bul (recursive)
 function findCategoryBySlug(categories: Category[], slug: string): Category | null {
@@ -104,7 +95,7 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
     categories = await getCategories()
   } catch (err) {
     console.warn("Kategoriler API'den alınamadı, statik liste kullanılıyor.", err)
-    categories = STATIC_CATEGORIES
+    categories = getStaticProductCategories()
   }
 
   const categorySlugsArray = params.categorySlugs ? params.categorySlugs.split(",") : []
@@ -124,6 +115,8 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
     transformedProducts = transformProductList(productsResponse.products)
   } catch (err) {
     console.warn("Ürünler API'den alınamadı, statik liste kullanılıyor.", err)
+    categories = getStaticProductCategories()
+    expandedCategorySlugs = expandCategorySlugs(categorySlugsArray, categories)
     const usdTryRate = await getUsdTryRate()
     const staticProducts = getStaticFrontendProducts(usdTryRate)
     if (expandedCategorySlugs.length > 0) {

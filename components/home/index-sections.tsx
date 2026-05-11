@@ -22,7 +22,8 @@ import {
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { ProductCard } from "@/components/product-card"
-import { HeroBackgroundCarousel } from "@/components/home/hero-background-carousel"
+import { HeroBackgroundCarousel, type HeroCarouselSlide } from "@/components/home/hero-background-carousel"
+import { blogPosts as sharedBlogPosts } from "@/lib/blog-content"
 import type { FrontendProduct } from "@/lib/product-transformer"
 
 const fadeUp = {
@@ -46,7 +47,7 @@ const categories = [
     name: "Kesim Makineleri",
     icon: Scissors,
     count: 18,
-    image: "/images/forge/product-laser.jpg",
+    image: "/urunler/folyokesim/175-cm-ppf-folyo-kesim-makinesi-plotter/175-cm-ppf-folyo-kesim-makinesi-plotter-01-48d0a713.png",
     href: "/urunler?categorySlugs=plotter-folyo-kesici,etiket-kesim",
   },
   {
@@ -81,26 +82,23 @@ const references = [
   "Konya Baskı",
 ]
 
-const blogPosts = [
-  { title: "UV Baskı Teknolojisinde Son Trendler", date: "5 Mart 2026", category: "Teknoloji" },
-  { title: "DTF Baskının Tekstil Sektöründeki Yeri", date: "28 Şubat 2026", category: "Sektör" },
-  { title: "Doğru Baskı Makinesi Nasıl Seçilir?", date: "20 Şubat 2026", category: "Rehber" },
-]
+const latestBlogPosts = sharedBlogPosts.slice(0, 3)
 
 interface IndexSectionsProps {
   featuredProducts: FrontendProduct[]
+  heroSlides?: HeroCarouselSlide[]
 }
 
 /**
  * Ana sayfa Forge Index bölümleri
  */
-export function IndexSections({ featuredProducts }: IndexSectionsProps) {
+export function IndexSections({ featuredProducts, heroSlides }: IndexSectionsProps) {
   return (
     <div className="min-h-screen">
       {/* Hero */}
       <section className="relative min-h-[68vh] sm:min-h-[78vh] md:min-h-[min(72vh,640px)] lg:min-h-[min(78vh,720px)] flex items-center overflow-hidden">
         <div className="absolute inset-0">
-          <HeroBackgroundCarousel />
+          <HeroBackgroundCarousel slides={heroSlides} />
           <div className="pointer-events-none absolute inset-0 z-[1] bg-gradient-to-t from-foreground/90 via-foreground/65 to-foreground/20 md:bg-gradient-to-r md:from-foreground/95 md:via-foreground/70 md:to-transparent" />
         </div>
         <div className="container relative z-10 py-14 sm:py-16 md:py-20">
@@ -429,9 +427,9 @@ export function IndexSections({ featuredProducts }: IndexSectionsProps) {
             </Link>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {blogPosts.map((post, i) => (
+            {latestBlogPosts.map((post, i) => (
               <motion.article
-                key={post.title}
+                key={post.id}
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
@@ -448,7 +446,7 @@ export function IndexSections({ featuredProducts }: IndexSectionsProps) {
                     {post.title}
                   </h3>
                   <Link
-                    href="/blog"
+                    href={`/blog/${post.id}`}
                     className="text-sm text-primary font-medium mt-3 inline-flex items-center gap-1 hover:gap-2 transition-all"
                   >
                     Devamını Oku <ArrowRight className="h-3 w-3" />

@@ -69,8 +69,11 @@ export interface ProductListItem {
   subtitle: string | null;
   slug: string;
   description: string;
+  /** Mağaza nihai fiyatı (KDV hariç TL, sunucu yuvarlamalı). */
   price: number;
+  /** Liste görünümü taban fiyatı (KDV hariç TL). */
   basePrice: number;
+  /** İndirimli fiyat varsa (KDV hariç TL). */
   discountedPrice: number | null;
   sku: string;
   stock: Stock;

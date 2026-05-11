@@ -4,67 +4,8 @@ import { motion } from "framer-motion"
 import Link from "next/link"
 import Image from "next/image"
 import { Footer } from "@/components/footer"
-import { ArrowRight, Calendar, User, Tag } from "lucide-react"
-
-const blogPosts = [
-  {
-    id: "uv-baski-trendleri",
-    title: "UV Baskı Teknolojisinde 2026 Trendleri",
-    excerpt: "UV baskı teknolojisi her geçen yıl gelişmeye devam ediyor. 2026'da öne çıkan trendleri ve yenilikleri inceliyoruz.",
-    date: "5 Mart 2026",
-    author: "Ahmet Yılmaz",
-    category: "Teknoloji",
-    image: "/images/forge/product-flatbed.jpg",
-    featured: true,
-  },
-  {
-    id: "dtf-tekstil",
-    title: "DTF Baskının Tekstil Sektöründeki Yükselişi",
-    excerpt: "DTF baskı teknolojisi, tekstil sektöründe devrim yaratıyor. Avantajları ve uygulama alanlarını keşfedin.",
-    date: "28 Şubat 2026",
-    author: "Elif Kaya",
-    category: "Sektör",
-    image: "/images/forge/product-dtf.jpg",
-  },
-  {
-    id: "dogru-makine-secimi",
-    title: "Doğru Baskı Makinesi Nasıl Seçilir?",
-    excerpt: "İşletmeniz için en uygun baskı makinesini seçerken dikkat etmeniz gereken 10 kritik faktörü açıklıyoruz.",
-    date: "20 Şubat 2026",
-    author: "Mehmet Demir",
-    category: "Rehber",
-    image: "/images/forge/product-rolltoroll.jpg",
-  },
-  {
-    id: "lazer-kesim-rehber",
-    title: "Lazer Kesim Makineleri: Kapsamlı Rehber",
-    excerpt: "Fiber lazer ve CO2 lazer arasındaki farklar, kullanım alanları ve doğru seçim rehberi.",
-    date: "15 Şubat 2026",
-    author: "Ahmet Yılmaz",
-    category: "Rehber",
-    image: "/images/forge/product-laser.jpg",
-  },
-  {
-    id: "laminasyon-ipuclari",
-    title: "Laminasyonda Kaliteyi Artırmanın 5 Yolu",
-    excerpt: "Laminasyon işlemlerinde kaliteyi artırmak ve maliyetleri düşürmek için pratik ipuçları.",
-    date: "8 Şubat 2026",
-    author: "Elif Kaya",
-    category: "İpuçları",
-    image: "/images/forge/product-laminator.jpg",
-  },
-  {
-    id: "dijital-donusum",
-    title: "Reklam Sektöründe Dijital Dönüşüm",
-    excerpt: "Dijital baskı teknolojilerinin reklam sektörünü nasıl dönüştürdüğünü analiz ediyoruz.",
-    date: "1 Şubat 2026",
-    author: "Mehmet Demir",
-    category: "Sektör",
-    image: "/images/forge/hero-printer.jpg",
-  },
-]
-
-const categories = ["Tümü", "Teknoloji", "Sektör", "Rehber", "İpuçları"]
+import { ArrowRight, Calendar, Clock, User, Tag } from "lucide-react"
+import { blogCategories, blogPosts } from "@/lib/blog-content"
 
 /**
  * Blog sayfası - Forge Blog UI
@@ -109,7 +50,7 @@ export default function BlogPage() {
         <section className="py-8 border-b border-border">
           <div className="container">
             <div className="flex flex-wrap items-center gap-2">
-              {categories.map((cat) => (
+              {blogCategories.map((cat) => (
                 <button
                   key={cat}
                   type="button"
@@ -131,7 +72,7 @@ export default function BlogPage() {
               className="grid lg:grid-cols-2 gap-8 bg-card rounded-lg overflow-hidden border border-border shadow-elevated"
             >
               <div className="relative aspect-video lg:aspect-auto lg:min-h-[300px]">
-                <Image src={featured.image} alt={featured.title} fill className="object-cover" />
+                <Image src={featured.image} alt={featured.imageAlt} fill className="object-cover" />
               </div>
               <div className="p-8 flex flex-col justify-center">
                 <div className="flex items-center gap-3 mb-4">
@@ -139,7 +80,10 @@ export default function BlogPage() {
                     <Tag className="h-3 w-3" /> {featured.category}
                   </span>
                   <span className="text-xs text-muted-foreground flex items-center gap-1">
-                    <Calendar className="h-3 w-3" /> {featured.date}
+                    <Calendar className="h-3 w-3" /> <time dateTime={featured.dateTime}>{featured.date}</time>
+                  </span>
+                  <span className="text-xs text-muted-foreground flex items-center gap-1">
+                    <Clock className="h-3 w-3" /> {featured.readTime}
                   </span>
                 </div>
                 <h2 className="font-display text-2xl md:text-3xl font-bold text-foreground mb-3">{featured.title}</h2>
@@ -148,9 +92,12 @@ export default function BlogPage() {
                   <span className="text-xs text-muted-foreground flex items-center gap-1">
                     <User className="h-3 w-3" /> {featured.author}
                   </span>
-                  <span className="text-sm text-primary font-medium inline-flex items-center gap-1 hover:gap-2 transition-all cursor-pointer">
+                  <Link
+                    href={`/blog/${featured.id}`}
+                    className="text-sm text-primary font-medium inline-flex items-center gap-1 hover:gap-2 transition-all"
+                  >
                     Devamını Oku <ArrowRight className="h-3 w-3" />
-                  </span>
+                  </Link>
                 </div>
               </div>
             </motion.article>
@@ -173,7 +120,7 @@ export default function BlogPage() {
                   <div className="relative aspect-video overflow-hidden">
                     <Image
                       src={post.image}
-                      alt={post.title}
+                      alt={post.imageAlt}
                       fill
                       className="object-cover group-hover:scale-105 transition-transform duration-500"
                     />
@@ -181,7 +128,10 @@ export default function BlogPage() {
                   <div className="p-5">
                     <div className="flex items-center gap-3 mb-3">
                       <span className="text-xs text-primary font-semibold">{post.category}</span>
-                      <span className="text-xs text-muted-foreground">• {post.date}</span>
+                      <span className="text-xs text-muted-foreground">
+                        <time dateTime={post.dateTime}>• {post.date}</time>
+                      </span>
+                      <span className="text-xs text-muted-foreground">{post.readTime}</span>
                     </div>
                     <h3 className="font-display font-semibold text-foreground mb-2 group-hover:text-primary transition-colors">
                       {post.title}
@@ -191,9 +141,12 @@ export default function BlogPage() {
                       <span className="text-xs text-muted-foreground flex items-center gap-1">
                         <User className="h-3 w-3" /> {post.author}
                       </span>
-                      <span className="text-sm text-primary font-medium inline-flex items-center gap-1 hover:gap-2 transition-all cursor-pointer">
+                      <Link
+                        href={`/blog/${post.id}`}
+                        className="text-sm text-primary font-medium inline-flex items-center gap-1 hover:gap-2 transition-all"
+                      >
                         Oku <ArrowRight className="h-3 w-3" />
-                      </span>
+                      </Link>
                     </div>
                   </div>
                 </motion.article>

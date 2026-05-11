@@ -6,11 +6,16 @@ import Image from "next/image"
 import { ChevronLeft, ChevronRight } from "lucide-react"
 import { cn } from "@/lib/utils"
 
+export interface HeroCarouselSlide {
+  src: string
+  alt: string
+}
+
 /**
- * Ana sayfa hero slaytları; yollar `lib/static-product-details.ts` içindeki ürün `imagePaths`
+ * Varsayılan ana sayfa hero slaytları; yollar `lib/static-product-details.ts` içindeki ürün `imagePaths`
  * ile aynı katalog görsellerinden seçilir (1–2: mevcut ürünler, 3: My Color 180 cm).
  */
-const HERO_PRODUCT_SLIDES = [
+const DEFAULT_HERO_PRODUCT_SLIDES: HeroCarouselSlide[] = [
   {
     src: "/urunler/folyokesim/epson-i3200-baski-kafali-sublimasyon-dijital-baski-makinesi/epson-i3200-baski-kafali-sublimasyon-dijital-baski-makinesi-01-67ff2857.png",
     alt: "Epson i3200 eco solvent dijital baskı makinesi",
@@ -27,14 +32,19 @@ const HERO_PRODUCT_SLIDES = [
 
 const AUTOPLAY_INTERVAL_MS = 6000
 
+interface HeroBackgroundCarouselProps {
+  slides?: HeroCarouselSlide[]
+}
+
 /**
  * Ana sayfa hero bölümü için tam ekran genişliğinde döngüsel görsel kaydırıcı (Embla).
  * Otomatik geçiş, ok düğmeleri ve nokta göstergeleri sunar.
  */
-export function HeroBackgroundCarousel() {
+export function HeroBackgroundCarousel({ slides }: HeroBackgroundCarouselProps) {
   const [emblaRef, emblaApi] = useEmblaCarousel({ loop: true, duration: 22 })
   const [selectedIndex, setSelectedIndex] = useState(0)
   const [pauseAutoplay, setPauseAutoplay] = useState(false)
+  const heroSlides = slides?.length ? slides : DEFAULT_HERO_PRODUCT_SLIDES
 
   /** Embla seçim olayında aktif slayt indeksini günceller. */
   const onSelect = useCallback(() => {
@@ -61,6 +71,12 @@ export function HeroBackgroundCarousel() {
     return () => window.clearInterval(id)
   }, [emblaApi, pauseAutoplay])
 
+  useEffect(() => {
+    if (!emblaApi) return
+    emblaApi.reInit()
+    setSelectedIndex(emblaApi.selectedScrollSnap())
+  }, [emblaApi, heroSlides.length])
+
   return (
     <div
       className="absolute inset-0"
@@ -69,9 +85,9 @@ export function HeroBackgroundCarousel() {
     >
       <div className="h-full w-full overflow-hidden" ref={emblaRef}>
         <div className="flex h-full">
-          {HERO_PRODUCT_SLIDES.map((slide, index) => (
+          {heroSlides.map((slide, index) => (
             <div
-              key={slide.src}
+              key={`${slide.src}-${index}`}
               className="relative h-full min-w-0 shrink-0 grow-0 basis-full bg-white md:bg-transparent"
             >
               <Image
@@ -115,9 +131,9 @@ export function HeroBackgroundCarousel() {
         role="group"
         aria-label="Hero görselleri"
       >
-        {HERO_PRODUCT_SLIDES.map((slide, index) => (
+        {heroSlides.map((slide, index) => (
           <button
-            key={slide.src}
+            key={`${slide.src}-${index}`}
             type="button"
             onClick={() => emblaApi?.scrollTo(index)}
             className={cn(

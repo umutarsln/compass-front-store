@@ -1,10 +1,12 @@
 import type { FrontendProduct } from "@/lib/product-transformer"
+import type { Category as StoreCategory } from "@/services/categories"
 import type { Category, Gallery, Image, ProductDetail, Stock } from "@/services/products"
 import { usdToTry } from "@/lib/exchange-rate"
 import { PRICE_EX_VAT_LABEL } from "@/lib/vat"
 
 /**
- * Statik ürün kaynakları: `usdPrice` USD’den TL’ye çevrilir; elde edilen TL tutarları KDV hariç kabul edilir.
+ * Statik ürün kaynakları: `tryPrice` varsa sabit TL, yoksa `usdPrice` USD’den TL’ye çevrilir.
+ * Elde edilen TL tutarları KDV hariç kabul edilir.
  * Ürünler grid/detayda fiyat yanında `{@link PRICE_EX_VAT_LABEL}` gösterilir.
  */
 export { PRICE_EX_VAT_LABEL as STATIC_DETAIL_PRICE_VAT_LABEL }
@@ -16,6 +18,7 @@ type StaticProductDetailSeed = {
   subtitle: string
   description: string
   usdPrice: number
+  tryPrice?: number
   category: { name: string; slug: string }
   imagePaths: string[]
 }
@@ -64,10 +67,10 @@ function makeCategories(seed: StaticProductDetailSeed): Category[] {
 /**
  * Statik seed'den ProductDetail (SIMPLE) üretir.
  * Not: Varyasyon/personalization şimdilik kapalı; amaç sadece detay sayfasını göstermek.
- * `basePrice` / `price` TL cinsinden KDV hariçtir (kur: `usdToTry`).
+ * `basePrice` / `price` TL cinsinden KDV hariçtir.
  */
 function toSimpleProductDetail(seed: StaticProductDetailSeed, usdTryRate: number): ProductDetail {
-  const tlPrice = usdToTry(seed.usdPrice, usdTryRate)
+  const tlPrice = seed.tryPrice ?? usdToTry(seed.usdPrice, usdTryRate)
   const now = new Date().toISOString()
   return {
     productId: seed.id,
@@ -284,6 +287,28 @@ const STATIC_DETAIL_SEEDS: StaticProductDetailSeed[] = [
     ],
   },
   {
+    id: "plotter-125cm-optic",
+    slug: "folyo-kesim-makinasi-125cm-optic",
+    name: "125 CM Optik Folyo Kesim Makinesi Plotter",
+    subtitle: "Optik gözlü, servo motorlu ve CorelDraw uyumlu profesyonel kesim plotteri",
+    description:
+      `Folyo, sticker, etiket ve tekstil transfer kesimlerinde hassas kontur kesimi için 125 cm sınıfı optik plotter çözümü.
+
+- 125 cm kesim genişliği ile reklam, tabela ve araç kaplama işlerine uygun
+- Optik göz sistemiyle bas-kes ve kontur konumlandırma desteği
+- Servo motor yapısı sayesinde daha stabil hareket ve daha net kesim
+- CorelDraw üzerinden doğrudan kesim iş akışına uygun kullanım
+- Özel papuç sistemi ile folyo ve transfer medyasında kaymayı azaltan tutuş
+- USB, flash bellek ve Bluetooth üzerinden kesim senaryolarına uygun yapı
+- Android ve iOS cihazlardan doğrudan kesim destekleyen LX8 sınıfı kullanım`,
+    usdPrice: 0,
+    tryPrice: 80000,
+    category: { name: "Plotter Folyo Kesici", slug: "plotter-folyo-kesici" },
+    imagePaths: [
+      "/urunler/folyo-kesim-makinası-125cm-optic.jpeg",
+    ],
+  },
+  {
     id: "plotter-160-ppf",
     slug: "plotter-folyo-kesim-makinesi-optik-kamerali-160cm-net-kesim-alani",
     name: "Plotter PPF Folyo Kesim Makinesi Kameralı – 160Cm",
@@ -357,6 +382,28 @@ const STATIC_DETAIL_SEEDS: StaticProductDetailSeed[] = [
   },
 ]
 
+/** Statik ürün seed'lerinden ürünler sayfası filtrelerinde kullanılacak kategori listesini üretir. */
+export function getStaticProductCategories(): StoreCategory[] {
+  const uniqueCategories = Array.from(
+    new Map(STATIC_DETAIL_SEEDS.map((seed) => [seed.category.slug, seed.category])).values(),
+  )
+
+  return uniqueCategories.map((category, index) => ({
+    id: `static-${category.slug}`,
+    name: category.name,
+    slug: category.slug,
+    description: undefined,
+    parentId: null,
+    parent: null,
+    children: [],
+    image: null,
+    isActive: true,
+    displayOrder: index,
+    createdAt: "",
+    updatedAt: "",
+  }))
+}
+
 /** Statik ürün detaylarını id/slug üzerinden hızlı lookup için indexler. */
 function buildStaticDetailIndex(usdTryRate: number): Record<string, ProductDetail> {
   const index: Record<string, ProductDetail> = {}
@@ -387,7 +434,7 @@ function buildStaticDetailIndex(usdTryRate: number): Record<string, ProductDetai
 export function getStaticFrontendProducts(usdTryRate: number): FrontendProduct[] {
   const stock = { availableQuantity: 1, reservedQuantity: 0, usableQuantity: 1 }
   return STATIC_DETAIL_SEEDS.map((seed) => {
-    const priceInTry = usdToTry(seed.usdPrice, usdTryRate)
+    const priceInTry = seed.tryPrice ?? usdToTry(seed.usdPrice, usdTryRate)
     return {
       id: seed.id,
       productId: seed.id,

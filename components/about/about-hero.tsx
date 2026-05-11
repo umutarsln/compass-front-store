@@ -44,7 +44,7 @@ export function AboutHero() {
           transition={{ delay: 0.2 }}
           className="text-background/80 max-w-2xl mx-auto text-lg"
         >
-          3000&apos;ü aşkın makine kurulumu; Akdeniz geneli teknik servis ile kurulumdan eğitime, yedek parçaya kadar satış
+          3000&apos;ü aşkın makine kurulumu; Türkiye geneli teknik servis ile kurulumdan eğitime, yedek parçaya kadar satış
           sonrası tam destek.
         </motion.p>
       </div>

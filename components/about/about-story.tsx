@@ -4,7 +4,7 @@ import { motion } from "framer-motion"
 import Image from "next/image"
 
 /**
- * Hakkımızda metin bölümü — kuruluş 2018 ve 3000+ makine kurulumu vurgusu; iki kolon düzen.
+ * Hakkımızda metin bölümü — Türkiye geneli servis ve ana ürün grupları vurgusu; iki kolon düzen.
  */
 export function AboutStory() {
   return (
@@ -22,16 +22,25 @@ export function AboutStory() {
             </h2>
             <div className="space-y-4 text-muted-foreground leading-relaxed">
               <p>
-                Compass Reklam, 2018 yılında endüstriyel baskı teknolojilerine odaklanarak yola çıktı. Akdeniz bölgesi ve
-                çevre illerdeki baskı atölyeleri, reklam firmaları ve üretim tesisleriyle kurduğumuz iş birlikleriyle
+                Compass Reklam, 2018 yılında endüstriyel baskı teknolojilerine odaklanarak yola çıktı. Türkiye genelindeki
+                baskı atölyeleri, reklam firmaları ve üretim tesisleriyle kurduğumuz iş birlikleriyle
                 güvenilir bir çözüm ortağı haline geldik.
               </p>
               <p>
-                Dünya markası üreticilerin yetkili distribütörü olarak UV flatbed, roll-to-roll, DTF, lazer kesim ve
-                laminasyon makinelerinde geniş bir ürün yelpazesi sunuyoruz. Bugüne dek{" "}
+                Dünya markası üreticilerin yetkili distribütörü olarak ana ürünümüz{" "}
+                <strong className="text-foreground font-medium">Folyo kesim makinesi</strong> başta olmak üzere{" "}
+                <strong className="text-foreground font-medium">UV flatbed</strong>,{" "}
+                <strong className="text-foreground font-medium">roll-to-roll</strong>,{" "}
+                <strong className="text-foreground font-medium">DTF</strong>,{" "}
+                <strong className="text-foreground font-medium">lazer kesim</strong>,{" "}
+                <strong className="text-foreground font-medium">laminasyon makinesi</strong>,{" "}
+                <strong className="text-foreground font-medium">PPF makinesi</strong>,{" "}
+                <strong className="text-foreground font-medium">Precut PPF</strong> ve{" "}
+                <strong className="text-foreground font-medium">cam kesim makinesi</strong> gibi geniş bir ürün yelpazesi
+                sunuyoruz. Bugüne dek{" "}
                 <strong className="text-foreground font-medium">toplam 3000&apos;den fazla makine kurulumu</strong>{" "}
                 gerçekleştirdik; kurulum, eğitim ve{" "}
-                <strong className="text-foreground font-medium">Akdeniz geneli teknik servis</strong> ile satış sonrası
+                <strong className="text-foreground font-medium">Türkiye geneli teknik servis</strong> ile satış sonrası
                 desteği eksiksiz sunuyoruz.
               </p>
               <p>
