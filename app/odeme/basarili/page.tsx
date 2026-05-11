@@ -151,28 +151,28 @@ function PaymentSuccessContent() {
                 )}
               </div>
 
-              <div className="bg-secondary p-8 mb-8 text-left">
+              <div className="bg-white border border-slate-200 rounded-2xl shadow-sm p-8 mb-8 text-left">
                 <div className="space-y-4">
                   <div className="flex items-center gap-3">
-                    <Package className="w-5 h-5 text-muted-foreground" />
+                    <Package className="w-5 h-5 text-slate-500" />
                     <div>
-                      <p className="text-sm text-muted-foreground">Sipariş Numarası</p>
-                      <p className="font-medium text-foreground text-lg">{order.orderNo || order.id}</p>
+                      <p className="text-sm text-slate-500">Sipariş Numarası</p>
+                      <p className="font-medium text-slate-950 text-lg">{order.orderNo || order.id}</p>
                     </div>
                   </div>
                   <div className="flex items-center gap-3">
-                    <ShoppingBag className="w-5 h-5 text-muted-foreground" />
+                    <ShoppingBag className="w-5 h-5 text-slate-500" />
                     <div>
-                      <p className="text-sm text-muted-foreground">Toplam Tutar</p>
-                      <p className="font-medium text-foreground text-lg">
+                      <p className="text-sm text-slate-500">Toplam Tutar</p>
+                      <p className="font-medium text-slate-950 text-lg">
                         {order.total.toLocaleString("tr-TR")} {order.currency}
                       </p>
                     </div>
                   </div>
                   {order.shippingAddress && (
                     <div>
-                      <p className="text-sm text-muted-foreground mb-2">Teslimat Adresi</p>
-                      <p className="text-sm text-foreground">
+                      <p className="text-sm text-slate-500 mb-2">Teslimat Adresi</p>
+                      <p className="text-sm text-slate-800">
                         {order.shippingAddress.address}
                         <br />
                         {order.shippingAddress.district} / {order.shippingAddress.city}
@@ -191,7 +191,7 @@ function PaymentSuccessContent() {
                   </p>
                 ) : (
                   <p className="text-sm text-muted-foreground">
-                    Sipariş onayı ve detayları e-posta adresinize gönderilecektir.
+                    Sipariş onayı ve detayları için WhatsApp üzerinden size bilgi verilecektir.
                   </p>
                 )}
                 <div className="flex flex-col sm:flex-row gap-4 justify-center">
