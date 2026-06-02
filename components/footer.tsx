@@ -54,7 +54,7 @@ export function Footer() {
             <ul className="space-y-3 text-sm">
               <li className="flex items-start gap-2 text-muted-foreground">
                 <MapPin className="h-4 w-4 mt-0.5 text-primary shrink-0" />
-                İstanbul, Türkiye
+                Antalya, Türkiye
               </li>
               <li>
                 <a href="tel:+905534678607" className="flex items-center gap-2 text-muted-foreground hover:text-primary transition-colors">
