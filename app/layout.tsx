@@ -15,6 +15,9 @@ import "./globals.css"
 const inter = Inter({ subsets: ["latin"] })
 const playfair = Playfair_Display({ subsets: ["latin"] })
 
+/** Google Merchant Center alan adı doğrulama kodu (GOOGLE_SITE_VERIFICATION env) */
+const googleSiteVerification = process.env.GOOGLE_SITE_VERIFICATION ?? ""
+
 export const metadata: Metadata = {
   title: "Compass Reklam | Endüstriyel Baskı Teknolojileri",
   description: "Endüstriyel baskı teknolojilerinde Türkiye'nin lider çözüm ortağı. UV Baskı, DTF, Lazer Kesim makineleri.",
@@ -24,6 +27,9 @@ export const metadata: Metadata = {
     shortcut: '/logos/compass-reklam-logo.png',
     apple: '/logos/compass-reklam-logo.png',
   },
+  ...(googleSiteVerification
+    ? { verification: { google: googleSiteVerification } }
+    : {}),
 }
 
 export default function RootLayout({
@@ -34,6 +40,19 @@ export default function RootLayout({
   return (
     <html lang="tr">
       <head>
+        {/* Google Site Verification — Merchant Center; doğrulama sonrası kaldırılmamalı */}
+        <meta name="google-site-verification" content={googleSiteVerification} />
+        {/* Google Tag Manager Compass Reklam by AdresGezgini — ürün listeleme reklamları */}
+        <script
+          // eslint-disable-next-line react/no-danger
+          dangerouslySetInnerHTML={{
+            __html: `(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+'//www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+})(window,document,'script','dataLayer','GTM-TRHSB7C7');`,
+          }}
+        />
         {/* Google Tag Manager — HEAD snippet (mümkün olan en üst konum) */}
         <script
           // eslint-disable-next-line react/no-danger
@@ -58,6 +77,15 @@ gtag('config', 'G-9WTD6QPS7W');`,
         />
       </head>
       <body className={`font-sans antialiased`} suppressHydrationWarning>
+        {/* Google Tag Manager Compass Reklam by AdresGezgini — NOSCRIPT */}
+        <noscript>
+          <iframe
+            src="//www.googletagmanager.com/ns.html?id=GTM-TRHSB7C7"
+            height="0"
+            width="0"
+            style={{ display: 'none', visibility: 'hidden' }}
+          />
+        </noscript>
         {/* Google Tag Manager — NOSCRIPT (body açılışından hemen sonra) */}
         <noscript>
           <iframe
