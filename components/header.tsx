@@ -5,7 +5,7 @@ import dynamic from "next/dynamic"
 import Link from "next/link"
 import Image from "next/image"
 import { usePathname } from "next/navigation"
-import { Menu, X, ShoppingCart, Phone, ChevronDown, Search, LogOut } from "lucide-react"
+import { Menu, X, ShoppingCart, Phone, ChevronDown, Search, LogOut, ShoppingBag } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { motion, AnimatePresence } from "framer-motion"
 import { useCart } from "@/contexts/cart-context"
@@ -236,13 +236,19 @@ export function Header() {
                   <Button variant="hero" className="mt-2 w-full">Teklif Al</Button>
                 </Link>
                 {isAuthenticated && user ? (
-                  <button
-                    onClick={() => { logout(); setMobileMenuOpen(false); }}
-                    className="text-sm font-medium py-2 text-left flex items-center gap-2"
-                  >
-                    <LogOut className="h-4 w-4" />
-                    Çıkış Yap
-                  </button>
+                  <>
+                    <Link href="/siparislerim" className="text-sm font-medium py-2 flex items-center gap-2">
+                      <ShoppingBag className="h-4 w-4" />
+                      Alışverişlerim
+                    </Link>
+                    <button
+                      onClick={() => { logout(); setMobileMenuOpen(false); }}
+                      className="text-sm font-medium py-2 text-left flex items-center gap-2"
+                    >
+                      <LogOut className="h-4 w-4" />
+                      Çıkış Yap
+                    </button>
+                  </>
                 ) : (
                   <div className="flex gap-2 mt-2">
                     <Link href="/giris" className="flex-1">

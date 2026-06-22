@@ -9,6 +9,12 @@ import { CheckCircle2, Package, Home, ShoppingBag, Loader2, Clock } from "lucide
 import { orderService, Order } from "@/services/order.service"
 import { useCart } from "@/contexts/cart-context"
 import { gtmPurchase } from "@/lib/gtm"
+import { OrderSuccessLink } from "@/components/order-success-link"
+import {
+  buildOrderLookupUrl,
+  buildOrderSuccessUrl,
+  saveRecentOrder,
+} from "@/lib/order-links"
 
 function PaymentSuccessContent() {
   const searchParams = useSearchParams()
@@ -18,6 +24,7 @@ function PaymentSuccessContent() {
   const { clearCart } = useCart()
   const [order, setOrder] = useState<Order | null>(null)
   const [isLoading, setIsLoading] = useState(true)
+  const [successUrl, setSuccessUrl] = useState("")
   const hasFetched = useRef(false)
 
   useEffect(() => {
@@ -36,6 +43,19 @@ function PaymentSuccessContent() {
         hasFetched.current = true
         const orderData = await orderService.getOrderById(orderId)
         setOrder(orderData)
+        const resolvedSuccessUrl = buildOrderSuccessUrl(orderId, {
+          awaitingConfirmation,
+          baseUrl: window.location.origin,
+        })
+        setSuccessUrl(resolvedSuccessUrl)
+        saveRecentOrder({
+          orderId: orderData.id,
+          orderNo: orderData.orderNo || orderData.id,
+          total: orderData.total,
+          currency: orderData.currency,
+          createdAt: orderData.createdAt,
+          successUrl: resolvedSuccessUrl,
+        })
         // GTM dataLayer — purchase (satın alma tamamlandı)
         if (orderData) {
           gtmPurchase({
@@ -184,6 +204,16 @@ function PaymentSuccessContent() {
                 </div>
               </div>
 
+              {successUrl && (
+                <div className="mb-8">
+                  <OrderSuccessLink
+                    successUrl={successUrl}
+                    orderNo={order.orderNo || order.id}
+                    lookupUrl={buildOrderLookupUrl(order.orderNo || order.id, window.location.origin)}
+                  />
+                </div>
+              )}
+
               <div className="space-y-4">
                 {awaitingConfirmation ? (
                   <p className="text-sm text-muted-foreground">
@@ -202,13 +232,21 @@ function PaymentSuccessContent() {
                     <Home className="w-4 h-4" />
                     Ana Sayfaya Dön
                   </Link>
-                  {order.userId && (
+                  {order.userId ? (
                     <Link
-                      href="/siparislerim"
+                      href={`/siparislerim?orderId=${order.id}`}
                       className="inline-flex items-center justify-center gap-2 px-8 py-4 border border-foreground text-foreground font-medium text-sm uppercase tracking-wider hover:bg-foreground hover:text-background transition-colors"
                     >
                       <Package className="w-4 h-4" />
-                      Siparişlerim
+                      Alışverişlerim
+                    </Link>
+                  ) : (
+                    <Link
+                      href={buildOrderLookupUrl(order.orderNo || order.id)}
+                      className="inline-flex items-center justify-center gap-2 px-8 py-4 border border-foreground text-foreground font-medium text-sm uppercase tracking-wider hover:bg-foreground hover:text-background transition-colors"
+                    >
+                      <Package className="w-4 h-4" />
+                      Sipariş Sorgula
                     </Link>
                   )}
                 </div>

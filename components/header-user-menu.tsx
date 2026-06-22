@@ -1,7 +1,7 @@
 "use client"
 
 import Link from "next/link"
-import { User, LogOut } from "lucide-react"
+import { User, LogOut, ShoppingBag } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import {
   DropdownMenu,
@@ -39,6 +39,13 @@ export function HeaderUserMenu() {
                 <p className="text-xs leading-none text-muted-foreground">{user.email}</p>
               </div>
             </DropdownMenuLabel>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem asChild>
+              <Link href="/siparislerim" className="cursor-pointer w-full">
+                <ShoppingBag className="w-4 h-4 mr-2" />
+                Alışverişlerim
+              </Link>
+            </DropdownMenuItem>
             <DropdownMenuSeparator />
             <DropdownMenuItem onClick={logout} className="cursor-pointer">
               <LogOut className="w-4 h-4 mr-2" />

@@ -1,6 +1,7 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, Suspense } from "react"
+import { useSearchParams } from "next/navigation"
 import { motion } from "framer-motion"
 import { uploadService } from "@/services/upload.service"
 import { Footer } from "@/components/footer"
@@ -238,11 +239,61 @@ function OrderItemCard({ item }: { item: OrderItem }) {
 /** Backend sipariş numarası 8 haneli; kullanıcı daha az girerse başa sıfır eklenir */
 const ORDER_NO_LENGTH = 8
 
-export default function SiparisSorgulamaPage() {
-  const [orderNo, setOrderNo] = useState("")
+/**
+ * URL'deki orderNo parametresine göre sipariş sorgular.
+ */
+async function lookupOrderByNo(orderNoInput: string): Promise<Order> {
+  const cleaned = orderNoInput.trim().replace(/\s/g, "")
+  if (!cleaned || !/^\d+$/.test(cleaned)) {
+    throw new Error("INVALID_ORDER_NO")
+  }
+  const orderNoPadded = cleaned.padStart(ORDER_NO_LENGTH, "0")
+  return orderService.getOrderByOrderNo(orderNoPadded)
+}
+
+function SiparisSorgulamaContent() {
+  const searchParams = useSearchParams()
+  const initialOrderNo = searchParams.get("orderNo") ?? ""
+  const [orderNo, setOrderNo] = useState(initialOrderNo)
   const [order, setOrder] = useState<Order | null>(null)
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+
+  useEffect(() => {
+    if (!initialOrderNo) return
+
+    /**
+     * Başarı sayfasından gelen orderNo ile otomatik sorgulama yapar.
+     */
+    const autoLookup = async () => {
+      setIsLoading(true)
+      setError(null)
+      try {
+        const orderData = await lookupOrderByNo(initialOrderNo)
+        setOrder(orderData)
+      } catch (err: any) {
+        console.error("Sipariş sorgulama hatası:", err)
+        if (err?.message === "INVALID_ORDER_NO") {
+          setError("Geçersiz sipariş numarası.")
+        } else {
+          const status = err?.response?.status
+          const message = err?.response?.data?.message
+          if (status === 404) {
+            setError("Sipariş bulunamadı. Lütfen sipariş numaranızı kontrol ediniz.")
+          } else if (status === 403) {
+            setError("Bu sipariş giriş yapılmış bir hesapla verilmiştir. Siparişinizi görmek için lütfen giriş yapın.")
+          } else {
+            setError(message || "Sipariş sorgulanırken bir hata oluştu. Lütfen daha sonra tekrar deneyiniz.")
+          }
+        }
+        setOrder(null)
+      } finally {
+        setIsLoading(false)
+      }
+    }
+
+    autoLookup()
+  }, [initialOrderNo])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -263,11 +314,9 @@ export default function SiparisSorgulamaPage() {
       return
     }
 
-    const orderNoPadded = cleaned.padStart(ORDER_NO_LENGTH, "0")
-
     setIsLoading(true)
     try {
-      const orderData = await orderService.getOrderByOrderNo(orderNoPadded)
+      const orderData = await lookupOrderByNo(cleaned)
       setOrder(orderData)
       setError(null)
     } catch (err: any) {
@@ -847,5 +896,26 @@ export default function SiparisSorgulamaPage() {
       </main>
       <Footer />
     </>
+  )
+}
+
+export default function SiparisSorgulamaPage() {
+  return (
+    <Suspense
+      fallback={
+        <>
+          <main className="min-h-screen bg-background">
+            <section className="py-24">
+              <div className="mx-auto max-w-7xl px-6 lg:px-8 flex justify-center">
+                <Loader2 className="w-8 h-8 animate-spin text-muted-foreground" />
+              </div>
+            </section>
+          </main>
+          <Footer />
+        </>
+      }
+    >
+      <SiparisSorgulamaContent />
+    </Suspense>
   )
 }

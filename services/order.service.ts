@@ -129,6 +129,22 @@ class OrderService {
   async getOrderByOrderNo(orderNo: string): Promise<Order> {
     return await api.get<Order>(`${this.endpoint}/${orderNo}`);
   }
+
+  /**
+   * Giriş yapmış kullanıcının siparişlerini listeler.
+   */
+  async getMyOrders(params?: { page?: number; limit?: number }): Promise<Order[]> {
+    const search = new URLSearchParams()
+    if (params?.page) search.set('page', String(params.page))
+    if (params?.limit) search.set('limit', String(params.limit))
+    const query = search.toString()
+    const response = await api.get<Order[] | { orders?: Order[]; data?: Order[] }>(
+      `/me/orders${query ? `?${query}` : ''}`,
+    )
+
+    if (Array.isArray(response)) return response
+    return response.orders ?? response.data ?? []
+  }
 }
 
 export const orderService = new OrderService();
