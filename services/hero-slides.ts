@@ -1,5 +1,5 @@
 import { api } from "./api"
-import { filterHeroSlides, type HeroCarouselSlide } from "@/lib/hero-slides-default"
+import { resolveHeroSlidesFromApi, type HeroCarouselSlide } from "@/lib/hero-slides-default"
 
 interface HeroSlideResponse {
   id: string
@@ -9,7 +9,7 @@ interface HeroSlideResponse {
   isActive: boolean
 }
 
-/** API'den hero slaytlarını alır; yalnızca backend/admin kaynaklı geçerli görseller döner. */
+/** API'den hero slaytlarını alır; backend yoksa ürün fallback görselleri kullanılır. */
 export async function getHeroSlides(): Promise<HeroCarouselSlide[]> {
   try {
     const slides = await api.get<HeroSlideResponse[]>("/hero-slides")
@@ -20,9 +20,19 @@ export async function getHeroSlides(): Promise<HeroCarouselSlide[]> {
         src: slide.imageUrl,
         alt: slide.altText || "Ana sayfa hero görseli",
       }))
-    return filterHeroSlides(mapped)
+    return resolveHeroSlidesFromApi(mapped)
   } catch (error) {
-    console.warn("Hero görselleri API'den alınamadı.", error)
-    return []
+    const isConnectionError =
+      typeof error === "object" &&
+      error !== null &&
+      "code" in error &&
+      (error as { code?: string }).code === "ECONNREFUSED"
+
+    if (isConnectionError) {
+      console.warn("Hero API'ye ulaşılamadı (backend kapalı olabilir), fallback görseller kullanılıyor.")
+    } else {
+      console.warn("Hero görselleri API'den alınamadı, fallback görseller kullanılıyor.", error)
+    }
+    return resolveHeroSlidesFromApi([])
   }
 }
