@@ -2,6 +2,7 @@ import type { FrontendProduct } from "@/lib/product-transformer"
 import type { Category as StoreCategory } from "@/services/categories"
 import type { Category, Gallery, Image, ProductDetail, Stock } from "@/services/products"
 import { usdToTry } from "@/lib/exchange-rate"
+import { toWebpImagePath } from "@/lib/optimized-image-path"
 import { PRICE_EX_VAT_LABEL } from "@/lib/vat"
 
 /**
@@ -33,9 +34,10 @@ function makeImage(id: string, s3Url: string, displayName: string): Image {
   }
 }
 
-/** Statik gallery üretir: main + thumbnail + detay görselleri. */
+/** Statik gallery üretir: main + thumbnail + detay görselleri (WebP yolları). */
 function makeGallery(imagePaths: string[]): Gallery {
-  const [main, thumb, ...rest] = imagePaths
+  const normalized = imagePaths.map(toWebpImagePath)
+  const [main, thumb, ...rest] = normalized
   return {
     mainImage: main ? makeImage(`img-main-${main}`, main, "main") : null,
     thumbnailImage: thumb ? makeImage(`img-thumb-${thumb}`, thumb, "thumbnail") : null,
@@ -443,7 +445,7 @@ export function getStaticFrontendProducts(usdTryRate: number): FrontendProduct[]
       price: priceInTry,
       basePrice: priceInTry,
       discountedPrice: null,
-      image: seed.imagePaths[0] || "/placeholders/placeholder.svg",
+      image: toWebpImagePath(seed.imagePaths[0] || "/placeholders/placeholder.svg"),
       category: seed.category.name,
       slug: seed.slug,
       stock,
@@ -459,7 +461,7 @@ export function getStaticCatalogCoverImageBySlug(slug: string): string | null {
   const key = (slug || "").trim()
   if (!key) return null
   const seed = STATIC_DETAIL_SEEDS.find((s) => s.slug === key)
-  return seed?.imagePaths[0] ?? null
+  return seed?.imagePaths[0] ? toWebpImagePath(seed.imagePaths[0]) : null
 }
 
 /**

@@ -1,8 +1,20 @@
+import dynamic from "next/dynamic"
 import { Footer } from "@/components/footer"
-import { IndexSections } from "@/components/home/index-sections"
+import { HeroSection } from "@/components/home/hero-section"
 import { getUsdTryRate } from "@/lib/exchange-rate"
 import { getStaticFrontendProducts } from "@/lib/static-product-details"
 import { getHeroSlides } from "@/services/hero-slides"
+import { buildHomeStructuredData } from "@/lib/structured-data"
+
+/** Framer Motion içeren alt bölümler hero sonrası lazy yüklenir. */
+const IndexSections = dynamic(
+  () => import("@/components/home/index-sections").then((mod) => mod.IndexSections),
+  {
+    loading: () => (
+      <div aria-hidden className="min-h-[50vh] animate-pulse bg-muted/30" />
+    ),
+  },
+)
 
 const FEATURED_PRODUCT_LIMIT = 6
 const FEATURED_PRODUCTS_PER_CATEGORY_LIMIT = 3
@@ -29,11 +41,17 @@ function getOrderedFeaturedProducts(usdTryRate: number) {
 export default async function HomePage() {
   const [usdTryRate, heroSlides] = await Promise.all([getUsdTryRate(), getHeroSlides()])
   const featuredProducts = getOrderedFeaturedProducts(usdTryRate)
+  const structuredData = buildHomeStructuredData()
 
   return (
     <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
+      />
       <main>
-        <IndexSections featuredProducts={featuredProducts} heroSlides={heroSlides} />
+        <HeroSection heroSlides={heroSlides} />
+        <IndexSections featuredProducts={featuredProducts} />
       </main>
       <Footer />
     </>

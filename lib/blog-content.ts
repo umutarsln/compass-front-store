@@ -41,7 +41,7 @@ export const blogPosts = [
     author: "Mert İlev",
     category: "Teknoloji",
     readTime: "8 dk okuma",
-    image: "/images/forge/product-flatbed.jpg",
+    image: "/images/forge/product-flatbed.webp",
     imageAlt: "Endüstriyel UV flatbed baskı makinesi ile reklam üretimi",
     featured: true,
     highlights: [
@@ -70,7 +70,7 @@ export const blogPosts = [
     author: "Mert İlev",
     category: "Sektör",
     readTime: "7 dk okuma",
-    image: "/images/forge/product-dtf.jpg",
+    image: "/images/forge/product-dtf.webp",
     imageAlt: "DTF tekstil baskı makinesi ile tişört transfer üretimi",
     highlights: [
       "Pamuk, polyester ve karışım kumaşlarda geniş uygulama alanı",
@@ -98,7 +98,7 @@ export const blogPosts = [
     author: "Mert İlev",
     category: "Rehber",
     readTime: "9 dk okuma",
-    image: "/images/forge/product-rolltoroll.jpg",
+    image: "/images/forge/product-rolltoroll.webp",
     imageAlt: "Roll-to-roll dijital baskı makinesi ile reklam baskısı",
     highlights: [
       "Sadece makine fiyatına değil, sarf ve bakım maliyetine de bakın",
@@ -127,7 +127,7 @@ export const blogPosts = [
     author: "Mert İlev",
     category: "Rehber",
     readTime: "8 dk okuma",
-    image: "/images/forge/product-laser.jpg",
+    image: "/images/forge/product-laser.webp",
     imageAlt: "Lazer kesim makinesi ile hassas reklam ve tabela üretimi",
     highlights: [
       "Fiber lazer metal kesim ve markalama işlerinde yüksek verim sağlar",
@@ -156,7 +156,7 @@ export const blogPosts = [
     author: "Mert İlev",
     category: "İpuçları",
     readTime: "7 dk okuma",
-    image: "/images/forge/product-laminator.jpg",
+    image: "/images/forge/product-laminator.webp",
     imageAlt: "Soğuk laminasyon makinesi ile baskı koruma uygulaması",
     highlights: [
       "Film türünü iç mekan, dış mekan ve zemin kullanımına göre seçin",
@@ -184,7 +184,7 @@ export const blogPosts = [
     author: "Mert İlev",
     category: "Sektör",
     readTime: "8 dk okuma",
-    image: "/images/forge/hero-printer.jpg",
+    image: "/images/forge/hero-printer.webp",
     imageAlt: "Dijital reklam üretiminde endüstriyel baskı teknolojileri",
     highlights: [
       "Kişiselleştirilmiş reklam ürünleri daha kısa teslim süreleriyle üretilebilir",

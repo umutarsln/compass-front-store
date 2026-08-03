@@ -1,6 +1,5 @@
 "use client"
 
-import { motion } from "framer-motion"
 import Image from "next/image"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
@@ -12,8 +11,14 @@ import { Spinner } from "@/components/ui/spinner"
 import type { FrontendProduct } from "@/lib/product-transformer"
 import { PRICE_EX_VAT_LABEL } from "@/lib/vat"
 
-interface ProductCardProps extends FrontendProduct { }
+interface ProductCardProps extends FrontendProduct {
+  /** LCP için ilk birkaç kartta true — geri kalan lazy yüklenir */
+  priority?: boolean
+}
 
+/**
+ * Ürün kartı — CSS hover animasyonu; Framer Motion yok (daha küçük JS bundle).
+ */
 export function ProductCard({
   id,
   productId,
@@ -27,6 +32,7 @@ export function ProductCard({
   slug,
   stock,
   variantValues,
+  priority = false,
 }: ProductCardProps) {
   const detailUrl = `/urun/${slug || id}`
   const router = useRouter()
@@ -59,15 +65,9 @@ export function ProductCard({
   }
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      whileHover={{ y: -4 }}
-      viewport={{ once: true }}
-      transition={{ duration: 0.3 }}
-      className={`group/card bg-card rounded-lg overflow-hidden shadow-card hover:shadow-elevated transition-all duration-300 border border-border ${!isInStock ? "opacity-60" : ""}`}
+    <div
+      className={`group/card bg-card rounded-lg overflow-hidden shadow-card hover:shadow-elevated transition-all duration-300 border border-border hover:-translate-y-1 ${!isInStock ? "opacity-60" : ""}`}
     >
-      {/* Görsel: sadece resim <Link> içinde; hover butonları kardeş katmanda (iç içe <a> yok). */}
       <div
         className={`relative aspect-[4/3] overflow-hidden bg-white dark:bg-white ${!isInStock ? "opacity-80 grayscale-[0.25]" : ""}`}
       >
@@ -80,7 +80,9 @@ export function ProductCard({
             src={image || "/placeholders/placeholder.svg"}
             alt={name}
             fill
-            loading="eager"
+            priority={priority}
+            loading={priority ? undefined : "lazy"}
+            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
             className="object-contain transition-transform duration-500"
           />
         </Link>
@@ -132,7 +134,7 @@ export function ProductCard({
         className="block p-4 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring rounded-none"
       >
         <p className="text-xs text-primary font-semibold uppercase tracking-wider mb-1">{category}</p>
-        <h3 className={`font-display font-semibold text-foreground line-clamp-2 text-sm leading-tight hover:text-primary transition-colors ${!isInStock ? "" : ""}`}>
+        <h3 className="font-display font-semibold text-foreground line-clamp-2 text-sm leading-tight hover:text-primary transition-colors">
           {name}
         </h3>
 
@@ -210,6 +212,6 @@ export function ProductCard({
           <Link href={detailUrl}>Detayları İncele</Link>
         </Button>
       </div>
-    </motion.div>
+    </div>
   )
 }

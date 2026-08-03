@@ -99,8 +99,8 @@ export function Header() {
               <Phone className="h-3 w-3" />
               0553 467 86 07
             </a>
-            <span className="hidden sm:inline text-muted-foreground">|</span>
-            <span className="hidden sm:inline text-muted-foreground">Pazartesi - Cumartesi: 09:00 - 18:00</span>
+            <span className="hidden sm:inline text-secondary-foreground/60">|</span>
+            <span className="hidden sm:inline text-secondary-foreground/60">Pazartesi - Cumartesi: 09:00 - 18:00</span>
           </div>
           <div className="flex items-center gap-3">
             <Link href="/hakkimizda" className="hover:text-primary transition-colors">Hakkımızda</Link>
@@ -150,9 +150,9 @@ export function Header() {
                   >
                     {categories.map((cat) => (
                       <div key={cat.name}>
-                        <h4 className="font-display font-semibold text-sm text-foreground mb-2 border-b border-primary/30 pb-1">
+                        <h3 className="font-display font-semibold text-sm text-foreground mb-2 border-b border-primary/30 pb-1">
                           {cat.name}
-                        </h4>
+                        </h3>
                         <ul className="space-y-1">
                           {cat.subcategories.map((sub) => (
                             <li key={sub.name}>
@@ -179,17 +179,17 @@ export function Header() {
 
           {/* Actions */}
           <div className="flex items-center gap-2">
-            <Button variant="ghost" size="icon" className="hidden md:flex">
-              <Search className="h-5 w-5" />
+            <Button variant="ghost" size="icon" className="hidden md:flex" aria-label="Ürün ara">
+              <Search className="h-5 w-5" aria-hidden />
             </Button>
-            <Link href="/sepet">
-              <Button variant="ghost" size="icon" className="relative">
-                <ShoppingCart className="h-5 w-5" />
+            <Button variant="ghost" size="icon" className="relative" asChild>
+              <Link href="/sepet" aria-label={`Sepet${getTotalItems() > 0 ? ` — ${getTotalItems()} ürün` : ""}`}>
+                <ShoppingCart className="h-5 w-5" aria-hidden />
                 <span className="absolute -top-1 -right-1 h-4 w-4 rounded-full bg-primary text-[10px] font-bold flex items-center justify-center text-primary-foreground">
                   {getTotalItems()}
                 </span>
-              </Button>
-            </Link>
+              </Link>
+            </Button>
             <Link href="/teklif-al">
               <Button variant="hero" size="sm" className="hidden md:flex">
                 Teklif Al
@@ -197,10 +197,13 @@ export function Header() {
             </Link>
             <HeaderUserMenu />
             <button
+              type="button"
               className="lg:hidden p-2"
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              aria-label={mobileMenuOpen ? "Menüyü kapat" : "Menüyü aç"}
+              aria-expanded={mobileMenuOpen}
             >
-              {mobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+              {mobileMenuOpen ? <X className="h-6 w-6" aria-hidden /> : <Menu className="h-6 w-6" aria-hidden />}
             </button>
           </div>
         </div>

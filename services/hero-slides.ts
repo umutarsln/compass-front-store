@@ -1,5 +1,5 @@
 import { api } from "./api"
-import type { HeroCarouselSlide } from "@/components/home/hero-background-carousel"
+import type { HeroCarouselSlide } from "@/lib/hero-slides-default"
 
 interface HeroSlideResponse {
   id: string

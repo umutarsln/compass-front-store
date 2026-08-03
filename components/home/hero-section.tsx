@@ -1,107 +1,66 @@
-"use client"
-
-import { motion } from "framer-motion"
-import Link from "next/link"
 import Image from "next/image"
+import Link from "next/link"
+import { ArrowRight, Zap } from "lucide-react"
+import { Button } from "@/components/ui/button"
+import { HeroCarouselClient } from "@/components/home/hero-carousel-client"
+import { resolveHeroSlides, type HeroCarouselSlide } from "@/lib/hero-slides-default"
 
-export function HeroSection() {
+interface HeroSectionProps {
+  heroSlides?: HeroCarouselSlide[]
+}
+
+/**
+ * Ana sayfa hero bölümü — metin ve LCP görseli sunucuda render edilir; carousel istemcide yüklenir.
+ */
+export function HeroSection({ heroSlides }: HeroSectionProps) {
+  const slides = resolveHeroSlides(heroSlides)
+  const firstSlide = slides[0]
+
   return (
-    <section className="relative flex items-start justify-center pt-24 md:pt-28 pb-20 px-6 lg:px-8">
-      {/* Mobil Container - Arka plan görseli */}
-      <div className="relative w-full md:hidden">
-        <div className="relative w-full rounded-lg overflow-hidden">
+    <section className="relative min-h-[68vh] sm:min-h-[78vh] md:min-h-[min(72vh,640px)] lg:min-h-[min(78vh,720px)] flex items-center overflow-hidden">
+      <div className="absolute inset-0">
+        <div className="relative h-full w-full">
           <Image
-            src="/hero/heromobil-görsel.webp"
-            alt="Anılarınızı Işığa Dönüştürün"
-            width={1080}
-            height={1920}
-            className="w-full h-auto"
-            priority
-            sizes="100vw"
-            quality={85}
-          />
-          {/* Gradient Overlay - Yazıların okunabilirliği için */}
-          <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/30 to-transparent" />
-
-          {/* Mobil İçerik */}
-          <div className="absolute inset-0 flex flex-col justify-between pt-12 pb-8 px-6 z-10">
-            {/* Üst İçerik - Başlık ve Açıklama */}
-            <motion.div
-              initial={{ opacity: 0, y: -20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8, ease: "easeOut" }}
-              className="text-center"
-            >
-              <h1 className="font-serif text-3xl sm:text-4xl text-white leading-tight text-balance mb-4">
-                Anılarınızı Işığa Dönüştürün
-              </h1>
-              <p className="text-sm sm:text-base text-white/90 max-w-lg mx-auto leading-relaxed">
-                <b>Fotoğraflarınızdan hazırlanan</b> <br /> <b>kişiye özel lambalarla,</b>
-                <br /> <b>en değerli anılarınızı sıcak bir ışıkla</b> <br /> <b>yeniden yaşayın.</b>
-                <br /> <b>Her lamba size özel, her ışık bir anı taşır.</b>
-              </p>
-            </motion.div>
-
-            {/* Alt İçerik - Butonlar */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8, ease: "easeOut", delay: 0.2 }}
-              className="flex flex-col gap-3 px-4"
-            >
-              <Link
-                href="/urunler"
-                className="inline-flex items-center justify-center px-8 py-4 bg-transparent border-2 border-white text-white font-medium text-sm uppercase tracking-wider hover:bg-white/10 transition-colors"
-              >
-                Ürünleri Keşfet
-              </Link>
-            </motion.div>
-          </div>
-        </div>
-      </div>
-
-      {/* Desktop Container */}
-      <div className="hidden md:block relative w-full max-w-[1280px] h-[500px] lg:h-[600px] rounded-lg overflow-hidden">
-        {/* Background Image */}
-        <div className="absolute inset-0">
-          <Image
-            src="/hero/hero-section-image-pc.jpg"
-            alt="Hero section background"
+            src={firstSlide.src}
+            alt={firstSlide.alt}
             fill
-            className="object-cover"
             priority
+            sizes="(max-width: 767px) 100vw, 55vw"
+            className="object-contain object-center p-3 sm:p-4 md:object-contain md:object-right md:p-0 lg:pr-8 xl:pr-12"
+            quality={75}
           />
         </div>
-
-        {/* Gradient Overlay - Sol tarafta karartma */}
-        <div className="absolute inset-0 bg-gradient-to-r from-black/70 via-black/40 to-transparent" />
-
-        {/* Content */}
-        <div className="relative h-full flex items-center">
-          <div className="px-8 lg:px-12 py-12">
-            <motion.div
-              initial={{ opacity: 0, y: 30 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8, ease: "easeOut" }}
-              className="max-w-2xl"
-            >
-              <h1 className="font-serif text-4xl sm:text-5xl lg:text-6xl xl:text-7xl text-white leading-tight text-balance">
-                Anılarınızı Işığa Dönüştürün
-              </h1>
-              <p className="mt-6 text-lg text-white/90 max-w-lg leading-relaxed">
-                Fotoğraflarınızdan hazırlanan kişiye özel lambalarla,
-                <br /> en değerli anılarınızı sıcak bir ışıkla yeniden yaşatın.
-                <br /> Her lamba size özel, her ışık bir anı taşır.
-              </p>
-              <div className="mt-10 flex flex-col sm:flex-row gap-4">
-                <Link
-                  href="/urunler"
-                  className="inline-flex items-center justify-center px-8 py-4 bg-white text-black font-medium text-sm uppercase tracking-wider hover:bg-white/90 transition-colors"
-                >
-                  Ürünleri Keşfet
-                </Link>
-              </div>
-            </motion.div>
+        <HeroCarouselClient slides={slides} />
+        <div className="pointer-events-none absolute inset-0 z-[1] bg-gradient-to-t from-foreground/90 via-foreground/65 to-foreground/20 md:bg-gradient-to-r md:from-foreground/95 md:via-foreground/70 md:to-transparent" />
+      </div>
+      <div className="container relative z-10 py-14 sm:py-16 md:py-20">
+        <div className="max-w-2xl">
+          <span className="inline-flex items-center gap-2 bg-primary/20 text-primary px-4 py-1.5 rounded-full text-sm font-medium mb-6">
+            <Zap className="h-4 w-4" aria-hidden />
+            Endüstriyel Baskı Çözümleri
+          </span>
+          <h1 className="font-display text-4xl md:text-5xl lg:text-6xl font-bold text-background leading-tight mb-6">
+            Baskı Teknolojisinde <span className="text-gradient">Güvenilir</span> Çözüm Ortağınız
+          </h1>
+          <p className="text-lg text-background/80 mb-8 leading-relaxed">
+            Dünya markası baskı, kesim ve laminasyon makineleri ile işletmenizi bir adım öne taşıyın. Kurulum,
+            eğitim ve 7/24 teknik destek hizmetleriyle yanınızdayız.
+          </p>
+          <div className="flex flex-wrap gap-4">
+            <Link href="/urunler">
+              <Button size="lg" className="text-base">
+                Ürünleri Keşfet <ArrowRight className="ml-2 h-5 w-5" aria-hidden />
+              </Button>
+            </Link>
+            <Link href="/teklif-al">
+              <Button
+                variant="outline"
+                size="lg"
+                className="text-base border-background bg-background text-foreground hover:bg-background/90"
+              >
+                Ücretsiz Teklif Alın
+              </Button>
+            </Link>
           </div>
         </div>
       </div>

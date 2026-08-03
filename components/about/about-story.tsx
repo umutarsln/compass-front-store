@@ -56,7 +56,7 @@ export function AboutStory() {
           >
             <div className="relative aspect-[4/3] w-full rounded-lg shadow-elevated overflow-hidden">
               <Image
-                src="/images/forge/product-flatbed.jpg"
+                src="/images/forge/product-flatbed.webp"
                 alt="Compass Reklam endüstriyel baskı çözümleri"
                 fill
                 className="object-cover"

@@ -5,30 +5,9 @@ import useEmblaCarousel from "embla-carousel-react"
 import Image from "next/image"
 import { ChevronLeft, ChevronRight } from "lucide-react"
 import { cn } from "@/lib/utils"
+import { resolveHeroSlides, type HeroCarouselSlide } from "@/lib/hero-slides-default"
 
-export interface HeroCarouselSlide {
-  src: string
-  alt: string
-}
-
-/**
- * Varsayılan ana sayfa hero slaytları; yollar `lib/static-product-details.ts` içindeki ürün `imagePaths`
- * ile aynı katalog görsellerinden seçilir (1–2: mevcut ürünler, 3: My Color 180 cm).
- */
-const DEFAULT_HERO_PRODUCT_SLIDES: HeroCarouselSlide[] = [
-  {
-    src: "/urunler/folyokesim/epson-i3200-baski-kafali-sublimasyon-dijital-baski-makinesi/epson-i3200-baski-kafali-sublimasyon-dijital-baski-makinesi-01-67ff2857.png",
-    alt: "Epson i3200 eco solvent dijital baskı makinesi",
-  },
-  {
-    src: "/urunler/folyokesim/175-cm-ppf-folyo-kesim-makinesi-plotter/175-cm-ppf-folyo-kesim-makinesi-plotter-01-48d0a713.png",
-    alt: "175 cm PPF ve folyo kesim plotter",
-  },
-  {
-    src: "/urunler/folyokesim/dijital-baski-makinesi-180-cm-genislik-yuksek-hiz-endustriyel-kalite/dijital-baski-makinesi-180-cm-genislik-yuksek-hiz-endustriyel-kalite-01-756efd81.png",
-    alt: "My Color 180 cm dijital baskı makinesi",
-  },
-] as const
+export type { HeroCarouselSlide }
 
 const AUTOPLAY_INTERVAL_MS = 6000
 
@@ -44,7 +23,7 @@ export function HeroBackgroundCarousel({ slides }: HeroBackgroundCarouselProps) 
   const [emblaRef, emblaApi] = useEmblaCarousel({ loop: true, duration: 22 })
   const [selectedIndex, setSelectedIndex] = useState(0)
   const [pauseAutoplay, setPauseAutoplay] = useState(false)
-  const heroSlides = slides?.length ? slides : DEFAULT_HERO_PRODUCT_SLIDES
+  const heroSlides = resolveHeroSlides(slides)
 
   /** Embla seçim olayında aktif slayt indeksini günceller. */
   const onSelect = useCallback(() => {
@@ -79,7 +58,7 @@ export function HeroBackgroundCarousel({ slides }: HeroBackgroundCarouselProps) 
 
   return (
     <div
-      className="absolute inset-0"
+      className="absolute inset-0 z-[2]"
       onMouseEnter={() => setPauseAutoplay(true)}
       onMouseLeave={() => setPauseAutoplay(false)}
     >
@@ -96,25 +75,21 @@ export function HeroBackgroundCarousel({ slides }: HeroBackgroundCarouselProps) 
                 fill
                 className="object-contain object-center p-3 sm:p-4 md:object-contain md:object-right md:p-0 lg:pr-8 xl:pr-12"
                 sizes="(max-width: 767px) 100vw, 55vw"
-                priority={index === 0}
-                quality={85}
+                quality={75}
               />
             </div>
           ))}
         </div>
       </div>
 
-      <div
-        className="pointer-events-none absolute inset-0 z-[20] flex items-center justify-between px-2 sm:px-4"
-        aria-hidden
-      >
+      <div className="absolute inset-0 z-[20] flex items-center justify-between px-2 sm:px-4 pointer-events-none">
         <button
           type="button"
           onClick={() => emblaApi?.scrollPrev()}
           className="pointer-events-auto flex h-10 w-10 items-center justify-center rounded-full border border-background/30 bg-background/20 text-background backdrop-blur-sm transition hover:bg-background/35 sm:h-11 sm:w-11"
           aria-label="Önceki görsel"
         >
-          <ChevronLeft className="h-5 w-5 sm:h-6 sm:w-6" />
+          <ChevronLeft className="h-5 w-5 sm:h-6 sm:w-6" aria-hidden />
         </button>
         <button
           type="button"
@@ -122,7 +97,7 @@ export function HeroBackgroundCarousel({ slides }: HeroBackgroundCarouselProps) 
           className="pointer-events-auto flex h-10 w-10 items-center justify-center rounded-full border border-background/30 bg-background/20 text-background backdrop-blur-sm transition hover:bg-background/35 sm:h-11 sm:w-11"
           aria-label="Sonraki görsel"
         >
-          <ChevronRight className="h-5 w-5 sm:h-6 sm:w-6" />
+          <ChevronRight className="h-5 w-5 sm:h-6 sm:w-6" aria-hidden />
         </button>
       </div>
 

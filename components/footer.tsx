@@ -7,6 +7,7 @@ export function Footer() {
   return (
     <footer className="bg-secondary text-secondary-foreground">
       <div className="container py-16">
+        <h2 className="sr-only">Site haritası ve iletişim bilgileri</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10">
           {/* Brand */}
           <div>
@@ -19,52 +20,52 @@ export function Footer() {
                 className="h-10 w-auto"
               />
             </div>
-            <p className="text-sm text-muted-foreground leading-relaxed">
+            <p className="text-sm text-secondary-foreground/75 leading-relaxed">
               Endüstriyel baskı teknolojilerinde Türkiye&apos;nin lider çözüm ortağı. 8+ yıllık deneyimimizle yanınızdayız.
             </p>
           </div>
 
           {/* Quick Links */}
           <div>
-            <h4 className="font-display font-semibold mb-4 text-primary">Hızlı Bağlantılar</h4>
+            <h3 className="font-display font-semibold mb-4 text-primary">Hızlı Bağlantılar</h3>
             <ul className="space-y-2 text-sm">
-              <li><Link href="/urunler" className="text-muted-foreground hover:text-primary transition-colors">Ürünler</Link></li>
-              <li><Link href="/hizmetler" className="text-muted-foreground hover:text-primary transition-colors">Teknik Servis</Link></li>
-              <li><Link href="/hakkimizda" className="text-muted-foreground hover:text-primary transition-colors">Hakkımızda</Link></li>
-              <li><Link href="/blog" className="text-muted-foreground hover:text-primary transition-colors">Blog</Link></li>
-              <li><Link href="/iletisim" className="text-muted-foreground hover:text-primary transition-colors">İletişim</Link></li>
+              <li><Link href="/urunler" className="text-secondary-foreground/75 hover:text-primary transition-colors">Ürünler</Link></li>
+              <li><Link href="/hizmetler" className="text-secondary-foreground/75 hover:text-primary transition-colors">Teknik Servis</Link></li>
+              <li><Link href="/hakkimizda" className="text-secondary-foreground/75 hover:text-primary transition-colors">Hakkımızda</Link></li>
+              <li><Link href="/blog" className="text-secondary-foreground/75 hover:text-primary transition-colors">Blog</Link></li>
+              <li><Link href="/iletisim" className="text-secondary-foreground/75 hover:text-primary transition-colors">İletişim</Link></li>
             </ul>
           </div>
 
           {/* Products */}
           <div>
-            <h4 className="font-display font-semibold mb-4 text-primary">Ürün Kategorileri</h4>
+            <h3 className="font-display font-semibold mb-4 text-primary">Ürün Kategorileri</h3>
             <ul className="space-y-2 text-sm">
-              <li><Link href="/urunler" className="text-muted-foreground hover:text-primary transition-colors">UV Baskı Makineleri</Link></li>
-              <li><Link href="/urunler" className="text-muted-foreground hover:text-primary transition-colors">DTF Yazıcılar</Link></li>
-              <li><Link href="/urunler" className="text-muted-foreground hover:text-primary transition-colors">Lazer Kesim</Link></li>
-              <li><Link href="/urunler" className="text-muted-foreground hover:text-primary transition-colors">Laminasyon Makineleri</Link></li>
-              <li><Link href="/urunler" className="text-muted-foreground hover:text-primary transition-colors">Sarf Malzemeleri</Link></li>
+              <li><Link href="/urunler" className="text-secondary-foreground/75 hover:text-primary transition-colors">UV Baskı Makineleri</Link></li>
+              <li><Link href="/urunler" className="text-secondary-foreground/75 hover:text-primary transition-colors">DTF Yazıcılar</Link></li>
+              <li><Link href="/urunler" className="text-secondary-foreground/75 hover:text-primary transition-colors">Lazer Kesim</Link></li>
+              <li><Link href="/urunler" className="text-secondary-foreground/75 hover:text-primary transition-colors">Laminasyon Makineleri</Link></li>
+              <li><Link href="/urunler" className="text-secondary-foreground/75 hover:text-primary transition-colors">Sarf Malzemeleri</Link></li>
             </ul>
           </div>
 
           {/* Contact */}
           <div>
-            <h4 className="font-display font-semibold mb-4 text-primary">İletişim</h4>
+            <h3 className="font-display font-semibold mb-4 text-primary">İletişim</h3>
             <ul className="space-y-3 text-sm">
-              <li className="flex items-start gap-2 text-muted-foreground">
-                <MapPin className="h-4 w-4 mt-0.5 text-primary shrink-0" />
+              <li className="flex items-start gap-2 text-secondary-foreground/75">
+                <MapPin className="h-4 w-4 mt-0.5 text-primary shrink-0" aria-hidden />
                 Antalya, Türkiye
               </li>
               <li>
-                <a href="tel:+905534678607" className="flex items-center gap-2 text-muted-foreground hover:text-primary transition-colors">
-                  <Phone className="h-4 w-4 text-primary" />
+                <a href="tel:+905534678607" className="flex items-center gap-2 text-secondary-foreground/75 hover:text-primary transition-colors">
+                  <Phone className="h-4 w-4 text-primary" aria-hidden />
                   0553 467 86 07
                 </a>
               </li>
               <li>
-                <a href="mailto:info@compassreklam.com" className="flex items-center gap-2 text-muted-foreground hover:text-primary transition-colors">
-                  <Mail className="h-4 w-4 text-primary" />
+                <a href="mailto:info@compassreklam.com" className="flex items-center gap-2 text-secondary-foreground/75 hover:text-primary transition-colors">
+                  <Mail className="h-4 w-4 text-primary" aria-hidden />
                   info@compassreklam.com
                 </a>
               </li>
@@ -72,11 +73,11 @@ export function Footer() {
           </div>
         </div>
 
-        <div className="border-t border-muted mt-10 pt-6 flex flex-col md:flex-row items-center justify-between gap-4">
-          <p className="text-xs text-muted-foreground">
+        <div className="border-t border-secondary-foreground/20 mt-10 pt-6 flex flex-col md:flex-row items-center justify-between gap-4">
+          <p className="text-xs text-secondary-foreground/70">
             © 2026 Compass Reklam. Tüm hakları saklıdır.
           </p>
-          <div className="flex items-center gap-4 text-xs text-muted-foreground">
+          <div className="flex items-center gap-4 text-xs text-secondary-foreground/70">
             <Link href="/gizlilik" className="hover:text-primary transition-colors">Gizlilik Politikası</Link>
             <Link href="/kullanim-kosullari" className="hover:text-primary transition-colors">Kullanım Koşulları</Link>
           </div>

@@ -9,7 +9,6 @@ import {
   Headphones,
   Award,
   Settings,
-  Zap,
   CheckCircle,
   ArrowRight,
   Star,
@@ -22,46 +21,36 @@ import {
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { ProductCard } from "@/components/product-card"
-import { HeroBackgroundCarousel, type HeroCarouselSlide } from "@/components/home/hero-background-carousel"
 import { blogPosts as sharedBlogPosts } from "@/lib/blog-content"
 import type { FrontendProduct } from "@/lib/product-transformer"
-
-const fadeUp = {
-  hidden: { opacity: 0, y: 30 },
-  visible: (i: number) => ({
-    opacity: 1,
-    y: 0,
-    transition: { delay: i * 0.1, duration: 0.5 },
-  }),
-}
 
 const categories = [
   {
     name: "Baskı Makineleri",
     icon: Printer,
     count: 24,
-    image: "/images/forge/product-flatbed.jpg",
+    image: "/images/forge/product-flatbed.webp",
     href: "/urunler?categorySlugs=dijital-baski,uv-baski",
   },
   {
     name: "Kesim Makineleri",
     icon: Scissors,
     count: 18,
-    image: "/urunler/folyokesim/175-cm-ppf-folyo-kesim-makinesi-plotter/175-cm-ppf-folyo-kesim-makinesi-plotter-01-48d0a713.png",
+    image: "/images/forge/product-plotter-kesim.webp",
     href: "/urunler?categorySlugs=plotter-folyo-kesici,etiket-kesim",
   },
   {
     name: "Laminasyon",
     icon: Layers,
     count: 12,
-    image: "/images/forge/product-laminator.jpg",
+    image: "/images/forge/product-laminator.webp",
     href: "/urunler?search=laminasyon",
   },
   {
     name: "Sarf Malzemeleri",
     icon: Package,
     count: 45,
-    image: "/images/forge/product-rolltoroll.jpg",
+    image: "/images/forge/product-rolltoroll.webp",
     href: "/urunler?search=sarf",
   },
 ]
@@ -86,65 +75,14 @@ const latestBlogPosts = sharedBlogPosts.slice(0, 3)
 
 interface IndexSectionsProps {
   featuredProducts: FrontendProduct[]
-  heroSlides?: HeroCarouselSlide[]
 }
 
 /**
- * Ana sayfa Forge Index bölümleri
+ * Ana sayfa Forge Index bölümleri (hero hariç)
  */
-export function IndexSections({ featuredProducts, heroSlides }: IndexSectionsProps) {
+export function IndexSections({ featuredProducts }: IndexSectionsProps) {
   return (
     <div className="min-h-screen">
-      {/* Hero */}
-      <section className="relative min-h-[68vh] sm:min-h-[78vh] md:min-h-[min(72vh,640px)] lg:min-h-[min(78vh,720px)] flex items-center overflow-hidden">
-        <div className="absolute inset-0">
-          <HeroBackgroundCarousel slides={heroSlides} />
-          <div className="pointer-events-none absolute inset-0 z-[1] bg-gradient-to-t from-foreground/90 via-foreground/65 to-foreground/20 md:bg-gradient-to-r md:from-foreground/95 md:via-foreground/70 md:to-transparent" />
-        </div>
-        <div className="container relative z-10 py-14 sm:py-16 md:py-20">
-          <motion.div initial="hidden" animate="visible" className="max-w-2xl" variants={fadeUp}>
-            <motion.span
-              custom={0}
-              variants={fadeUp}
-              className="inline-flex items-center gap-2 bg-primary/20 text-primary px-4 py-1.5 rounded-full text-sm font-medium mb-6"
-            >
-              <Zap className="h-4 w-4" /> Endüstriyel Baskı Çözümleri
-            </motion.span>
-            <motion.h1
-              custom={1}
-              variants={fadeUp}
-              className="font-display text-4xl md:text-5xl lg:text-6xl font-bold text-background leading-tight mb-6"
-            >
-              Baskı Teknolojisinde <span className="text-gradient">Güvenilir</span> Çözüm Ortağınız
-            </motion.h1>
-            <motion.p
-              custom={2}
-              variants={fadeUp}
-              className="text-lg text-background/80 mb-8 leading-relaxed"
-            >
-              Dünya markası baskı, kesim ve laminasyon makineleri ile işletmenizi bir adım öne taşıyın. Kurulum,
-              eğitim ve 7/24 teknik destek hizmetleriyle yanınızdayız.
-            </motion.p>
-            <motion.div custom={3} variants={fadeUp} className="flex flex-wrap gap-4">
-              <Link href="/urunler">
-                <Button size="lg" className="text-base">
-                  Ürünleri Keşfet <ArrowRight className="ml-2 h-5 w-5" />
-                </Button>
-              </Link>
-              <Link href="/teklif-al">
-                <Button
-                  variant="outline"
-                  size="lg"
-                  className="text-base border-background bg-background text-foreground hover:bg-background/90"
-                >
-                  Ücretsiz Teklif Alın
-                </Button>
-              </Link>
-            </motion.div>
-          </motion.div>
-        </div>
-      </section>
-
       {/* Trust indicators */}
       <section className="bg-card border-y border-border">
         <div className="container py-8">
@@ -194,6 +132,7 @@ export function IndexSections({ featuredProducts, heroSlides }: IndexSectionsPro
                     src={cat.image}
                     alt={cat.name}
                     fill
+                    sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
                     className="object-cover group-hover:scale-110 transition-transform duration-500"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-foreground/90 via-foreground/40 to-transparent" />
@@ -240,7 +179,9 @@ export function IndexSections({ featuredProducts, heroSlides }: IndexSectionsPro
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {featuredProducts.length > 0 ? (
-              featuredProducts.slice(0, 6).map((product) => <ProductCard key={product.id} {...product} />)
+              featuredProducts.slice(0, 6).map((product, index) => (
+                <ProductCard key={product.id} {...product} priority={index < 3} />
+              ))
             ) : (
               <div className="col-span-full text-center py-12 text-muted-foreground">
                 Henüz ürün bulunmuyor. Ürünler yüklendikten sonra burada görünecektir.
@@ -295,7 +236,7 @@ export function IndexSections({ featuredProducts, heroSlides }: IndexSectionsPro
             >
               <div className="relative aspect-[4/3] rounded-lg shadow-elevated overflow-hidden">
                 <Image
-                  src="/images/forge/product-flatbed.jpg"
+                  src="/images/forge/product-flatbed.webp"
                   alt="Teknik servis"
                   fill
                   className="object-cover"
@@ -356,7 +297,7 @@ export function IndexSections({ featuredProducts, heroSlides }: IndexSectionsPro
                   <item.icon className="h-7 w-7 text-primary" />
                 </div>
                 <h3 className="font-display font-semibold text-secondary-foreground text-lg mb-3">{item.title}</h3>
-                <p className="text-muted-foreground text-sm leading-relaxed">{item.desc}</p>
+                <p className="text-secondary-foreground/75 text-sm leading-relaxed">{item.desc}</p>
               </motion.div>
             ))}
           </div>
@@ -470,7 +411,7 @@ export function IndexSections({ featuredProducts, heroSlides }: IndexSectionsPro
             <h2 className="font-display text-3xl md:text-4xl font-bold text-secondary-foreground mb-4">
               İşletmenizi Büyütmeye Hazır Mısınız?
             </h2>
-            <p className="text-muted-foreground mb-8 leading-relaxed">
+            <p className="text-secondary-foreground/75 mb-8 leading-relaxed">
               Ücretsiz demo ve fiyat teklifi için hemen bizimle iletişime geçin. Uzman ekibimiz en uygun çözümü
               sizinle birlikte belirlesin.
             </p>

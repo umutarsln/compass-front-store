@@ -12,7 +12,7 @@ export function AboutHero() {
     <section className="relative py-24 overflow-hidden">
       <div className="absolute inset-0">
         <Image
-          src="/images/forge/hero-printer.jpg"
+          src="/images/forge/hero-printer.webp"
           alt="Compass Reklam hakkında"
           fill
           className="object-cover"

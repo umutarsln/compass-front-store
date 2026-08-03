@@ -1,5 +1,6 @@
 import { ProductListItem } from '@/services/products';
 import { getStaticCatalogCoverImageBySlug } from '@/lib/static-product-details';
+import { toWebpImagePath } from '@/lib/optimized-image-path';
 
 // Frontend ProductCard için gerekli format
 export interface FrontendProduct {
@@ -53,7 +54,7 @@ export function transformProductListItem(product: ProductListItem): FrontendProd
     price: product.price,
     basePrice: product.basePrice,
     discountedPrice: product.discountedPrice,
-    image: imageUrl,
+    image: toWebpImagePath(imageUrl),
     category: categoryName,
     slug: product.slug,
     stock: product.stock,
