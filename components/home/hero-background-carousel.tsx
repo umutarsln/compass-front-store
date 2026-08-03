@@ -5,7 +5,7 @@ import useEmblaCarousel from "embla-carousel-react"
 import Image from "next/image"
 import { ChevronLeft, ChevronRight } from "lucide-react"
 import { cn } from "@/lib/utils"
-import { resolveHeroSlides, type HeroCarouselSlide } from "@/lib/hero-slides-default"
+import type { HeroCarouselSlide } from "@/lib/hero-slides-default"
 
 export type { HeroCarouselSlide }
 
@@ -20,10 +20,10 @@ interface HeroBackgroundCarouselProps {
  * Otomatik geçiş, ok düğmeleri ve nokta göstergeleri sunar.
  */
 export function HeroBackgroundCarousel({ slides }: HeroBackgroundCarouselProps) {
-  const [emblaRef, emblaApi] = useEmblaCarousel({ loop: true, duration: 22 })
+  const [emblaRef, emblaApi] = useEmblaCarousel({ loop: (slides?.length ?? 0) > 1, duration: 22 })
   const [selectedIndex, setSelectedIndex] = useState(0)
   const [pauseAutoplay, setPauseAutoplay] = useState(false)
-  const heroSlides = resolveHeroSlides(slides)
+  const heroSlides = slides ?? []
 
   /** Embla seçim olayında aktif slayt indeksini günceller. */
   const onSelect = useCallback(() => {
@@ -67,12 +67,13 @@ export function HeroBackgroundCarousel({ slides }: HeroBackgroundCarouselProps) 
           {heroSlides.map((slide, index) => (
             <div
               key={`${slide.src}-${index}`}
-              className="relative h-full min-w-0 shrink-0 grow-0 basis-full bg-white md:bg-transparent"
+              className="relative h-full min-w-0 shrink-0 grow-0 basis-full md:bg-transparent"
             >
               <Image
                 src={slide.src}
                 alt={slide.alt}
                 fill
+                priority={index === 0}
                 className="object-contain object-center p-3 sm:p-4 md:object-contain md:object-right md:p-0 lg:pr-8 xl:pr-12"
                 sizes="(max-width: 767px) 100vw, 55vw"
                 quality={75}

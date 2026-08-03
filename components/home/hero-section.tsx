@@ -1,37 +1,22 @@
-import Image from "next/image"
 import Link from "next/link"
 import { ArrowRight, Zap } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { HeroCarouselClient } from "@/components/home/hero-carousel-client"
-import { resolveHeroSlides, type HeroCarouselSlide } from "@/lib/hero-slides-default"
+import type { HeroCarouselSlide } from "@/lib/hero-slides-default"
 
 interface HeroSectionProps {
   heroSlides?: HeroCarouselSlide[]
 }
 
 /**
- * Ana sayfa hero bölümü — metin ve LCP görseli sunucuda render edilir; carousel istemcide yüklenir.
+ * Ana sayfa hero — görseller yalnızca backend `/hero-slides` API'sinden gelir.
  */
-export function HeroSection({ heroSlides }: HeroSectionProps) {
-  const slides = resolveHeroSlides(heroSlides)
-  const firstSlide = slides[0]
-
+export function HeroSection({ heroSlides = [] }: HeroSectionProps) {
   return (
-    <section className="relative min-h-[68vh] sm:min-h-[78vh] md:min-h-[min(72vh,640px)] lg:min-h-[min(78vh,720px)] flex items-center overflow-hidden">
+    <section className="relative min-h-[68vh] sm:min-h-[78vh] md:min-h-[min(72vh,640px)] lg:min-h-[min(78vh,720px)] flex items-center overflow-hidden bg-foreground">
       <div className="absolute inset-0">
-        <div className="relative h-full w-full">
-          <Image
-            src={firstSlide.src}
-            alt={firstSlide.alt}
-            fill
-            priority
-            sizes="(max-width: 767px) 100vw, 55vw"
-            className="object-contain object-center p-3 sm:p-4 md:object-contain md:object-right md:p-0 lg:pr-8 xl:pr-12"
-            quality={75}
-          />
-        </div>
-        <HeroCarouselClient slides={slides} />
-        <div className="pointer-events-none absolute inset-0 z-[1] bg-gradient-to-t from-foreground/90 via-foreground/65 to-foreground/20 md:bg-gradient-to-r md:from-foreground/95 md:via-foreground/70 md:to-transparent" />
+        {heroSlides.length > 0 ? <HeroCarouselClient slides={heroSlides} /> : null}
+        <div className="pointer-events-none absolute inset-0 z-[3] bg-gradient-to-t from-foreground/90 via-foreground/65 to-foreground/20 md:bg-gradient-to-r md:from-foreground/95 md:via-foreground/70 md:to-transparent" />
       </div>
       <div className="container relative z-10 py-14 sm:py-16 md:py-20">
         <div className="max-w-2xl">

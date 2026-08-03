@@ -5,28 +5,24 @@ export interface HeroCarouselSlide {
 }
 
 /**
- * Varsayılan ana sayfa hero slaytları; `/public/hero` altındaki optimize görseller kullanılır.
+ * Şablondan kalan veya admin'e yanlış yüklenmiş hero görsellerini tespit eder.
  */
-export const DEFAULT_HERO_PRODUCT_SLIDES: HeroCarouselSlide[] = [
-  {
-    src: "/hero/heromobil-görsel.webp",
-    alt: "Endüstriyel baskı makineleri — Compass Reklam",
-  },
-  {
-    src: "/hero/hero-section-image-pc.webp",
-    alt: "Dijital baskı ve kesim çözümleri",
-  },
-  {
-    src: "/hero/hero-section-image.webp",
-    alt: "Compass Reklam baskı teknolojileri",
-  },
-]
+export function isDeprecatedHeroImage(src: string): boolean {
+  const normalized = decodeURIComponent(src).toLowerCase()
+  return (
+    normalized.includes("/hero/") ||
+    normalized.includes("heromobil") ||
+    normalized.includes("hero-section-image") ||
+    normalized.includes("herosection-mobil")
+  )
+}
 
 /**
- * API veya varsayılan slayt listesinden kullanılacak hero görsellerini döndürür.
+ * Backend `/hero-slides` yanıtından geçerli slaytları döndürür; alakasız görseller elenir.
+ * Statik fallback yok — hero yalnızca admin/backend kaynaklıdır.
  */
-export function resolveHeroSlides(slides?: HeroCarouselSlide[]): HeroCarouselSlide[] {
-  return slides?.length ? slides : DEFAULT_HERO_PRODUCT_SLIDES
+export function filterHeroSlides(slides: HeroCarouselSlide[]): HeroCarouselSlide[] {
+  return slides.filter((slide) => slide.src && !isDeprecatedHeroImage(slide.src))
 }
 
 /**

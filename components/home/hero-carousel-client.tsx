@@ -3,7 +3,7 @@
 import dynamic from "next/dynamic"
 import type { HeroCarouselSlide } from "@/lib/hero-slides-default"
 
-/** İstemci tarafında yüklenen hero carousel; SSR'de statik görsel gösterilir. */
+/** İstemci tarafında yüklenen hero carousel; tek görsel kaynağı backend/API slaytlarıdır. */
 const HeroBackgroundCarousel = dynamic(
   () =>
     import("@/components/home/hero-background-carousel").then(
