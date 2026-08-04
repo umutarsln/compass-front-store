@@ -13,6 +13,7 @@ import { useToast } from "@/hooks/use-toast"
 import { useCart } from "@/contexts/cart-context"
 import { contactInfoCards } from "@/lib/contact-content"
 import { buildQuoteRequestWhatsAppBody, buildWhatsAppTeklifOpenUrl } from "@/lib/whatsapp-teklif"
+import { resolveStoreImageSrc } from "@/lib/optimized-image-path"
 
 /**
  * Teklif Al sayfası: form alanları ve sepet özeti WhatsApp üzerinden iletilir (`lib/whatsapp-teklif`).
@@ -211,7 +212,7 @@ export default function TeklifAlPage() {
                       <li key={item.id} className="flex items-center gap-3">
                         <div className="relative w-12 h-12 shrink-0 rounded-md overflow-hidden">
                           <Image
-                            src={item.image || "/placeholders/placeholder.svg"}
+                            src={resolveStoreImageSrc(item.image)}
                             alt={item.name}
                             fill
                             className="object-cover"

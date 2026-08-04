@@ -11,6 +11,7 @@ import { useAuth } from "@/contexts/auth-context"
 import { Spinner } from "@/components/ui/spinner"
 import { uploadService } from "@/services/upload.service"
 import { grossInclVatFromCartLines, lineTotalWithVat, sumCartLinesExVat, vatAmountFromExAndIncl } from "@/lib/vat"
+import { resolveStoreImageSrc } from "@/lib/optimized-image-path"
 
 // Kişiselleştirme Önizleme Bileşeni
 function PersonalizationPreview({ personalization }: { personalization: any }) {
@@ -195,7 +196,7 @@ export function CartSidebar() {
             animate={{ opacity: 1, x: 0 }}
             exit={{ opacity: 0, x: 20 }}
             onClick={openSidebar}
-            className="fixed right-0 top-1/2 -translate-y-1/2 z-40 bg-primary text-primary-foreground p-3 md:p-4 rounded-l-full shadow-lg hover:bg-primary/90 transition-colors flex items-center justify-center cursor-pointer"
+            className="fixed right-0 top-[38%] -translate-y-1/2 z-40 bg-primary text-primary-foreground p-3 md:p-4 rounded-l-full shadow-lg hover:bg-primary/90 transition-colors flex items-center justify-center cursor-pointer"
             aria-label="Sepeti Aç"
           >
             <ShoppingBag className="w-5 h-5 md:w-6 md:h-6" />
@@ -233,7 +234,7 @@ export function CartSidebar() {
                 animate={{ opacity: 1, x: 0 }}
                 exit={{ opacity: 0, x: 20 }}
                 onClick={closeSidebar}
-                className="absolute left-0 top-1/2 -translate-x-full -translate-y-1/2 z-[76] bg-primary text-primary-foreground rounded-l-2xl shadow-2xl hover:bg-white hover:text-primary hover:shadow-primary/30 transition-all duration-300 flex items-center justify-center w-14 h-14 md:w-12 md:h-12 group border-2 border-primary hover:border-primary/50 cursor-pointer active:scale-95"
+                className="absolute left-0 top-[38%] -translate-x-full -translate-y-1/2 z-[76] bg-primary text-primary-foreground rounded-l-2xl shadow-2xl hover:bg-white hover:text-primary hover:shadow-primary/30 transition-all duration-300 flex items-center justify-center w-14 h-14 md:w-12 md:h-12 group border-2 border-primary hover:border-primary/50 cursor-pointer active:scale-95"
                 aria-label="Sepeti Kapat"
               >
                 <X className="w-6 h-6 md:w-5 md:h-5 transition-transform duration-300 group-hover:rotate-90" />
@@ -293,7 +294,7 @@ export function CartSidebar() {
                       <div key={item.id} className="flex gap-2 md:gap-3 pb-3 md:pb-4 border-b border-border last:border-0">
                         <div className="relative w-14 h-14 md:w-16 md:h-16 flex-shrink-0 bg-white dark:bg-white rounded overflow-hidden border border-border">
                           <Image
-                            src={item.image || "/placeholders/placeholder.svg"}
+                            src={resolveStoreImageSrc(item.image)}
                             alt={item.name}
                             fill
                             className="object-contain"

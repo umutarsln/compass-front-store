@@ -16,6 +16,7 @@ import { useToast } from "@/hooks/use-toast"
 import { lineTotalWithVat } from "@/lib/vat"
 import { mergeIbanEftInfo, toCompactIban, type IbanEftInfoPayload } from "@/lib/iban-eft-defaults"
 import { SITE_PHONE_WA_E164 } from "@/lib/contact-content"
+import { resolveStoreImageSrc } from "@/lib/optimized-image-path"
 
 /** IBAN satırı Kopyala: açık zeminde sürekli görünür primary çerçeve ve hafif amber dolgu. */
 const IBAN_COPY_BUTTON_BASE =
@@ -1493,7 +1494,7 @@ IBAN Bilgileri:
                   <div key={item.id} className="flex gap-3 sm:gap-4 pb-4 sm:pb-6 border-b border-checkout-panel-border mb-4 sm:mb-6 w-full max-w-full overflow-hidden">
                     <div className="relative w-16 h-16 sm:w-20 sm:h-20 bg-card shrink-0 rounded-md overflow-hidden ring-1 ring-border">
                       <Image
-                        src={item.image || "/placeholders/placeholder.svg"}
+                        src={resolveStoreImageSrc(item.image)}
                         alt={item.name}
                         fill
                         className="object-cover"

@@ -58,16 +58,16 @@ export function HeroBackgroundCarousel({ slides }: HeroBackgroundCarouselProps) 
 
   return (
     <div
-      className="absolute inset-0 z-[2]"
+      className="absolute inset-0 z-[2] bg-white"
       onMouseEnter={() => setPauseAutoplay(true)}
       onMouseLeave={() => setPauseAutoplay(false)}
     >
-      <div className="h-full w-full overflow-hidden" ref={emblaRef}>
+      <div className="h-full w-full overflow-hidden bg-white" ref={emblaRef}>
         <div className="flex h-full">
           {heroSlides.map((slide, index) => (
             <div
               key={`${slide.src}-${index}`}
-              className="relative h-full min-w-0 shrink-0 grow-0 basis-full md:bg-transparent"
+              className="relative h-full min-w-0 shrink-0 grow-0 basis-full bg-white"
             >
               <Image
                 src={slide.src}
@@ -76,7 +76,7 @@ export function HeroBackgroundCarousel({ slides }: HeroBackgroundCarouselProps) 
                 priority={index === 0}
                 className="object-contain object-center p-3 sm:p-4 md:object-contain md:object-right md:p-0 lg:pr-8 xl:pr-12"
                 sizes="(max-width: 767px) 100vw, 55vw"
-                quality={75}
+                quality={90}
               />
             </div>
           ))}
@@ -87,7 +87,7 @@ export function HeroBackgroundCarousel({ slides }: HeroBackgroundCarouselProps) 
         <button
           type="button"
           onClick={() => emblaApi?.scrollPrev()}
-          className="pointer-events-auto flex h-10 w-10 items-center justify-center rounded-full border border-background/30 bg-background/20 text-background backdrop-blur-sm transition hover:bg-background/35 sm:h-11 sm:w-11"
+          className="pointer-events-auto flex h-10 w-10 items-center justify-center rounded-full border border-foreground/15 bg-white text-foreground shadow-sm transition hover:bg-muted sm:h-11 sm:w-11"
           aria-label="Önceki görsel"
         >
           <ChevronLeft className="h-5 w-5 sm:h-6 sm:w-6" aria-hidden />
@@ -95,7 +95,7 @@ export function HeroBackgroundCarousel({ slides }: HeroBackgroundCarouselProps) 
         <button
           type="button"
           onClick={() => emblaApi?.scrollNext()}
-          className="pointer-events-auto flex h-10 w-10 items-center justify-center rounded-full border border-background/30 bg-background/20 text-background backdrop-blur-sm transition hover:bg-background/35 sm:h-11 sm:w-11"
+          className="pointer-events-auto flex h-10 w-10 items-center justify-center rounded-full border border-foreground/15 bg-white text-foreground shadow-sm transition hover:bg-muted sm:h-11 sm:w-11"
           aria-label="Sonraki görsel"
         >
           <ChevronRight className="h-5 w-5 sm:h-6 sm:w-6" aria-hidden />
@@ -116,7 +116,7 @@ export function HeroBackgroundCarousel({ slides }: HeroBackgroundCarouselProps) 
               "pointer-events-auto h-2 rounded-full transition-all duration-300",
               index === selectedIndex
                 ? "w-8 bg-primary"
-                : "w-2 bg-background/50 hover:bg-background/70",
+                : "w-2 bg-foreground/25 hover:bg-foreground/40",
             )}
             aria-label={`${index + 1}. slayt`}
             aria-current={index === selectedIndex ? "true" : undefined}

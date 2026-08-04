@@ -19,6 +19,11 @@ const nextConfig = {
         port: "3000",
       },
       {
+        protocol: "http",
+        hostname: "localhost",
+        port: "3050",
+      },
+      {
         protocol: "https",
         hostname: "www.compassreklam.com",
       },

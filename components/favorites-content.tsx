@@ -10,6 +10,7 @@ import { useCart } from "@/contexts/cart-context"
 import { useAuth } from "@/contexts/auth-context"
 import { mergeFavoritesOnPageLoad } from "@/lib/favorites-sync"
 import { PRICE_EX_VAT_LABEL } from "@/lib/vat"
+import { resolveStoreImageSrc } from "@/lib/optimized-image-path"
 
 const marketingMessages = [
   {
@@ -163,7 +164,7 @@ export function FavoritesContent() {
               <div className="relative aspect-[4/5] overflow-hidden bg-white dark:bg-white rounded-lg">
                 <Link href={detailUrl(item.category)}>
                   <Image
-                    src={item.image || "/placeholders/placeholder.svg"}
+                    src={resolveStoreImageSrc(item.image)}
                     alt={item.name}
                     fill
                     className="object-contain transition-transform duration-500 group-hover:scale-105"

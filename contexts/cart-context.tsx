@@ -12,6 +12,7 @@ import {
 import { resolveCartFinalTotalInclVat, sumCartLinesExVat } from "@/lib/vat"
 import { trackEvent } from "@/lib/analytics"
 import { gtmAddToCart, gtmRemoveFromCart } from "@/lib/gtm"
+import { resolveStoreImageSrc } from "@/lib/optimized-image-path"
 
 // Legacy interface for backward compatibility
 export interface CartItem {
@@ -637,7 +638,7 @@ function mapBackendItemsToLegacy(backendItems: BackendCartItem[]): CartItem[] {
       price: price,
       basePrice: item.basePrice,
       discountedPrice: item.discountedPrice,
-      image: imageUrl,
+      image: resolveStoreImageSrc(imageUrl),
       quantity: item.quantity,
       productId: item.productId,
       productSlug: product?.slug,

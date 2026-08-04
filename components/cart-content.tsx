@@ -17,6 +17,7 @@ import {
   sumCartLinesExVat,
   vatAmountFromExAndIncl,
 } from "@/lib/vat"
+import { resolveStoreImageSrc } from "@/lib/optimized-image-path"
 import { gtmViewCart, gtmBeginCheckout } from "@/lib/gtm"
 
 export function CartContent() {
@@ -242,7 +243,7 @@ export function CartContent() {
                 >
                   <div className="relative w-20 h-20 sm:w-24 sm:h-24 flex-shrink-0 overflow-hidden rounded border border-border bg-white dark:bg-white">
                     <Image
-                      src={item.image || "/placeholders/placeholder.svg"}
+                      src={resolveStoreImageSrc(item.image)}
                       alt={item.name}
                       fill
                       className="object-contain"
