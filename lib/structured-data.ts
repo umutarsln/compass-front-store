@@ -19,7 +19,7 @@ export function buildHomeStructuredData() {
         "@id": `${siteUrl}/#organization`,
         name: "Compass Reklam",
         url: siteUrl,
-        logo: `${siteUrl}/compass-reklam-logo.png`,
+        logo: `${siteUrl}/logos/compass-reklam-logo.png`,
         description:
           "Endüstriyel baskı teknolojilerinde Türkiye'nin lider çözüm ortağı. UV baskı, DTF, lazer kesim ve plotter makineleri.",
         address: {

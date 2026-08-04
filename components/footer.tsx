@@ -13,7 +13,7 @@ export function Footer() {
           <div>
             <div className="flex items-center gap-2 mb-4">
               <Image
-                src="/compass-reklam-logo.png"
+                src="/logos/compass-reklam-logo.png"
                 alt="Compass Reklam"
                 width={170}
                 height={48}
